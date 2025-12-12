@@ -7,9 +7,7 @@ import Header from './components/Header/Header';
 function App() {
   return (
     <div className="w-full h-screen">
-    asd  {/* <Header/> 
-      <Body/>
-      <Footer/> */}
+
     <Header/>
     <Body/>
     <Footer/>
