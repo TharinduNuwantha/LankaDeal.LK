@@ -1,53 +1,65 @@
-/* myapp\src\styles\tailwind.css */
-/* Remove the Tailwind CDN import from here - add it in index.html instead */
 
-/* Custom e-commerce theme colors */
 :root {
-  --primary: #3b82f6;    /* Modern blue */
-  --secondary: #8b5cf6;  /* Purple accent */
-  --accent: #10b981;     /* Emerald green for CTAs */
-  --dark: #1f2937;       /* Dark gray */
-  --light: #f9fafb;      /* Light background */
-  --danger: #ef4444;     /* Red for sales/important */
-  --warning: #f59e0b;    /* Amber for warnings */
+  --primary-red: #ff4747;      
+  --primary-dark: #e60000;    
+  --primary-light: #ff6b6b;    
+  --accent-orange: #ff6b35;   
+  --accent-yellow: #ffd166;    
+  --dark: #1a1a1a;             
+  --dark-gray: #333333;       
+  --light-gray: #f5f5f5;      
+  --white: #ffffff;
+  --danger: #ff3838;           
+  --success: #00b894;          
 }
 
 /* Header specific styles */
 .bg-main-background {
-  background-color: var(--dark);
+  background-color: var(--primary-red);
 }
 
 .text-red-300 {
-  color: var(--danger);
+  color: var(--accent-yellow);
 }
 
-/* Search bar styling - UPDATED CLASS NAME */
+/* Search bar styling */
 .search-container {
-  background-color: white;
-  border: 2px solid var(--primary);
+  background-color: var(--white);
+  border: 2px solid transparent;
   border-radius: 9999px;
-  padding: 0.25rem 1rem;
+  padding: 0.25rem 1.25rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-left: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
-/* Custom button classes WITHOUT @apply */
+.search-container:focus-within {
+  border-color: var(--accent-orange);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+}
+
+/* Custom button classes */
 .btn-primary {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  background-color: var(--primary);
-  color: white;
+  background-color: var(--white);
+  color: var(--primary-red);
   font-weight: 600;
   border-radius: 0.5rem;
-  transition: background-color 0.3s;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-weight: 700;
 }
 
 .btn-primary:hover {
-  background-color: #1d4ed8; /* Darker blue */
+  background-color: var(--light-gray);
+  color: var(--primary-dark);
+  border-color: var(--primary-dark);
 }
 
 .btn-secondary {
@@ -55,80 +67,170 @@
   padding-right: 1.5rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  background-color: var(--secondary);
-  color: white;
+  background-color: var(--accent-orange);
+  color: var(--white);
   font-weight: 600;
   border-radius: 0.5rem;
   transition: background-color 0.3s;
 }
 
 .btn-secondary:hover {
-  background-color: #7c3aed; /* Darker purple */
+  background-color: #e55a2b;
 }
 
+/* Card styles */
 .card {
-  background-color: white;
-  border-radius: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  padding: 1.5rem;
-  transition: box-shadow 0.3s;
+  background-color: var(--white);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #eee;
 }
 
 .card:hover {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 /* Header component specific improvements */
 header {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 1000;
 }
 
 .search-container input {
   color: var(--dark);
+  width: 100%;
+  font-size: 0.95rem;
 }
 
 .search-container input::placeholder {
-  color: #9ca3af;
+  color: #999;
+  font-weight: 400;
 }
 
+/* Logo styling */
 h1 {
-  color: white;
-  font-size: 1.5rem;
-  font-weight: bold;
+  color: var(--white);
+  font-size: 1.75rem;
+  font-weight: 800;
   margin-left: 1rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 h1 span {
+  color: var(--accent-yellow);
+  font-weight: 900;
+}
+
+/* Cart badge */
+.cart-badge {
+  background-color: var(--accent-yellow);
+  color: var(--dark);
+  font-weight: 700;
+}
+
+/* Discount badge */
+.discount-badge {
+  background-color: var(--danger);
+  color: var(--white);
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+}
+
+/* Price styling */
+.price-original {
+  color: #999;
+  text-decoration: line-through;
+  font-size: 0.9rem;
+}
+
+.price-discount {
   color: var(--danger);
+  font-weight: 700;
+  font-size: 1.25rem;
 }
 
-/* Cart icon styling */
-img[alt='cart'] {
-  transition: transform 0.3s ease;
+/* Sale ribbon */
+.sale-ribbon {
+  background: linear-gradient(45deg, var(--primary-red), var(--accent-orange));
+  color: white;
+  padding: 0.5rem 1rem;
+  position: absolute;
+  top: 1rem;
+  left: -0.5rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%);
 }
 
-img[alt='cart']:hover {
-  transform: scale(1.1);
-}
-
-/* Menu icon styling */
-img[alt='menu'] {
-  transition: opacity 0.3s ease;
-}
-
-img[alt='menu']:hover {
-  opacity: 0.8;
-}
-
-/* Search bar styling */
-.search-container {
+/* Navigation tabs */
+.nav-tab {
+  color: #666;
+  padding: 0.5rem 1rem;
+  border-bottom: 2px solid transparent;
   transition: all 0.3s ease;
 }
 
-.search-container:focus-within {
-  border-color: var(--secondary);
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+.nav-tab:hover {
+  color: var(--primary-red);
+}
+
+.nav-tab.active {
+  color: var(--primary-red);
+  border-bottom-color: var(--primary-red);
+  font-weight: 700;
+}
+
+/* Footer styling */
+.footer {
+  background-color: var(--dark);
+  color: var(--white);
+}
+
+.footer-link {
+  color: #ccc;
+  transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+  color: var(--white);
+}
+
+/* Category card */
+.category-card {
+  background: linear-gradient(135deg, var(--white), #fff5f5);
+  border: 1px solid #ffe6e6;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.category-card:hover {
+  background: linear-gradient(135deg, #fff5f5, #ffe6e6);
+  border-color: var(--primary-light);
+  transform: scale(1.02);
+}
+
+/* Add to cart button */
+.btn-add-to-cart {
+  background: linear-gradient(to right, var(--primary-red), var(--accent-orange));
+  color: white;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.btn-add-to-cart:hover {
+  background: linear-gradient(to right, var(--primary-dark), #e55a2b);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 71, 71, 0.3);
 }
