@@ -1,0 +1,134 @@
+/* myapp\src\styles\tailwind.css */
+/* Remove the Tailwind CDN import from here - add it in index.html instead */
+
+/* Custom e-commerce theme colors */
+:root {
+  --primary: #3b82f6;    /* Modern blue */
+  --secondary: #8b5cf6;  /* Purple accent */
+  --accent: #10b981;     /* Emerald green for CTAs */
+  --dark: #1f2937;       /* Dark gray */
+  --light: #f9fafb;      /* Light background */
+  --danger: #ef4444;     /* Red for sales/important */
+  --warning: #f59e0b;    /* Amber for warnings */
+}
+
+/* Header specific styles */
+.bg-main-background {
+  background-color: var(--dark);
+}
+
+.text-red-300 {
+  color: var(--danger);
+}
+
+/* Search bar styling - UPDATED CLASS NAME */
+.search-container {
+  background-color: white;
+  border: 2px solid var(--primary);
+  border-radius: 9999px;
+  padding: 0.25rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1.5rem;
+}
+
+/* Custom button classes WITHOUT @apply */
+.btn-primary {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  background-color: var(--primary);
+  color: white;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8; /* Darker blue */
+}
+
+.btn-secondary {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  background-color: var(--secondary);
+  color: white;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+  background-color: #7c3aed; /* Darker purple */
+}
+
+.card {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  transition: box-shadow 0.3s;
+}
+
+.card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Header component specific improvements */
+header {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.search-container input {
+  color: var(--dark);
+}
+
+.search-container input::placeholder {
+  color: #9ca3af;
+}
+
+h1 {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-left: 1rem;
+}
+
+h1 span {
+  color: var(--danger);
+}
+
+/* Cart icon styling */
+img[alt='cart'] {
+  transition: transform 0.3s ease;
+}
+
+img[alt='cart']:hover {
+  transform: scale(1.1);
+}
+
+/* Menu icon styling */
+img[alt='menu'] {
+  transition: opacity 0.3s ease;
+}
+
+img[alt='menu']:hover {
+  opacity: 0.8;
+}
+
+/* Search bar styling */
+.search-container {
+  transition: all 0.3s ease;
+}
+
+.search-container:focus-within {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
