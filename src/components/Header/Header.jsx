@@ -43,11 +43,12 @@ const Header = () => {
           </span>
         </div>
         <div className='relative cursor-pointer'>
+          <IconButton>
           <ShoppingCartIcon sx={{
             color:'white',
             fontSize: 26,
             '&:hover': { transform: 'scale(1.1)' }
-          }}/>
+          }}/></IconButton>
           <span className='cart-badge absolute -top-2 -right-2 text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold'>
             3
           </span>
