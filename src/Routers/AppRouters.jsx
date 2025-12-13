@@ -4,6 +4,8 @@ import MainLayout from '../Layout/MainLayout'
 
 import User from '../Pages/User/User'
 import Home from '../Pages/Home/Home'
+import Login from '../Pages/Login/Login'
+import UserProtected from './UserProtected'
 
 
 const AppRouters = () => {
@@ -12,8 +14,12 @@ const AppRouters = () => {
         <Routes>
           <Route path='/' element={<MainLayout/>}>
               <Route index element={<Home/>}/>
-              <Route path='user' element={<User/>}/>
+              
+              <Route element={<UserProtected/>}>
+                <Route path='user' element={<User/>}/>
+              </Route>
           </Route>
+          <Route path='/login' element={<Login/>}/>
         </Routes>
     </BrowserRouter>
   )
