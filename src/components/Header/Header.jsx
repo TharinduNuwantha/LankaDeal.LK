@@ -23,7 +23,7 @@ const Header = () => {
           <input 
             type='text' 
             placeholder='Search for products, brands and more...' 
-            className='outline-none p-2 font-medium text-sm w-[400px] bg-inherit' 
+            className='hidden sm:inline-block  outline-none p-2 font-medium text-sm w-[400px] bg-inherit' 
           />
           <SearchIcon sx={{
             color: '#ff4747',
