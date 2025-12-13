@@ -9,7 +9,7 @@ import IconButton, { iconButtonClasses } from '@mui/material/IconButton';
 
 const Header = () => {
   return (
-    <header className='w-full p-4 bg-main-background flex items-center justify-between shadow-lg'>
+    <header className='w-full p-4 bg-primaryRed flex items-center justify-between shadow-lg'>
       <div className='flex items-center'>
         <IconButton>
         <MenuIcon sx={{
