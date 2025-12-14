@@ -5,9 +5,11 @@ import { Outlet } from 'react-router-dom'
 
 const MainLayout = () => {
   return (
-    <div className='w-screen h-screen overflow-hidden'>
+    <div className='w-full min-h-screen flex flex-col bg-gray-50'>
       <Header/>
-      <Outlet/>
+      <main className='flex-1 pt-16 md:pt-20'>
+        <Outlet/>
+      </main>
       <Footer/>
     </div>
   )
