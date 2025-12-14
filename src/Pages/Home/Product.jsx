@@ -8,6 +8,56 @@ import 'swiper/css/grid';
 import 'swiper/css/pagination';
 import { Grid, Pagination } from 'swiper/modules';
 
+
+const productArr = [
+    {
+        imageUrl:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNFIe_UOOTOW-MUM5T_LzzEcINK_LDSR4wJA&s',
+        price:'5600',
+        productTitle:'Mini Power Bank'
+    },
+        {
+        imageUrl:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNFIe_UOOTOW-MUM5T_LzzEcINK_LDSR4wJA&s',
+        price:'5600',
+        productTitle:'Mini Power Bank'
+    },
+        {
+        imageUrl:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNFIe_UOOTOW-MUM5T_LzzEcINK_LDSR4wJA&s',
+        price:'5600',
+        productTitle:'Mini Power Bank'
+    },
+        {
+        imageUrl:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNFIe_UOOTOW-MUM5T_LzzEcINK_LDSR4wJA&s',
+        price:'5600',
+        productTitle:'Mini Power Bank'
+    },
+        {
+        imageUrl:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNFIe_UOOTOW-MUM5T_LzzEcINK_LDSR4wJA&s',
+        price:'5600',
+        productTitle:'Mini Power Bank'
+    },
+        {
+        imageUrl:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNFIe_UOOTOW-MUM5T_LzzEcINK_LDSR4wJA&s',
+        price:'5600',
+        productTitle:'Mini Power Bank'
+    },
+        {
+        imageUrl:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNFIe_UOOTOW-MUM5T_LzzEcINK_LDSR4wJA&s',
+        price:'5600',
+        productTitle:'Mini Power Bank'
+    },
+        {
+        imageUrl:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNFIe_UOOTOW-MUM5T_LzzEcINK_LDSR4wJA&s',
+        price:'5600',
+        productTitle:'Mini Power Bank'
+    },
+        {
+        imageUrl:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNFIe_UOOTOW-MUM5T_LzzEcINK_LDSR4wJA&s',
+        price:'5600',
+        productTitle:'Mini Power Bank'
+    },
+]
+
+
 const Product = ({title,rowsCount,slidesPerView}) => {
   return (
     <section>
@@ -24,6 +74,12 @@ const Product = ({title,rowsCount,slidesPerView}) => {
         modules={[Grid, Pagination]}
  
       >
+        {productArr.map(({imageUrl,price,productTitle},index)=>
+        <SwiperSlide key={index}>
+            <ProductUnit imageUrl={imageUrl} price={price} productTitle={productTitle} id={index}/>
+        </SwiperSlide>
+        )}
+
         <SwiperSlide>Slide 1</SwiperSlide>
         <SwiperSlide>Slide 2</SwiperSlide>
         <SwiperSlide>Slide 3</SwiperSlide>
@@ -39,3 +95,10 @@ const Product = ({title,rowsCount,slidesPerView}) => {
 }
 
 export default Product
+
+const ProductUnit = ({imageUrl,price,productTitle,id})=>
+   <div className='w-full'>
+    <img src={imageUrl} alt={`product_unot_${id}`} className='w-full object-contain'/>
+    <h3>{productTitle}</h3>
+    <h3>Rs.{price}/=</h3>
+   </div> 
