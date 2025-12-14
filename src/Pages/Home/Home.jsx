@@ -1,8 +1,10 @@
-// myapp\src\Pages\Home\Home.jsx
+
 import Ads from "./Ads";
 import Product from "./Product";
 
+
 const Home = () => {
+
   return (
     <div className="home-container">
       {/* Ads Banner */}
