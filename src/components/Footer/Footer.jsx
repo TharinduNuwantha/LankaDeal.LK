@@ -5,26 +5,23 @@ import SearchIcon from '@mui/icons-material/Search';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import PersonIcon from '@mui/icons-material/Person';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import StoreIcon from '@mui/icons-material/Store';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import FlashOnIcon from '@mui/icons-material/FlashOn';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
 import Badge from '@mui/material/Badge';
 import { useState } from 'react';
 
 const Footer = () => {
   const [activeTab, setActiveTab] = useState('home');
 
-  // Mobile bottom navigation items WITH DUPLICATES
+  // Single row mobile navigation - NO DUPLICATES
   const mobileFooterItems = [
     { id: 'home', icon: HomeIcon, label: 'Home', badge: 0 },
     { id: 'categories', icon: CategoryIcon, label: 'Category', badge: 0 },
     { id: 'search', icon: SearchIcon, label: 'Search', badge: 0 },
-    { id: 'deals', icon: FlashOnIcon, label: 'Deals', badge: 5 }, // Duplicate icon
     { id: 'wishlist', icon: FavoriteBorderIcon, label: 'Wishlist', badge: 3 },
     { id: 'cart', icon: ShoppingCartIcon, label: 'Cart', badge: 3 },
     { id: 'account', icon: PersonIcon, label: 'Account', badge: 0 },
-    { id: 'store', icon: StoreIcon, label: 'Store', badge: 0 }, // Duplicate icon
   ];
 
   return (
@@ -32,8 +29,8 @@ const Footer = () => {
       {/* Desktop Footer */}
       <footer className="hidden md:block bg-gradient-to-b from-gray-900 to-gray-950 text-white mt-12">
         <div className="container mx-auto px-6 py-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-            {/* Company Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Company Info & Contact */}
             <div className="space-y-5">
               <div className="flex items-center space-x-2">
                 <div className="bg-white rounded-lg p-2">
@@ -46,8 +43,18 @@ const Footer = () => {
                 </div>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Your trusted online shopping destination in Sri Lanka. Best deals, fast delivery, and secure payments.
+                Sri Lanka's leading online marketplace. Trusted by millions for quality products, fast delivery, and secure shopping.
               </p>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <PhoneIcon sx={{ fontSize: 16, color: '#ef4444' }} />
+                  <span className="text-gray-300">+94 77 123 4567</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <EmailIcon sx={{ fontSize: 16, color: '#ef4444' }} />
+                  <span className="text-gray-300">support@lankadeal.lk</span>
+                </div>
+              </div>
               <div className="flex space-x-4">
                 <button className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition hover:scale-110">
                   <i className="fab fa-facebook-f text-white"></i>
@@ -58,15 +65,12 @@ const Footer = () => {
                 <button className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition hover:scale-110">
                   <i className="fab fa-twitter text-white"></i>
                 </button>
-                <button className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition hover:scale-110">
-                  <i className="fab fa-youtube text-white"></i>
-                </button>
               </div>
             </div>
 
             {/* Quick Links */}
             <div>
-              <h3 className="text-lg font-bold mb-5 text-white">Quick Links</h3>
+              <h3 className="text-lg font-bold mb-5 text-white border-l-4 border-red-600 pl-3">Quick Links</h3>
               <ul className="space-y-3">
                 <li><a href="#" className="text-gray-400 hover:text-white transition flex items-center group">
                   <span className="w-2 h-2 bg-red-600 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition"></span>
@@ -78,89 +82,63 @@ const Footer = () => {
                 </a></li>
                 <li><a href="#" className="text-gray-400 hover:text-white transition flex items-center group">
                   <span className="w-2 h-2 bg-red-600 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition"></span>
-                  FAQs
+                  Careers
                 </a></li>
                 <li><a href="#" className="text-gray-400 hover:text-white transition flex items-center group">
                   <span className="w-2 h-2 bg-red-600 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition"></span>
-                  Privacy Policy
+                  Sell on LankaDeal
                 </a></li>
                 <li><a href="#" className="text-gray-400 hover:text-white transition flex items-center group">
                   <span className="w-2 h-2 bg-red-600 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition"></span>
-                  Terms & Conditions
+                  Affiliate Program
                 </a></li>
               </ul>
             </div>
 
-            {/* Customer Service */}
+            {/* Help & Support */}
             <div>
-              <h3 className="text-lg font-bold mb-5 text-white">Customer Service</h3>
+              <h3 className="text-lg font-bold mb-5 text-white border-l-4 border-red-600 pl-3">Help & Support</h3>
               <ul className="space-y-3">
                 <li><a href="#" className="text-gray-400 hover:text-white transition flex items-center group">
                   <LocalShippingIcon sx={{ fontSize: 16, marginRight: 2 }} />
                   Track Your Order
                 </a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition flex items-center group">
-                  <span className="text-red-400 mr-2">↩️</span>
-                  Returns & Refunds
-                </a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition flex items-center group">
-                  <span className="text-green-400 mr-2">📦</span>
-                  Shipping Info
-                </a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition flex items-center group">
-                  <span className="text-blue-400 mr-2">📏</span>
-                  Size Guide
-                </a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition flex items-center group">
-                  <span className="text-yellow-400 mr-2">❓</span>
-                  Help Center
-                </a></li>
-              </ul>
-            </div>
-
-            {/* Categories */}
-            <div>
-              <h3 className="text-lg font-bold mb-5 text-white">Top Categories</h3>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-400 hover:text-white transition">📱 Electronics</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition">👕 Fashion</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition">🏠 Home & Garden</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition">⚽ Sports & Fitness</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition">💄 Beauty & Health</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition">FAQs</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition">Shipping Policy</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition">Returns & Refunds</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition">Privacy Policy</a></li>
               </ul>
             </div>
 
             {/* Newsletter */}
             <div>
-              <h3 className="text-lg font-bold mb-5 text-white">Stay Updated</h3>
-              <p className="text-gray-400 text-sm mb-4">Get the latest deals and offers</p>
+              <h3 className="text-lg font-bold mb-5 text-white border-l-4 border-red-600 pl-3">Stay Updated</h3>
+              <p className="text-gray-400 text-sm mb-4">Subscribe to get special offers, free giveaways, and new arrivals</p>
               <div className="flex mb-6">
                 <input
                   type="email"
-                  placeholder="Your email"
+                  placeholder="Your email address"
                   className="bg-gray-800 text-white px-4 py-3 rounded-l-lg w-full outline-none placeholder-gray-500"
                 />
-                <button className="bg-gradient-to-r from-red-600 to-red-700 px-4 py-3 rounded-r-lg hover:from-red-700 hover:to-red-800 transition font-medium">
+                <button className="bg-gradient-to-r from-red-600 to-red-700 px-5 py-3 rounded-r-lg hover:from-red-700 hover:to-red-800 transition font-medium whitespace-nowrap">
                   Subscribe
                 </button>
               </div>
-              <div className="mt-6">
-                <h4 className="font-bold mb-3 text-white">Download App</h4>
-                <div className="flex space-x-3">
-                  <button className="flex-1 bg-gray-800 hover:bg-gray-700 py-3 rounded-lg text-sm flex items-center justify-center space-x-2">
-                    <span className="text-2xl">📱</span>
-                    <div className="text-left">
-                      <div className="text-xs text-gray-400">Get it on</div>
-                      <div className="font-bold">Google Play</div>
-                    </div>
-                  </button>
-                  <button className="flex-1 bg-gray-800 hover:bg-gray-700 py-3 rounded-lg text-sm flex items-center justify-center space-x-2">
-                    <span className="text-2xl">🍎</span>
-                    <div className="text-left">
-                      <div className="text-xs text-gray-400">Download on</div>
-                      <div className="font-bold">App Store</div>
-                    </div>
-                  </button>
+              <div>
+                <h4 className="font-bold mb-3 text-white">Payment Methods</h4>
+                <div className="flex flex-wrap gap-3">
+                  <div className="w-12 h-8 bg-gray-800 rounded flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">VISA</span>
+                  </div>
+                  <div className="w-12 h-8 bg-gray-800 rounded flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">MC</span>
+                  </div>
+                  <div className="w-12 h-8 bg-gray-800 rounded flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">COD</span>
+                  </div>
+                  <div className="w-12 h-8 bg-gray-800 rounded flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">PP</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -173,20 +151,28 @@ const Footer = () => {
                 <p className="text-gray-400 text-sm">© 2024 LankaDeal.LK. All rights reserved.</p>
                 <p className="text-gray-500 text-xs mt-1">Registered Commercial Entity in Sri Lanka</p>
               </div>
-              <div className="flex items-center space-x-6">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/2560px-Mastercard-logo.svg.png" alt="Mastercard" className="h-6 opacity-80" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Visa_Logo.svg/2560px-Visa_Logo.svg.png" alt="Visa" className="h-6 opacity-80" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/PayPal_Logo_Icon_2014.svg/1024px-PayPal_Logo_Icon_2014.svg.png" alt="PayPal" className="h-6 opacity-80" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Verve_Logo.svg/2560px-Verve_Logo.svg.png" alt="Verve" className="h-6 opacity-80" />
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-500 text-sm">We Accept:</span>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-6 bg-blue-900 rounded flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">VISA</span>
+                  </div>
+                  <div className="w-10 h-6 bg-red-900 rounded flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">MC</span>
+                  </div>
+                  <div className="w-10 h-6 bg-green-900 rounded flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">COD</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </footer>
 
-      {/* Mobile Bottom Navigation WITH DUPLICATE ICONS */}
+      {/* Mobile Bottom Navigation - SINGLE ROW ONLY */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-2xl z-50 safe-bottom">
-        <div className="flex items-center justify-around py-2 px-1">
+        <div className="flex items-center justify-around py-3 px-1">
           {mobileFooterItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -216,38 +202,18 @@ const Footer = () => {
                         }
                       }}
                     >
-                      <Icon sx={{ fontSize: 22 }} />
+                      <Icon sx={{ fontSize: 24 }} />
                     </Badge>
                   ) : (
-                    <Icon sx={{ fontSize: 22 }} />
+                    <Icon sx={{ fontSize: 24 }} />
                   )}
                 </div>
-                <span className="text-[10px] mt-0.5 font-medium truncate w-full text-center">
+                <span className="text-xs mt-1 font-medium">
                   {item.label}
                 </span>
               </button>
             );
           })}
-        </div>
-        
-        {/* Extra row of icons (optional duplicate row) */}
-        <div className="flex items-center justify-around py-1 px-1 border-t border-gray-100">
-          <button className="flex flex-col items-center p-1 text-gray-600 hover:text-red-600 transition flex-1">
-            <NotificationsNoneIcon sx={{ fontSize: 18 }} />
-            <span className="text-[9px] mt-0.5">Alerts</span>
-          </button>
-          <button className="flex flex-col items-center p-1 text-gray-600 hover:text-red-600 transition flex-1">
-            <LocalShippingIcon sx={{ fontSize: 18 }} />
-            <span className="text-[9px] mt-0.5">Orders</span>
-          </button>
-          <button className="flex flex-col items-center p-1 text-gray-600 hover:text-red-600 transition flex-1">
-            <FlashOnIcon sx={{ fontSize: 18 }} />
-            <span className="text-[9px] mt-0.5">Flash</span>
-          </button>
-          <button className="flex flex-col items-center p-1 text-gray-600 hover:text-red-600 transition flex-1">
-            <StoreIcon sx={{ fontSize: 18 }} />
-            <span className="text-[9px] mt-0.5">Stores</span>
-          </button>
         </div>
       </div>
     </>
