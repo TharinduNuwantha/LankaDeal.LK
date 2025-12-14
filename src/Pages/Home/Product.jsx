@@ -45,7 +45,7 @@ const premiumProductArr = [
     },
     {
         id: 3,
-        imageUrl:'https://img.drz.lazcdn.com/static/lk/p/91a899bbba04a7305b5480820d20ab1a.jpg_720x720q80.jpg',
+        imageUrl:'',
         price:'12,500',
         originalPrice: '16,800',
         discount: 26,

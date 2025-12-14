@@ -15,7 +15,18 @@ const Home = () => {
         <Product title="Trending Products" rowsCount={1} slidesPerView={3}/>
       </div>
       
-
+      {/* Additional Sections */}
+      <div className="mt-8 md:mt-12">
+        <Product title="Flash Sale" rowsCount={1} slidesPerView={4} isFlashSale={true}/>
+      </div>
+      
+      <div className="mt-8 md:mt-12">
+        <Product title="Recommended For You" rowsCount={2} slidesPerView={4}/>
+      </div>
+      
+      <div className="mt-8 md:mt-12">
+        <Product title="New Arrivals" rowsCount={1} slidesPerView={5}/>
+      </div>
     </div>
   );
 };
