@@ -1,3 +1,4 @@
+/* myapp\src\Pages\Home\Styles\styles.css */
 .swiper {
   width: 100%;
   height: 100%;
@@ -7,11 +8,70 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #000;
 }
 
 .swiper-slide img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.autoplay-progress {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+}
+
+.autoplay-progress svg {
+  --progress: 0;
+  position: absolute;
+  left: 0;
+  top: 0px;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  stroke-width: 4px;
+  stroke: white;
+  fill: none;
+  stroke-dashoffset: calc(125.6px * (1 - var(--progress)));
+  stroke-dasharray: 125.6;
+  transform: rotate(-90deg);
+}
+
+/* Products swiper */
+.products-swiper {
+  padding: 10px 5px 30px 5px !important;
+}
+
+.products-swiper .swiper-slide {
+  height: auto !important;
+}
+
+.products-swiper .swiper-button-next,
+.products-swiper .swiper-button-prev {
+  background: white;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  top: 45% !important;
+}
+
+.products-swiper .swiper-button-next:after,
+.products-swiper .swiper-button-prev:after {
+  font-size: 18px !important;
+  color: #374151;
+}
+
+.products-swiper .swiper-button-next:hover,
+.products-swiper .swiper-button-prev:hover {
+  background: #f9fafb;
 }
