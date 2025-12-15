@@ -1,5 +1,35 @@
 import IconButton from '@mui/material/IconButton'
 import React from 'react'
+import { Link } from 'react-router-dom';
+
+const categoryArr =[
+    {
+        imageUrl:'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
+        categoryTitle:'Category title 1',
+        categoryId:'category1'
+    },
+    {
+        imageUrl:'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
+        categoryTitle:'Category title 2',
+        categoryId:'category1'
+    },
+    {
+        imageUrl:'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
+        categoryTitle:'Category title 3',
+        categoryId:'category1'
+    },
+    {
+        imageUrl:'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
+        categoryTitle:'Category title 4',
+        categoryId:'category1',
+        categoryId:'category1'
+    },
+    {
+        imageUrl:'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
+        categoryTitle:'Category title 5',
+        categoryId:'category1'
+    },
+];
 
 const Category = () => {
   return (
@@ -9,15 +39,8 @@ const Category = () => {
         }} className='w-full p-2'>
             <h1 className='text-lg font-bold mt-2 ml-2 mb-3'>Main Categories</h1>
             <div className='grid grid-cols-3 grid-rows-[auto] gap-5'>
+            {categoryArr.map(({imageUrl,categoryTitle,categoryId},index)=><CategaoryItem imageUrl={imageUrl} categoryTitle={categoryTitle} categoryId={categoryId} index={index}/>)}
 
-            <CategaoryItem/>
-            <CategaoryItem/>
-            <CategaoryItem/>
-            <CategaoryItem/>
-            <CategaoryItem/>
-            <CategaoryItem/>
-            <CategaoryItem/>
-            <CategaoryItem/>
             </div>
         </div>
     </div>
@@ -26,7 +49,12 @@ const Category = () => {
 
 export default Category
 
-const CategaoryItem = ()=>(<IconButton sx={{color:'red',padding:'1px',borderRadius:'6px'}}><div className='w-full rounded-md border-2 border-pink-600 flex-col items-center'>
-    <img src='https://images.unsplash.com/photo-1498049794561-7780e7231661?w=600&h=600&fit=crop&q=80' alt='categary'/>
-    <h2>Category Name</h2>
-</div></IconButton>)
+const CategaoryItem = ({imageUrl,categoryTitle,categoryId,index})=>(
+<Link to={`/category/${categoryId}`}>
+<IconButton key={{index}} sx={{color:'red',padding:'1px',borderRadius:'6px'}}><div className='m-1 w-full rounded-md  flex-col items-center' style={{
+    boxShadow:"rgba(0,0,0,0.24) 0px 3px 8px"
+}}>
+    <img src={imageUrl} alt={`${categoryTitle}_${index}`}
+className='rounded-full w-[50px] h-[50px]' />
+    <h2 className='text-xs text-black font-bold'>{categoryTitle}</h2>
+</div></IconButton></Link>)
