@@ -42,7 +42,7 @@ const Ads = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full px-2">
       {/* Banner Slider */}
       <div className="w-full h-[200px] md:h-[300px] rounded-xl overflow-hidden">
         <Swiper

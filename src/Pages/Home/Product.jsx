@@ -12,6 +12,9 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import FlashOnIcon from '@mui/icons-material/FlashOn';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import WhatshotIcon from '@mui/icons-material/Whatshot';
 import './Styles/Product.css';
 
 const premiumProductArr = [
@@ -29,6 +32,7 @@ const premiumProductArr = [
     features: ['M3 Pro Chip', '36GB RAM', '1TB SSD', 'Liquid Retina XDR'],
     isNew: true,
     isFeatured: true,
+    isTrending: true,
     stock: 12,
     delivery: 'Free 1-day'
   },
@@ -45,6 +49,7 @@ const premiumProductArr = [
     sold: 289,
     features: ['Noise Cancelling', '30hr Battery', 'Hi-Res Audio', 'Touch Controls'],
     isFeatured: true,
+    isTrending: true,
     stock: 25,
     delivery: 'Free 2-day'
   },
@@ -143,6 +148,38 @@ const premiumProductArr = [
     isNew: true,
     stock: 4,
     delivery: 'Free 1-day'
+  },
+  {
+    id: 9,
+    imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&h=600&fit=crop&q=80',
+    price: '45,800',
+    originalPrice: '52,000',
+    discount: 12,
+    productTitle: 'Microsoft Surface Laptop Studio',
+    category: 'Electronics › Laptops',
+    rating: 4.7,
+    reviews: 189,
+    sold: 124,
+    features: ['14.4" Touchscreen', 'Intel i7', 'RTX 3050 Ti', '120Hz Display'],
+    isNew: false,
+    stock: 9,
+    delivery: 'Free 1-day'
+  },
+  {
+    id: 10,
+    imageUrl: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=600&fit=crop&q=80',
+    price: '8,500',
+    originalPrice: '10,200',
+    discount: 17,
+    productTitle: 'Apple Watch Series 9',
+    category: 'Wearables › Smart Watches',
+    rating: 4.8,
+    reviews: 432,
+    sold: 567,
+    features: ['Always-On Display', 'ECG', 'GPS', 'Water Resistant'],
+    isNew: true,
+    stock: 21,
+    delivery: 'Free 1-day'
   }
 ];
 
@@ -152,19 +189,53 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [wishlisted, setWishlisted] = useState({});
   const [cartItems, setCartItems] = useState({});
-  const [isMobile, setIsMobile] = useState(false);
+  const [timer, setTimer] = useState({ hours: 2, minutes: 45, seconds: 18 });
 
-  // Check if mobile on mount and resize
+  // Countdown timer for flash sale
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    if (isFlashSale) {
+      const interval = setInterval(() => {
+        setTimer(prev => {
+          const seconds = prev.seconds - 1;
+          const minutes = seconds < 0 ? prev.minutes - 1 : prev.minutes;
+          const hours = minutes < 0 ? prev.hours - 1 : prev.hours;
+          
+          return {
+            hours: hours < 0 ? 0 : hours,
+            minutes: minutes < 0 ? 59 : minutes,
+            seconds: seconds < 0 ? 59 : seconds
+          };
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isFlashSale]);
+
+  // Mouse wheel navigation
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (swiperRef.current && isHovered && Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
+        e.preventDefault();
+        if (e.deltaY > 0) {
+          swiperRef.current.swiper.slideNext();
+        } else {
+          swiperRef.current.swiper.slidePrev();
+        }
+      }
     };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+
+    const container = document.querySelector('.premium-swiper');
+    if (container) {
+      container.addEventListener('wheel', handleWheel, { passive: false });
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }, [isHovered]);
 
   // Calculate progress
   const progressPercentage = ((activeIndex + 1) / premiumProductArr.length) * 100;
@@ -177,47 +248,10 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
     }));
   };
 
-  // Simplified mobile breakpoints - FIXED for no overlap
-  const getBreakpoints = () => {
-    return {
-      // Mobile: Show MORE products but with proper spacing
-      320: {
-        slidesPerView: 1.2, // Reduced from 2.5 to prevent overlap
-        spaceBetween: 12,
-        grid: { rows: 1, fill: 'row' }
-      },
-      375: {
-        slidesPerView: 1.3,
-        spaceBetween: 12
-      },
-      480: {
-        slidesPerView: 1.5,
-        spaceBetween: 14
-      },
-      640: {
-        slidesPerView: 1.8,
-        spaceBetween: 16
-      },
-      // Tablet: Transition
-      768: {
-        slidesPerView: 2.2,
-        spaceBetween: 20,
-        grid: { rows: Number(rowsCount), fill: 'row' }
-      },
-      900: {
-        slidesPerView: 2.5,
-        spaceBetween: 22
-      },
-      // Desktop: Show fewer for premium focus
-      1024: {
-        slidesPerView: Number(slidesPerView),
-        spaceBetween: 24
-      },
-      1280: {
-        slidesPerView: Number(slidesPerView) + 0.5,
-        spaceBetween: 32
-      }
-    };
+  // Get dynamic slides per view - MOBILE SHOWS MORE
+  const getSlidesPerView = () => {
+    // Desktop default
+    return Number(slidesPerView);
   };
 
   return (
@@ -226,73 +260,104 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
         {/* Premium Section Header */}
         <div className="section-header-premium">
           <div className="section-header-content">
-            <h1 className="section-title">
-              {isFlashSale && <span className="flash-badge">⚡</span>}
-              {title}
-            </h1>
-            {!isMobile && (
-              <div className="section-tagline">
-                {isFlashSale 
-                  ? 'Limited time offers with exclusive discounts. Hurry before they sell out!' 
-                  : 'Discover premium products with cutting-edge technology and exceptional quality'
-                }
-              </div>
-            )}
+            <div className="title-wrapper">
+              <h1 className="section-title">
+                {isFlashSale ? (
+                  <>
+                    <span className="flash-icon"><FlashOnIcon /></span>
+                    <span className="title-text">{title}</span>
+                  </>
+                ) : (
+                  <>
+                    <TrendingUpIcon className="trending-icon" />
+                    <span className="title-text">{title}</span>
+                  </>
+                )}
+              </h1>
+              {isFlashSale && (
+                <div className="hot-badge">
+                  <WhatshotIcon className="fire-icon" />
+                  <span>HOT DEALS</span>
+                </div>
+              )}
+            </div>
+            <div className="section-tagline">
+              {isFlashSale 
+                ? 'Limited time offers with exclusive discounts. Hurry before they sell out!' 
+                : 'Discover premium products with cutting-edge technology and exceptional quality'
+              }
+            </div>
           </div>
           
           <div className="nav-controls-premium">
+            <div className="slider-status">
+              <span className="current-slide">{activeIndex + 1}</span>
+              <span className="total-slides">/{premiumProductArr.length}</span>
+            </div>
             <button 
               className="nav-btn-premium swiper-button-prev-custom"
               onClick={() => swiperRef.current?.swiper.slidePrev()}
               aria-label="Previous products"
             >
-              <ArrowBackIosNewIcon sx={{ fontSize: 18 }} />
+              <ArrowBackIosNewIcon sx={{ fontSize: 16 }} />
             </button>
             <button 
               className="nav-btn-premium swiper-button-next-custom"
               onClick={() => swiperRef.current?.swiper.slideNext()}
               aria-label="Next products"
             >
-              <ArrowForwardIosIcon sx={{ fontSize: 18 }} />
+              <ArrowForwardIosIcon sx={{ fontSize: 16 }} />
             </button>
           </div>
         </div>
 
         {isFlashSale && (
           <div className="flash-sale-timer">
-            <div className="timer-label">Sale ends in:</div>
-            <div className="timer-display">
-              <span className="timer-unit">02</span>
-              <span className="timer-separator">:</span>
-              <span className="timer-unit">45</span>
-              <span className="timer-separator">:</span>
-              <span className="timer-unit">18</span>
+            <div className="timer-content">
+              <div className="timer-label">Sale ends in</div>
+              <div className="timer-display">
+                <div className="timer-unit">
+                  <span className="timer-value">{timer.hours.toString().padStart(2, '0')}</span>
+                  <span className="timer-label-small">HRS</span>
+                </div>
+                <div className="timer-separator">:</div>
+                <div className="timer-unit">
+                  <span className="timer-value">{timer.minutes.toString().padStart(2, '0')}</span>
+                  <span className="timer-label-small">MIN</span>
+                </div>
+                <div className="timer-separator">:</div>
+                <div className="timer-unit">
+                  <span className="timer-value">{timer.seconds.toString().padStart(2, '0')}</span>
+                  <span className="timer-label-small">SEC</span>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* Mouse Wheel Indicator - Desktop Only */}
-        {!isMobile && (
-          <div className="mouse-wheel-indicator-premium glass-effect">
-            <div className="premium-mouse">
-              <div className="premium-mouse-wheel"></div>
-            </div>
-            <div className="premium-hint-text">
-              Scroll horizontally<br/>to navigate
+            <div className="sale-progress">
+              <div className="sold-indicator">
+                <span className="sold-text">{premiumProductArr.reduce((acc, p) => acc + p.sold, 0)} sold</span>
+                <span className="sold-percentage">78%</span>
+              </div>
+              <div className="progress-bar-sale">
+                <div className="progress-fill-sale" style={{ width: '78%' }}></div>
+              </div>
             </div>
           </div>
         )}
 
         {/* Premium Swiper */}
-        <div className="premium-swiper-wrapper">
+        <div 
+          className="premium-swiper-wrapper"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           <Swiper
             ref={swiperRef}
-            slidesPerView={Number(slidesPerView)}
+            slidesPerView={getSlidesPerView()}
             grid={{
               rows: Number(rowsCount),
               fill: 'row'
             }}
-            spaceBetween={24}
+            spaceBetween={20}
             pagination={{
               clickable: true,
               dynamicBullets: true,
@@ -318,7 +383,49 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
             modules={[Grid, Pagination, Mousewheel, FreeMode, Navigation]}
             className="premium-swiper"
             onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
-            breakpoints={getBreakpoints()}
+            breakpoints={{
+              // Mobile: Show MORE products (2.2 to 2.8 slides - more than desktop)
+              320: {
+                slidesPerView: 2.2, // More products on mobile
+                spaceBetween: 12,
+                grid: { rows: Number(rowsCount), fill: 'row' }
+              },
+              375: {
+                slidesPerView: 2.4,
+                spaceBetween: 12,
+              },
+              480: {
+                slidesPerView: 2.6, // Even more on larger phones
+                spaceBetween: 12,
+              },
+              540: {
+                slidesPerView: 2.8, // Maximum density on medium phones
+                spaceBetween: 14,
+              },
+              // Tablet: Show slightly fewer than mobile
+              768: {
+                slidesPerView: Math.max(Number(slidesPerView) - 0.5, 2),
+                spaceBetween: 16,
+                grid: { rows: Number(rowsCount), fill: 'row' }
+              },
+              900: {
+                slidesPerView: Number(slidesPerView),
+                spaceBetween: 20,
+              },
+              // Desktop: Show FEWER for premium focus (cleaner look)
+              1024: {
+                slidesPerView: Math.max(Number(slidesPerView) - 0.5, 2),
+                spaceBetween: 24,
+              },
+              1280: {
+                slidesPerView: Number(slidesPerView),
+                spaceBetween: 28,
+              },
+              1536: {
+                slidesPerView: Number(slidesPerView),
+                spaceBetween: 32,
+              }
+            }}
           >
             {premiumProductArr.map((product) => (
               <SwiperSlide key={product.id}>
@@ -332,16 +439,15 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
                   }))}
                   onCartToggle={() => handleCartToggle(product.id)}
                   isFlashSale={isFlashSale}
-                  isMobile={isMobile}
                 />
               </SwiperSlide>
             ))}
           </Swiper>
 
-          {/* Progress Indicator */}
+          {/* Progress Indicator - Desktop only */}
           <div className="progress-indicator">
             <div className="progress-text">
-              {activeIndex + 1} / {premiumProductArr.length}
+              Showing {activeIndex + 1} of {premiumProductArr.length}
             </div>
             <div className="progress-bar">
               <div 
@@ -374,6 +480,7 @@ const PremiumProductUnit = ({
   features,
   isNew,
   isFeatured,
+  isTrending,
   wishlisted,
   inCart,
   onWishlistToggle,
@@ -381,37 +488,36 @@ const PremiumProductUnit = ({
   isFlashSale,
   stock,
   delivery,
-  isMobile,
   id 
 }) => (
   <div className="premium-product-card">
-    {/* Badges - Simplified for mobile */}
+    {/* Badges - Optimized for mobile */}
     <div className="premium-badges">
       {isNew && <div className="premium-badge badge-new">NEW</div>}
-      {isFeatured && <div className="premium-badge badge-featured">FEATURED</div>}
+      {isFeatured && <div className="premium-badge badge-featured">POPULAR</div>}
       {discount > 15 && <div className="premium-badge badge-sale">-{discount}%</div>}
       {isFlashSale && <div className="premium-badge badge-flash">FLASH</div>}
-      {stock < 10 && stock > 0 && <div className="premium-badge badge-low">LOW</div>}
+      {stock < 10 && stock > 0 && <div className="premium-badge badge-low">{stock} LEFT</div>}
+      {isTrending && <div className="premium-badge badge-trending">TRENDING</div>}
     </div>
 
     {/* Quick Actions - Always visible on mobile */}
-    <div className={`premium-quick-actions ${isMobile ? 'mobile-visible' : ''}`}>
+    <div className="premium-quick-actions">
       <button 
-        className="premium-action-btn"
+        className="premium-action-btn wishlist-btn"
         onClick={onWishlistToggle}
         aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+        data-active={wishlisted}
       >
         {wishlisted ? (
-          <FavoriteIcon sx={{ fontSize: isMobile ? 16 : 20, color: '#ef4444' }} />
+          <FavoriteIcon sx={{ fontSize: 18, color: '#dc2626' }} />
         ) : (
-          <FavoriteBorderIcon sx={{ fontSize: isMobile ? 16 : 20 }} />
+          <FavoriteBorderIcon sx={{ fontSize: 18 }} />
         )}
       </button>
-      {!isMobile && (
-        <button className="premium-action-btn" aria-label="Quick view">
-          <VisibilityIcon sx={{ fontSize: 20 }} />
-        </button>
-      )}
+      <button className="premium-action-btn" aria-label="Quick view">
+        <VisibilityIcon sx={{ fontSize: 18 }} />
+      </button>
     </div>
 
     {/* Product Image */}
@@ -427,7 +533,10 @@ const PremiumProductUnit = ({
       />
       {isFlashSale && (
         <div className="flash-overlay">
-          <div className="flash-text">FLASH SALE</div>
+          <div className="flash-text">
+            <FlashOnIcon sx={{ fontSize: 14 }} />
+            FLASH SALE
+          </div>
         </div>
       )}
     </div>
@@ -436,79 +545,87 @@ const PremiumProductUnit = ({
     <div className="premium-product-info">
       <div className="premium-product-meta">
         <div className="premium-product-category">
-          <LocalShippingIcon sx={{ fontSize: isMobile ? 12 : 14, color: '#6b7280' }} />
-          <span className="category-text">{category.split('›')[0]}</span>
-          <span className="delivery-badge">{delivery}</span>
+          <span className="category-badge">{category.split('›')[0]}</span>
+          <span className="delivery-badge">
+            <LocalShippingIcon sx={{ fontSize: 12 }} />
+            {delivery}
+          </span>
         </div>
         
         <h3 className="premium-product-title">{productTitle}</h3>
         
-        {/* Rating & Sold Info */}
+        {/* Rating & Sold Info - Optimized for mobile */}
         <div className="premium-rating-container">
           <div className="premium-stars">
             {[...Array(5)].map((_, i) => (
               i < Math.floor(rating) ? (
-                <StarIcon key={i} className="star-filled" sx={{ fontSize: isMobile ? 14 : 16 }} />
+                <StarIcon key={i} className="star-filled" sx={{ fontSize: 14 }} />
               ) : (
-                <StarBorderIcon key={i} className="star-empty" sx={{ fontSize: isMobile ? 14 : 16 }} />
+                <StarBorderIcon key={i} className="star-empty" sx={{ fontSize: 14 }} />
               )
             ))}
-          </div>
-          <div className="premium-rating-info">
-            <span className="premium-rating-value">{rating}</span>
-            <span className="premium-reviews">({reviews})</span>
+            <span className="rating-text">{rating}</span>
           </div>
           <div className="premium-sold-count">
-            {sold}+ sold
+            <span className="sold-icon">🔥</span>
+            {sold} sold
           </div>
         </div>
 
-        {/* Features (Desktop only) */}
-        {!isMobile && (
-          <div className="premium-features-desktop">
-            {features.slice(0, 2).map((feature, index) => (
-              <div key={index} className="premium-feature">
-                <CheckCircleIcon sx={{ fontSize: 14, color: '#10b981' }} />
-                <span>{feature}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Features (Mobile optimized) */}
+        <div className="premium-features-mobile">
+          {features.slice(0, 2).map((feature, index) => (
+            <div key={index} className="premium-feature">
+              <CheckCircleIcon sx={{ fontSize: 12, color: '#10b981' }} />
+              <span>{feature}</span>
+            </div>
+          ))}
+        </div>
         
-        {/* Price Section */}
+        {/* Price Section - Optimized layout */}
         <div className="premium-price-section">
-          <div className="premium-prices">
-            <span className="premium-price">Rs. {price}</span>
-            <span className="premium-original-price">Rs. {originalPrice}</span>
+          <div className="price-content">
+            <div className="premium-prices">
+              <span className="premium-price">Rs.{price}</span>
+              <span className="premium-original-price">Rs.{originalPrice}</span>
+            </div>
+            <div className="savings-badge">
+              Save Rs.{(parseInt(originalPrice.replace(',', '')) - parseInt(price.replace(',', ''))).toLocaleString()}
+            </div>
           </div>
-          <div className="premium-discount-badge">-{discount}%</div>
+          <div className="premium-discount-badge">-{discount}% OFF</div>
         </div>
 
-        {/* Stock Indicator - Mobile only */}
-        {isMobile && stock > 0 && stock < 15 && (
-          <div className="stock-indicator-mobile">
-            <div className="stock-text-mobile">
-              Only {stock} left
+        {/* Stock Indicator - Mobile optimized */}
+        {stock > 0 && stock < 20 && (
+          <div className="stock-indicator">
+            <div className="stock-info">
+              <div className="stock-text">
+                Only {stock} left{stock < 5 ? '!' : ''}
+              </div>
+              <div className="stock-percentage">{(stock / 50 * 100).toFixed(0)}%</div>
+            </div>
+            <div className="stock-bar">
+              <div 
+                className="stock-fill" 
+                style={{ width: `${Math.min((stock / 50) * 100, 100)}%` }}
+              ></div>
             </div>
           </div>
         )}
 
-        {/* Action Buttons */}
+        {/* Action Buttons - Mobile optimized */}
         <div className="premium-action-buttons">
           <button 
             className={`premium-cart-btn ${inCart ? 'in-cart' : ''}`}
             onClick={onCartToggle}
           >
-            <ShoppingCartIcon sx={{ fontSize: isMobile ? 18 : 20 }} />
-            <span className="cart-btn-text">
-              {inCart ? 'Added' : 'Add to Cart'}
-            </span>
+            <ShoppingCartIcon sx={{ fontSize: 18 }} />
+            <span className="btn-text">{inCart ? 'Added' : 'Add to Cart'}</span>
           </button>
-          {!isMobile && (
-            <button className="premium-view-btn" onClick={() => console.log('View details', id)}>
-              Details
-            </button>
-          )}
+          <button className="premium-view-btn">
+            Buy Now
+          </button>
         </div>
       </div>
     </div>

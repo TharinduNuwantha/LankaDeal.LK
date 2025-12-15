@@ -1,10 +1,9 @@
-
+// myapp\src\Pages\Home\Home.jsx
+import React from 'react';
 import Ads from "./Ads";
 import Product from "./Product";
 
-
 const Home = () => {
-
   return (
     <div className="home-container">
       {/* Ads Banner */}
@@ -12,14 +11,14 @@ const Home = () => {
         <Ads />
       </div>
       
-      {/* Product Sections with inverted display logic */}
-      {/* Mobile shows MORE (3-4 slides), Desktop shows FEWER (2-3 slides) */}
+      {/* Product Sections with INVERTED display logic */}
+      {/* Mobile shows MORE products, Desktop shows FEWER */}
       
       <div className="product-section">
         <Product 
           title="Trending Products" 
           rowsCount={1} 
-          slidesPerView={2.5}
+          slidesPerView={2.5} // Base for mobile
           key="trending"
         />
       </div>
@@ -28,7 +27,7 @@ const Home = () => {
         <Product 
           title="⚡ Flash Sale" 
           rowsCount={1} 
-          slidesPerView={3}
+          slidesPerView={2.8} // More on mobile
           isFlashSale={true}
           key="flash"
         />
@@ -38,7 +37,7 @@ const Home = () => {
         <Product 
           title="Recommended For You" 
           rowsCount={2} 
-          slidesPerView={2.5}
+          slidesPerView={2.2} // Base for mobile
           key="recommended"
         />
       </div>
@@ -47,10 +46,13 @@ const Home = () => {
         <Product 
           title="New Arrivals" 
           rowsCount={1} 
-          slidesPerView={3}
+          slidesPerView={2.5} // Base for mobile
           key="new"
         />
       </div>
+      
+      {/* Add some spacing */}
+      <div className="mb-8"></div>
     </div>
   );
 };
