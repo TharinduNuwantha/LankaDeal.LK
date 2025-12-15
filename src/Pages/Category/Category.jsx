@@ -1,11 +1,18 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom';
-import { IconButton } from '@mui/material';
+import { IconButton, Slider, Checkbox, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SearchIcon from '@mui/icons-material/Search';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import CloseIcon from '@mui/icons-material/Close';
+import TuneIcon from '@mui/icons-material/Tune';
+import SortIcon from '@mui/icons-material/Sort';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import StarIcon from '@mui/icons-material/Star';
 import './Category.css';
 
 const categoryArr = [
@@ -14,93 +21,362 @@ const categoryArr = [
         categoryTitle: 'Electronics',
         categoryId: 'electronics',
         productCount: 1245,
-        color: '#3b82f6'
+        color: '#dc2626'
     },
     {
         imageUrl: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=600&h=600&fit=crop&q=80',
         categoryTitle: 'Fashion',
         categoryId: 'fashion',
         productCount: 876,
-        color: '#8b5cf6'
+        color: '#fbbf24'
     },
     {
         imageUrl: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=600&fit=crop&q=80',
         categoryTitle: 'Home & Living',
         categoryId: 'home-living',
         productCount: 543,
-        color: '#10b981'
+        color: '#000000'
     },
     {
         imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=600&fit=crop&q=80',
         categoryTitle: 'Groceries',
         categoryId: 'groceries',
         productCount: 2341,
-        color: '#f59e0b'
+        color: '#dc2626'
     },
     {
         imageUrl: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=600&fit=crop&q=80',
         categoryTitle: 'Beauty',
         categoryId: 'beauty',
         productCount: 654,
-        color: '#ec4899'
+        color: '#fbbf24'
     },
     {
         imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=600&h=600&fit=crop&q=80',
         categoryTitle: 'Sports',
         categoryId: 'sports',
         productCount: 432,
-        color: '#ef4444'
+        color: '#000000'
     },
     {
         imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=600&h=600&fit=crop&q=80',
         categoryTitle: 'Books',
         categoryId: 'books',
         productCount: 987,
-        color: '#6366f1'
+        color: '#dc2626'
     },
     {
         imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=600&fit=crop&q=80',
         categoryTitle: 'Toys',
         categoryId: 'toys',
         productCount: 321,
-        color: '#06b6d4'
+        color: '#fbbf24'
     },
     {
         imageUrl: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&h=600&fit=crop&q=80',
         categoryTitle: 'Automotive',
         categoryId: 'automotive',
         productCount: 198,
-        color: '#f97316'
+        color: '#000000'
     },
     {
         imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&q=80',
         categoryTitle: 'Health',
         categoryId: 'health',
         productCount: 765,
-        color: '#14b8a6'
+        color: '#dc2626'
     },
     {
         imageUrl: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600&h=600&fit=crop&q=80',
         categoryTitle: 'Jewelry',
         categoryId: 'jewelry',
         productCount: 234,
-        color: '#a855f7'
+        color: '#fbbf24'
     },
     {
         imageUrl: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=600&fit=crop&q=80',
         categoryTitle: 'Pet Supplies',
         categoryId: 'pet-supplies',
         productCount: 456,
-        color: '#84cc16'
+        color: '#000000'
     }
 ];
 
 const Category = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    priceRange: [0, 10000],
+    ratings: [],
+    categories: [],
+    sortBy: 'popular',
+    inStock: false,
+    onSale: false
+  });
 
   const filteredCategories = categoryArr.filter(category =>
     category.categoryTitle.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  const handleApplyFilters = () => {
+    // Apply filters logic here
+    console.log('Applying filters:', filters);
+    setFilterOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    setFilters({
+      priceRange: [0, 10000],
+      ratings: [],
+      categories: [],
+      sortBy: 'popular',
+      inStock: false,
+      onSale: false
+    });
+  };
+
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (filters.ratings.length > 0) count += filters.ratings.length;
+    if (filters.inStock) count += 1;
+    if (filters.onSale) count += 1;
+    return count;
+  };
+
+  const FilterPopup = () => (
+    <div className="filter-popup-overlay" onClick={() => setFilterOpen(false)}>
+      <div className="filter-popup-container" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="filter-popup-header">
+          <div className="filter-header-content">
+            <TuneIcon className="filter-header-icon" />
+            <div>
+              <h3 className="filter-popup-title">Filters & Sorting</h3>
+              <p className="filter-popup-subtitle">Refine your search results</p>
+            </div>
+          </div>
+          <button 
+            className="filter-close-btn"
+            onClick={() => setFilterOpen(false)}
+            aria-label="Close filters"
+          >
+            <CloseIcon />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="filter-popup-content">
+          {/* Sort By Section */}
+          <div className="filter-section">
+            <div className="filter-section-header">
+              <SortIcon className="section-icon" />
+              <h4 className="section-title">Sort By</h4>
+            </div>
+            <RadioGroup
+              value={filters.sortBy}
+              onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+              className="sort-radio-group"
+            >
+              <FormControlLabel 
+                value="popular" 
+                control={<Radio />} 
+                label="Most Popular" 
+                className="radio-item"
+              />
+              <FormControlLabel 
+                value="newest" 
+                control={<Radio />} 
+                label="Newest First" 
+                className="radio-item"
+              />
+              <FormControlLabel 
+                value="price-low" 
+                control={<Radio />} 
+                label="Price: Low to High" 
+                className="radio-item"
+              />
+              <FormControlLabel 
+                value="price-high" 
+                control={<Radio />} 
+                label="Price: High to Low" 
+                className="radio-item"
+              />
+              <FormControlLabel 
+                value="name" 
+                control={<Radio />} 
+                label="Name: A to Z" 
+                className="radio-item"
+              />
+            </RadioGroup>
+          </div>
+
+          {/* Price Range */}
+          <div className="filter-section">
+            <div className="filter-section-header">
+              <LocalOfferIcon className="section-icon" />
+              <h4 className="section-title">Price Range</h4>
+              <span className="price-range-values">
+                Rs. {filters.priceRange[0].toLocaleString()} - Rs. {filters.priceRange[1].toLocaleString()}
+              </span>
+            </div>
+            <div className="price-slider-container">
+              <Slider
+                value={filters.priceRange}
+                onChange={(e, newValue) => handleFilterChange('priceRange', newValue)}
+                valueLabelDisplay="auto"
+                min={0}
+                max={10000}
+                step={100}
+                className="price-slider"
+              />
+              <div className="price-limits">
+                <span>Rs. 0</span>
+                <span>Rs. 10,000</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Ratings */}
+          <div className="filter-section">
+            <div className="filter-section-header">
+              <StarIcon className="section-icon" />
+              <h4 className="section-title">Customer Ratings</h4>
+            </div>
+            <div className="ratings-container">
+              {[4, 3, 2, 1].map(rating => (
+                <FormControlLabel
+                  key={rating}
+                  control={
+                    <Checkbox
+                      checked={filters.ratings.includes(rating)}
+                      onChange={(e) => {
+                        const newRatings = e.target.checked
+                          ? [...filters.ratings, rating]
+                          : filters.ratings.filter(r => r !== rating);
+                        handleFilterChange('ratings', newRatings);
+                      }}
+                      icon={<CheckBoxOutlineBlankIcon />}
+                      checkedIcon={<CheckBoxIcon />}
+                    />
+                  }
+                  label={
+                    <div className="rating-label">
+                      <div className="rating-stars">
+                        {[...Array(5)].map((_, i) => (
+                          <StarIcon key={i} className={i < rating ? 'star-filled' : 'star-empty'} />
+                        ))}
+                      </div>
+                      <span className="rating-text">& above</span>
+                    </div>
+                  }
+                  className="checkbox-item"
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Additional Filters */}
+          <div className="filter-section">
+            <div className="filter-section-header">
+              <FilterListIcon className="section-icon" />
+              <h4 className="section-title">More Filters</h4>
+            </div>
+            <div className="additional-filters">
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={filters.inStock}
+                    onChange={(e) => handleFilterChange('inStock', e.target.checked)}
+                    icon={<CheckBoxOutlineBlankIcon />}
+                    checkedIcon={<CheckBoxIcon />}
+                  />
+                }
+                label="In Stock Only"
+                className="checkbox-item"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={filters.onSale}
+                    onChange={(e) => handleFilterChange('onSale', e.target.checked)}
+                    icon={<CheckBoxOutlineBlankIcon />}
+                    checkedIcon={<CheckBoxIcon />}
+                  />
+                }
+                label="On Sale"
+                className="checkbox-item"
+              />
+            </div>
+          </div>
+
+          {/* Selected Filters */}
+          {(filters.ratings.length > 0 || filters.inStock || filters.onSale) && (
+            <div className="selected-filters">
+              <h5 className="selected-filters-title">Active Filters:</h5>
+              <div className="filter-chips">
+                {filters.ratings.map(rating => (
+                  <span key={rating} className="filter-chip">
+                    {rating}+ Stars
+                    <button 
+                      onClick={() => handleFilterChange('ratings', filters.ratings.filter(r => r !== rating))}
+                      className="chip-remove"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+                {filters.inStock && (
+                  <span className="filter-chip">
+                    In Stock
+                    <button 
+                      onClick={() => handleFilterChange('inStock', false)}
+                      className="chip-remove"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+                {filters.onSale && (
+                  <span className="filter-chip">
+                    On Sale
+                    <button 
+                      onClick={() => handleFilterChange('onSale', false)}
+                      className="chip-remove"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="filter-popup-footer">
+          <button 
+            className="filter-btn reset-btn"
+            onClick={handleResetFilters}
+          >
+            Reset All
+          </button>
+          <button 
+            className="filter-btn apply-btn"
+            onClick={handleApplyFilters}
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
   );
 
   return (
@@ -152,8 +428,15 @@ const Category = () => {
             >
               <ViewListIcon />
             </IconButton>
-            <IconButton className="filter-btn" aria-label="Filter categories">
+            <IconButton 
+              className="filter-btn"
+              onClick={() => setFilterOpen(true)}
+              aria-label="Filter categories"
+            >
               <FilterListIcon />
+              {getActiveFilterCount() > 0 && (
+                <span className="filter-indicator"></span>
+              )}
             </IconButton>
           </div>
         </div>
@@ -234,10 +517,19 @@ const Category = () => {
       </div>
 
       {/* Mobile Filter Button */}
-      <button className="mobile-filter-btn">
+      <button 
+        className="mobile-filter-btn"
+        onClick={() => setFilterOpen(true)}
+      >
         <FilterListIcon />
         <span>Filter & Sort</span>
+        {getActiveFilterCount() > 0 && (
+          <span className="filter-badge">{getActiveFilterCount()}</span>
+        )}
       </button>
+
+      {/* Filter Popup */}
+      {filterOpen && <FilterPopup />}
     </div>
   );
 };
