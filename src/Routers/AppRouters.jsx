@@ -7,6 +7,7 @@ import Home from '../Pages/Home/Home'
 import Login from '../Pages/Login/Login'
 import UserProtected from './UserProtected'
 import Category from '../Pages/Category/Category'
+import CategoryItem from '../Pages/CategoryItem/CategoryItem'
 
 
 const router = createBrowserRouter([
@@ -20,7 +21,16 @@ const router = createBrowserRouter([
       },
             {
         path:'category',
-        element:<Category/>
+        children:[
+          {
+            index:true,
+            element:<Category/>
+          },
+          {
+            path:':categoryId',
+            element:<CategoryItem/>
+          }
+        ]
       },
       {
         element:<UserProtected/>,

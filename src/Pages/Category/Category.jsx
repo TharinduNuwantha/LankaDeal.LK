@@ -11,23 +11,23 @@ const categoryArr =[
     {
         imageUrl:'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
         categoryTitle:'Category title 2',
-        categoryId:'category1'
+        categoryId:'category2'
     },
     {
         imageUrl:'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
         categoryTitle:'Category title 3',
-        categoryId:'category1'
+        categoryId:'category3'
     },
     {
         imageUrl:'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
         categoryTitle:'Category title 4',
-        categoryId:'category1',
-        categoryId:'category1'
+        categoryId:'category4',
+
     },
     {
         imageUrl:'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
         categoryTitle:'Category title 5',
-        categoryId:'category1'
+        categoryId:'category5'
     },
 ];
 
