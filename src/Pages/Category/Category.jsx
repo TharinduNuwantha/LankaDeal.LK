@@ -490,7 +490,7 @@ const Category = () => {
 
           <div className={`category-grid ${viewMode === 'list' ? 'list-layout' : 'grid-layout'}`}>
             {filteredCategories.map((category, index) => (
-              <CategoryItem 
+              <CategoryUnitItem 
                 key={category.categoryId}
                 {...category}
                 index={index}
@@ -536,7 +536,7 @@ const Category = () => {
 
 export default Category;
 
-const CategoryItem = ({ imageUrl, categoryTitle, categoryId, productCount, color, index, viewMode }) => (
+const CategoryUnitItem = ({ imageUrl, categoryTitle, categoryId, productCount, color, index, viewMode }) => (
   <Link to={`/category/${categoryId}`} className="category-link">
     <div className={`category-card ${viewMode === 'list' ? 'list-card' : 'grid-card'}`}>
       {/* Badge */}
