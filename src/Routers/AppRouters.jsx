@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter, createBrowserRouter, Route, RouterProvider, Routes } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import MainLayout from '../Layout/MainLayout'
 
 import User from '../Pages/User/User'
@@ -8,6 +8,7 @@ import Login from '../Pages/Login/Login'
 import UserProtected from './UserProtected'
 import Category from '../Pages/Category/Category'
 import CategoryItem from '../Pages/CategoryItem/CategoryItem'
+import ItemPage from '../Pages/ItemPage/ItemPage'
 
 
 const router = createBrowserRouter([
@@ -20,18 +21,27 @@ const router = createBrowserRouter([
         element:<Home/>
       },
             {
-        path:'category',
-        children:[
-          {
-            index:true,
-            element:<Category/>
-          },
-          {
-            path:':categoryId',
-            element:<CategoryItem/>
-          }
-        ]
-      },
+              path: 'category',
+              children: [
+                {
+                  index: true,
+                  element: <Category />
+                },
+                {
+                  path: ':categoryId',
+                  children:[
+                    {
+                      index:true,
+                      element: <CategoryItem />
+                    },
+                    {
+                      path:':itemId',
+                      element:<ItemPage/>
+                    }
+                  ]
+                },
+              ]
+            },
       {
         element:<UserProtected/>,
         children:[
