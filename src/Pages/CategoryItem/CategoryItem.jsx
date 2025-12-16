@@ -179,7 +179,7 @@ const CategoryItem = () => {
     return count;
   };
 
-  const FilterPopup = () => (
+  const FilterPopup = () => ( 
     <div 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center md:items-center"
       onClick={() => setFilterOpen(false)}
@@ -442,7 +442,7 @@ const CategoryItem = () => {
       </div>
     </div>
   );
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Breadcrumb & Header */}
