@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import { IconButton, Slider, Checkbox, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -14,6 +14,7 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import StarIcon from '@mui/icons-material/Star';
 import './Category.css';
+import getDataFromColaction from '../../utils/dataFetch/getDataFromColaction';
 
 const categoryArr = [
     {
@@ -107,6 +108,7 @@ const Category = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState({
+    
     priceRange: [0, 10000],
     ratings: [],
     categories: [],
@@ -379,6 +381,9 @@ const Category = () => {
     </div>
   );
 
+  useEffect(()=>{
+    getDataFromColaction('category')
+  },[])
   return (
     <div className="category-page">
       {/* Header Section */}
