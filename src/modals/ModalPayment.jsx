@@ -13,9 +13,9 @@ const ModalPayment = forwardRef((props, ref) => {
     }))
 
     const addData = ()=>{
-      setDoc(doc(db,"category","category2"),{
-        title:"Category title 2",
-        img:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=600&fit=crop&q=80"
+      setDoc(doc(db,"category","category3"),{
+        title:"Category title 3",
+        img:"https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=600&fit=crop&q=80"
       })
       .then(()=>{
           console.log("document writen with ID: ");
