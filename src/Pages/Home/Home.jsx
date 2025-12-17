@@ -1,14 +1,20 @@
 // myapp\src\Pages\Home\Home.jsx
-import React from 'react';
+import React, { useRef } from 'react';
 import Ads from "./Ads";
 import Product from "./Product";
+import ModalPayment from '../../modals/ModalPayment';
 
 const Home = () => {
+  const paymentModelRef = useRef()
   return (
     <div className="home-container">
       {/* Ads Banner */}
       <div className="ads-section">
+        <ModalPayment ref={paymentModelRef}/>
         <Ads />
+        <button onClick={()=>{
+          paymentModelRef.current.handleOpen()
+        }}>Clickme</button>
       </div>
       
       {/* Product Sections with INVERTED display logic */}
