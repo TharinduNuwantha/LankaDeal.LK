@@ -13,7 +13,7 @@ const ModalPayment = forwardRef((props, ref) => {
     <Modal
     open={open}
     onClose={handleClose}
-
+    className='flex flex-col items-center justify-center'
     >
         <div>Tharindu</div>
 

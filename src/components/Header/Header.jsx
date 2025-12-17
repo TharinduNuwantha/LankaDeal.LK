@@ -20,7 +20,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import Badge from '@mui/material/Badge';
 import { useState } from 'react';
 
-const Header = () => {
+const Header = ({paymentModelRef}) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
@@ -166,8 +166,11 @@ const Header = () => {
                         }
                       }}
                     >
-                      <div className="w-10 h-10 xl:w-12 xl:h-12 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center shadow-lg">
-                        <ShoppingCartIcon sx={{ fontSize: 22, color: 'white' }} />
+                      <div className="w-10 h-10 xl:w-12 xl:h-12 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center shadow-lg" 
+                        
+                      >
+                        <ShoppingCartIcon sx={{ fontSize: 22, color: 'white' }} onClick={()=>paymentModelRef.current.handleOpen()}/>
+
                       </div>
                     </Badge>
                   </div>
@@ -211,7 +214,7 @@ const Header = () => {
                     }
                   }}
                 >
-                  <ShoppingCartIcon sx={{ fontSize: 28, color: 'white' }} />
+                  <ShoppingCartIcon sx={{ fontSize: 28, color: 'white' }} onClick={()=>paymentModelRef.current.handleOpen()}/>
                 </Badge>
               </button>
             </div>
