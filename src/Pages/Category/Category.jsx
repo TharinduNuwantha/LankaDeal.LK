@@ -71,7 +71,7 @@ const categoryArr = [
         categoryTitle: 'Toys',
         categoryId: 'toys',
         productCount: 321,
-        color: '#fbbf24'
+        color: '#fbbf24' 
     },
     {
         imageUrl: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&h=600&fit=crop&q=80',
@@ -104,6 +104,7 @@ const categoryArr = [
 ];
 
 const Category = () => {
+   const [categoryData,setCategoryData] = useState([]);
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
@@ -117,8 +118,8 @@ const Category = () => {
     onSale: false
   });
 
-  const filteredCategories = categoryArr.filter(category =>
-    category.categoryTitle.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCategories = categoryData.filter(category =>
+    category.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleFilterChange = (key, value) => {
@@ -380,10 +381,12 @@ const Category = () => {
       </div>
     </div>
   );
-
+ 
   useEffect(()=>{
-    getDataFromColaction('category')
+    getDataFromColaction('category',setCategoryData)
   },[])
+  console.log('category Component Data',categoryData);
+  
   return (
     <div className="category-page">
       {/* Header Section */}
@@ -497,7 +500,11 @@ const Category = () => {
             {filteredCategories.map((category, index) => (
               <CategoryUnitItem 
                 key={category.categoryId}
-                {...category}
+                imageUrl={category.img}
+                categoryTitle={category.title}
+                categoryId={category.categoryId}
+                productCount={0}
+                color={['#dc2626', '#fbbf24', '#000000'][index % 3]}
                 index={index}
                 viewMode={viewMode}
               />
