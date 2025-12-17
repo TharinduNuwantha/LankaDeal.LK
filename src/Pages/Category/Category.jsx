@@ -15,93 +15,9 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import StarIcon from '@mui/icons-material/Star';
 import './Category.css';
 import getDataFromColaction from '../../utils/dataFetch/getDataFromColaction';
+import Loarding from '../Loarding/Loarding';
 
-const categoryArr = [
-    {
-        imageUrl: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
-        categoryTitle: 'Electronics',
-        categoryId: 'electronics',
-        productCount: 1245,
-        color: '#dc2626'
-    },
-    {
-        imageUrl: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=600&h=600&fit=crop&q=80',
-        categoryTitle: 'Fashion',
-        categoryId: 'fashion',
-        productCount: 876,
-        color: '#fbbf24'
-    },
-    {
-        imageUrl: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=600&fit=crop&q=80',
-        categoryTitle: 'Home & Living',
-        categoryId: 'home-living',
-        productCount: 543,
-        color: '#000000'
-    },
-    {
-        imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=600&fit=crop&q=80',
-        categoryTitle: 'Groceries',
-        categoryId: 'groceries',
-        productCount: 2341,
-        color: '#dc2626'
-    },
-    {
-        imageUrl: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=600&fit=crop&q=80',
-        categoryTitle: 'Beauty',
-        categoryId: 'beauty',
-        productCount: 654,
-        color: '#fbbf24'
-    },
-    {
-        imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=600&h=600&fit=crop&q=80',
-        categoryTitle: 'Sports',
-        categoryId: 'sports',
-        productCount: 432,
-        color: '#000000'
-    },
-    {
-        imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=600&h=600&fit=crop&q=80',
-        categoryTitle: 'Books',
-        categoryId: 'books',
-        productCount: 987,
-        color: '#dc2626'
-    },
-    {
-        imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=600&fit=crop&q=80',
-        categoryTitle: 'Toys',
-        categoryId: 'toys',
-        productCount: 321,
-        color: '#fbbf24' 
-    },
-    {
-        imageUrl: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&h=600&fit=crop&q=80',
-        categoryTitle: 'Automotive',
-        categoryId: 'automotive',
-        productCount: 198,
-        color: '#000000'
-    },
-    {
-        imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&q=80',
-        categoryTitle: 'Health',
-        categoryId: 'health',
-        productCount: 765,
-        color: '#dc2626'
-    },
-    {
-        imageUrl: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600&h=600&fit=crop&q=80',
-        categoryTitle: 'Jewelry',
-        categoryId: 'jewelry',
-        productCount: 234,
-        color: '#fbbf24'
-    },
-    {
-        imageUrl: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=600&fit=crop&q=80',
-        categoryTitle: 'Pet Supplies',
-        categoryId: 'pet-supplies',
-        productCount: 456,
-        color: '#000000'
-    }
-];
+
 
 const Category = () => {
    const [categoryData,setCategoryData] = useState([]);
@@ -386,6 +302,9 @@ const Category = () => {
     getDataFromColaction('category',setCategoryData)
   },[])
   console.log('category Component Data',categoryData);
+  if(categoryData.length === 0){
+    return <Loarding/>
+  }
   
   return (
     <div className="category-page">
@@ -398,7 +317,7 @@ const Category = () => {
           </div>
           <div className="header-stats">
             <div className="stat-item">
-              <span className="stat-number">{categoryArr.length}</span>
+              <span className="stat-number">{categoryData.length}</span>
               <span className="stat-label">Categories</span>
             </div>
             <div className="stat-item">
@@ -458,7 +377,7 @@ const Category = () => {
           <ul className="sidebar-menu">
             <li className="sidebar-item active">
               <span>All Categories</span>
-              <span className="item-count">{categoryArr.length}</span>
+              <span className="item-count">{categoryData.length}</span>
             </li>
             <li className="sidebar-item">
               <span>Popular</span>

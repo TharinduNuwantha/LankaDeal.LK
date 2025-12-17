@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from "react-redux";
 import { categorySelector } from "../../Store/ReduxSlice/categorySlice";
 import { useParams } from "react-router-dom";
@@ -22,6 +22,8 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import getDataFromSubCollection from '../../utils/dataFetch/getDataFromSubCollection';
+import Loarding from '../Loarding/Loarding';
 
 
 const CategoryItem = () => {
@@ -442,6 +444,16 @@ const CategoryItem = () => {
       </div>
     </div>
   );
+
+  const[categoryItemsData,setCategoryItemsData] = useState([])
+  useEffect(()=>{
+    getDataFromSubCollection('category',categoryId,categoryId,setCategoryItemsData);
+  },[])
+
+  console.log('category Data ===> ',categoryItemsData);
+if(categoryItemsData.length ===0){
+  return <Loarding/>
+}
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -531,7 +543,7 @@ const CategoryItem = () => {
 
         {/* Products Grid/List */}
         <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'flex flex-col'} gap-6`}>
-          {categoryItemsArr.map((product) => (
+          {categoryItemsData.map((product) => (
             <CategoryItemUnit
               key={product.id}
               {...product}
