@@ -1,9 +1,19 @@
 import React from 'react'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { removeUser } from '../../Store/ReduxSlice/userClise'
 
 const Admin = () => {
+    const dispatch = useDispatch()
+    const navigater = useNavigate();
+    const logout = ()=> {
+        dispatch(removeUser({}))
+        navigater('/admin')
+    }
   return (
     <div>
-        Admin  
+        <h1 >Admin</h1>  
+        <button onClick={logout}>Logout</button>
     </div>
   )
 }
