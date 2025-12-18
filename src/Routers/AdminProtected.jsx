@@ -9,12 +9,17 @@ const AdminProtected = () => {
   const user = useSelector(userSelecter);
   console.log(user);
   
-
-  if(admin){
-    return <Outlet/>
+  if(user.role){
+    if(user.role === "admin"){
+        return <Outlet/>
+    }else{
+         return <Navigate to={'/404'}/>
+    }
   }else{
-    return <Navigate to={'/404'}/>
+      return <Navigate to={'/404'}/>
   }
+
+  
 }
 
 export default AdminProtected

@@ -12,7 +12,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const loginSubmit = ()=>{
-    const q = query(collection(db, "users"), where("userName", "==", "tharindu"));
+    const q = query(collection(db, "users"), where("userName", "==", "admin"));
 
       getDocs(q).then((querySnapshot) => {
               querySnapshot.forEach((doc) => {
