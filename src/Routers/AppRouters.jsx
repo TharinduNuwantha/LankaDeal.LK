@@ -9,6 +9,9 @@ import UserProtected from './UserProtected'
 import Category from '../Pages/Category/Category'
 import CategoryItem from '../Pages/CategoryItem/CategoryItem'
 import ItemPage from '../Pages/ItemPage/ItemPage'
+import AdminProtected from './AdminProtected'
+import Admin from '../Pages/Admin/Admin'
+import UrlNotFound from '../Pages/404/UrlNotFound'
 
 
 const router = createBrowserRouter([
@@ -56,6 +59,19 @@ const router = createBrowserRouter([
   {
     path:'/login',
     element:<Login/>
+  },
+  {
+    path:'/404',
+    element:<UrlNotFound/>
+  },
+  {
+    element:<AdminProtected/>,
+    children:[
+      {
+        path:'/admin',
+        element:<Admin/>
+      }
+    ]
   }
 ])
 
