@@ -22,7 +22,7 @@ const Footer = () => {
     { id: 'search', icon: SearchIcon, label: 'Search', badge: 0,linkUrl:'/' },
     { id: 'wishlist', icon: FavoriteBorderIcon, label: 'Wishlist', badge: 3,linkUrl:'/' },
     { id: 'cart', icon: ShoppingCartIcon, label: 'Cart', badge: 3,linkUrl:'/' },
-    { id: 'account', icon: PersonIcon, label: 'Account', badge: 0,linkUrl:'/user' },
+    { id: 'account', icon: PersonIcon, label: 'Account', badge: 0,linkUrl:'/profile' },
   ];
 
   return (
