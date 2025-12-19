@@ -26,10 +26,10 @@ function App() {
           dispatch(addUser(dataset))
         })
         // ...
-      } else {
+      } else {  
         // User is signed out
         console.log("no user");
-        dispatch(removeUser())
+        dispatch(removeUser({}))
       }
     });
     return()=> userCheack

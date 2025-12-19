@@ -1,6 +1,8 @@
 import  { useState } from 'react'
 import getDataFromSubCollection from '../../utils/dataFetch/getDataFromSubCollection'
 import userRegister from '../../utils/auth/register'
+import { signOut } from 'firebase/auth'
+import { auth } from '../../FireBase/firebase'
 
 const Login = () => {
   const[select,setSelect] = useState('login')
@@ -23,7 +25,10 @@ const LoginComponent = ()=>{
   return(
     <div>
       <h1>Login</h1>
- 
+      <button onClick={()=>{
+        signOut(auth)
+        .then(()=>{})
+      }}>Logout</button>
     </div>
   )
 }
