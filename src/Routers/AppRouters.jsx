@@ -14,6 +14,7 @@ import Admin from '../Pages/Admin/Admin'
 import UrlNotFound from '../Pages/404/UrlNotFound'
 
 
+
 const router = createBrowserRouter([
   {
     path:'/',
@@ -64,6 +65,7 @@ const router = createBrowserRouter([
     path:'/404',
     element:<UrlNotFound/>
   },
+
   {
     element:<AdminProtected/>,
     children:[
