@@ -6,7 +6,9 @@ const userLogin = (email, password)=>{
     .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
-        // ...
+        console.log('login sucsessfully');
+        
+        // ...tharindunuwantha100@gmail.com  Tharindu123
     })
     .catch((error) => {
         const errorCode = error.code;

@@ -3,6 +3,7 @@ import getDataFromSubCollection from '../../utils/dataFetch/getDataFromSubCollec
 import userRegister from '../../utils/auth/register'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../FireBase/firebase'
+import userLogin from '../../utils/auth/login'
 
 const Login = () => {
   const[select,setSelect] = useState('login')
@@ -20,15 +21,21 @@ export default Login
 
 const LoginComponent = ()=>{
 
-
+const loginHandle = (e)=> {
+  e.preventDefault()
+  const email = e.target["email"].value
+  const passwoard = e.target["password"].value
+  userLogin(email,passwoard)
+}
   
   return(
     <div>
       <h1>Login</h1>
-      <button onClick={()=>{
-        signOut(auth)
-        .then(()=>{})
-      }}>Logout</button>
+      <form onSubmit={loginHandle}>
+        <input type="email" name="email" placeholder='enter your email' />
+        <input type="password" name="password" placeholder='enter your password' />
+        <button type="submit">Login</button>
+      </form>
     </div>
   )
 }

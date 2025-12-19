@@ -1,9 +1,10 @@
 import React from 'react'
+import logout from '../../utils/auth/logout'
 
 const User = () => {
   return (
     <div>
-      user
+      <button onClick={logout}>LogOut</button>
     </div>
   )
 }
