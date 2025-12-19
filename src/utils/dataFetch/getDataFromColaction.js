@@ -19,7 +19,7 @@ const getDataFromColaction = (collectionName,setFunction)=> {
           console.log('i am array : ',dataArr);
           dbData[collectionName] = dataArr 
           setFunction(dataArr)        
-        })
+        }).catch((err)=>console.log(err))
     }
 }
 

@@ -1,10 +1,17 @@
 import { collection, getDocs, QuerySnapshot } from "firebase/firestore";
 import db from "../../FireBase/firebase";
 
-// const dbData = {};
+const dbData = {};
 
 const getDataFromSubCollection = (collectionName,documentId,subCollectionName,setFunction)=> {
-
+  if (
+    dbData[collectionName] &&
+    dbData[collectionName][documentId] &&
+    dbData[collectionName][documentId][subCollectionName] &&
+    dbData[collectionName][documentId][subCollectionName].length > 0
+  ){
+    setFunction(dbData[collectionName][documentId][subCollectionName])
+  } else {
         getDocs(collection(db, `${collectionName}/${documentId}/${subCollectionName}`)).then((querySnapshot)=>{
         console.log('data read from DB');
             
@@ -15,10 +22,31 @@ const getDataFromSubCollection = (collectionName,documentId,subCollectionName,se
        
         });
           console.log('i am array : ',dataArr);
-        //   dbData[collectionName] = dataArr 
+          if(dbData[collectionName]){
+              if(dbData[collectionName][documentId]){
+                dbData[collectionName][documentId] = {
+                  ...dbData[collectionName][documentId],
+                  [subCollectionName]:dataArr
+                };
+              }else{
+                dbData[collectionName] = {
+                  ...dbData[collectionName],
+                  [documentId]:{
+                    [subCollectionName]:dataArr
+                  }
+                }
+              }
+          }else{
+            dbData[collectionName] = {
+              [documentId]:{
+                [subCollectionName]:dataArr
+              }
+            }
+          }
+
           setFunction(dataArr)        
-        })
-    }
+        }).catch((err)=>console.log(err))
+    }}
 
 
 export default getDataFromSubCollection;

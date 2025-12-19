@@ -1,4 +1,5 @@
 import  { useState } from 'react'
+import getDataFromSubCollection from '../../utils/dataFetch/getDataFromSubCollection'
 
 const Login = () => {
   const[select,setSelect] = useState('login')
@@ -15,10 +16,17 @@ export default Login
 
 
 const LoginComponent = ()=>{
+
+  const[data,setData] = useState([])
+  const testFun = ()=>{
+    getDataFromSubCollection('category','category1','category1',setData)
+  }
+console.log('sub collection data => ',data);
+  
   return(
     <div>
       <h1>Login</h1>
-
+      <button onClick={testFun}>get Data</button>
     </div>
   )
 }
@@ -37,9 +45,25 @@ const LoginComponent = ()=>{
 
 
 const RegisterComponent = ()=>{
+  const registerHandle = (e) =>{
+    e.preventDefault()
+    console.log(e.target);
+    
+  }
   return(
     <div>
       <h1>Register</h1>
+      <form onSubmit={registerHandle}>
+      <div>
+        <input type="text" placeholder='Your first name' />
+        <input type="text" placeholder='Your last name' />
+      </div>
+      <input type="text" placeholder='your email address'/>
+      <input type="password" placeholder='password'/>
+      <input type="password" placeholder='confi password'/>
+      <input type="text" placeholder='Your phone number' />
+        <button type='submit'>Register</button>
+      </form>
     </div>
   )
 }
