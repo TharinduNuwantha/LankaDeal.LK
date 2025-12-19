@@ -17,16 +17,12 @@ export default Login
 
 const LoginComponent = ()=>{
 
-  const[data,setData] = useState([])
-  const testFun = ()=>{
-    getDataFromSubCollection('category','category1','category1',setData)
-  }
-console.log('sub collection data => ',data);
+
   
   return(
     <div>
       <h1>Login</h1>
-      <button onClick={testFun}>get Data</button>
+ 
     </div>
   )
 }
