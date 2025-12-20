@@ -1,13 +1,15 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../FireBase/firebase";
 
-const userLogin = (email, password)=>{
+
+const userLogin = (email, password,navigate)=>{
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
         console.log('login sucsessfully');
-        
+
+        navigate("/")
         // ...tharindunuwantha100@gmail.com  Tharindu123
     })
     .catch((error) => {

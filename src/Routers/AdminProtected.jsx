@@ -12,11 +12,13 @@ const navigate = useNavigate()
 useEffect(()=>{
   if(userData.name){  
       if(!(userData.name === 'default')){
-        if(!userData.role === 'admin'){
+        if(!(userData.role === 'admin')){
           navigate('/404') 
         }
       }
-  }
+  }else{
+        navigate('/404') 
+      }
 },[userData])
   
 

@@ -4,6 +4,7 @@ import userRegister from '../../utils/auth/register'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../FireBase/firebase'
 import userLogin from '../../utils/auth/login'
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
   const[select,setSelect] = useState('login')
@@ -19,13 +20,14 @@ const Login = () => {
 export default Login
 
 
-const LoginComponent = ()=>{
+ const LoginComponent = ()=>{
+ const navigate = useNavigate()
 
 const loginHandle = (e)=> {
   e.preventDefault()
   const email = e.target["email"].value
   const passwoard = e.target["password"].value
-  userLogin(email,passwoard)
+  userLogin(email,passwoard,navigate)
 }
   
   return(
