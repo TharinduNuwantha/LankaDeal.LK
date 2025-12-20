@@ -1,70 +1,116 @@
-# Getting Started with Create React App
+# LankaDeal.LK
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive front-end web application for browsing and buying products tailored to Sri Lanka — built with JavaScript, CSS, and HTML.
 
-## Available Scripts
+## Table of Contents
 
-In the project directory, you can run:
+- [About](#about)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Demo](#demo)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Install](#install)
+  - [Run Locally](#run-locally)
+  - [Build](#build)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-### `npm start`
+## About
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+LankaDeal.LK is a frontend web application showcasing a clean, mobile-first marketplace UI and user flows for browsing products, viewing details, and managing a shopping cart. It focuses on fast performance, accessibility, and an intuitive experience for users in Sri Lanka.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Features
 
-### `npm test`
+- Browse products by category
+- Product detail pages with images and descriptions
+- Add to cart and view cart summary
+- Responsive layout for mobile and desktop
+- Clean, accessible UI components
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Tech Stack
 
-### `npm run build`
+- JavaScript (Vanilla JS or framework as implemented)
+- CSS (responsive design, utilities and components)
+- HTML5
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Demo
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+If you have a live deployment, replace this with the project URL.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Example: https://your-deploy-url.example.com
 
-### `npm run eject`
+## Getting Started
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+These instructions will help you get a local copy running for development and testing purposes.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Prerequisites
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- Node.js (for build tools / dev server) — if applicable
+- A modern browser (Chrome, Firefox, Edge, Safari)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Install
 
-## Learn More
+1. Clone the repo:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+   git clone https://github.com/TharinduNuwantha/LankaDeal.LK.git
+2. Change into the project directory:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+   cd LankaDeal.LK
+3. Install dependencies (if the project uses a package manager):
 
-### Code Splitting
+   npm install
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+If the project is purely static (no package.json), skip the install step.
 
-### Analyzing the Bundle Size
+### Run Locally
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Start the dev server (if available):
 
-### Making a Progressive Web App
+   npm start
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Or open the project's index.html in your browser for static setups.
 
-### Advanced Configuration
+### Build
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+To create a production build (if applicable):
 
-### Deployment
+   npm run build
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-### `npm run build` fails to minify
+## Project Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+A typical layout:
+
+- index.html — main HTML file
+- /css — stylesheets
+- /js — JavaScript source files
+- /assets — images, fonts, icons
+
+Adjust the structure below to match your repository.
+
+## Contributing
+
+Contributions are welcome. Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch: git checkout -b feature/my-feature
+3. Commit your changes: git commit -m "Add some feature"
+4. Push to the branch: git push origin feature/my-feature
+5. Open a pull request describing your changes
+
+Please include clear issues and tests where appropriate.
+
+## License
+
+Add a license file to the repository and reference it here (e.g., MIT License).
+
+## Contact
+
+Created by Tharindu Nuwantha — feel free to open issues or reach out via GitHub.
+
+---
+Notes:
+- This README was generated to match the repository's language composition (JavaScript, CSS, HTML). Update sections such as Demo, Build commands, and Project Structure to reflect your exact setup.
