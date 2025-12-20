@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 const Login = () => {
   const[select,setSelect] = useState('login')
   return (
-    <div>
+    <div className='w-full h-screen flex flex-col items-center justify-center'>
      {select === 'login' ?<LoginComponent/>:<RegisterComponent/>} 
       {select === 'login' ?<p>Don't have an account?{" "}<span onClick={()=>setSelect("register")}>Sign Up</span></p>:<p>Already havean account(" ")<span onClick={()=>setSelect("login")}>Sign In</span></p>} 
       
@@ -34,7 +34,7 @@ const loginHandle = (e)=> {
     <div>
       <h1>Login</h1>
       <form onSubmit={loginHandle}>
-        <input type="email" name="email" placeholder='enter your email' />
+        <LoginInput inputtype='text' placeholder='Enter Your Email'/>
         <input type="password" name="password" placeholder='enter your password' />
         <button type="submit">Login</button>
       </form>
@@ -45,13 +45,7 @@ const loginHandle = (e)=> {
 /*
 *
 *
-*
-*
-*
-*
-*
-*
-*
+
 */
 
 
@@ -92,4 +86,12 @@ const RegisterComponent = ()=>{
       </form>
     </div>
   )
+}
+
+
+const LoginInput =({inputtype,placeholder}) =>{
+  return<div>
+    <label></label>
+    <input type={inputtype} placeholder={placeholder} />
+  </div>
 }

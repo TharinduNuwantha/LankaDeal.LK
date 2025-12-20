@@ -57,14 +57,15 @@ const router = createBrowserRouter([
       }
     ]
   },
+        {
+        path:'*',
+        element:<UrlNotFound/>
+      },
   {
     path:'/login',
     element:<Login/>
   },
-  {
-    path:'/404',
-    element:<UrlNotFound/>
-  },
+
 
   {
     element:<AdminProtected/>,
