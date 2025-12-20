@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
   const[select,setSelect] = useState('login')
+
   return (
     <div className='w-full h-screen flex flex-col items-center justify-center'>
      {select === 'login' ?<LoginComponent/>:<RegisterComponent/>} 
@@ -22,13 +23,18 @@ export default Login
 
  const LoginComponent = ()=>{
  const navigate = useNavigate()
+ const[firebaseLoginErr,setFierBaseLoginError] = useState({
+  emailErr:'',
+  passwoardErr:''
+ });
 
 
 const loginHandle = (e)=> {
   e.preventDefault()
   const email = e.target["email"].value
   const passwoard = e.target["password"].value
-  userLogin(email,passwoard,navigate)
+  setFierBaseLoginError({emailErr:'',passwoardErr:''})
+  userLogin(email,passwoard,navigate,setFierBaseLoginError)
 }
   
   return(
@@ -43,6 +49,9 @@ const loginHandle = (e)=> {
             name="email"
             validator={(v) => /\S+@\S+\.\S+/.test(v)}
             errMsg="Enter a valid email address"
+            fierbaseErr={firebaseLoginErr.emailErr}
+            setFierBaseLoginError={setFierBaseLoginError}
+            isLogInHandle={true}
           />
           <LoginInput
             inputtype="password"
@@ -51,6 +60,9 @@ const loginHandle = (e)=> {
             name="password"
             validator={(v) => v && v.length >= 6}
             errMsg="Password must be at least 6 characters"
+            fierbaseErr={firebaseLoginErr.passwoardErr}
+            setFierBaseLoginError={setFierBaseLoginError}
+            isLogInHandle={true}
           />
           <button className="w-full bg-main-background text-white py-2 rounded-md hover:bg-red  transition mt-4" type="submit">Login</button>
         </form>
@@ -68,6 +80,7 @@ const loginHandle = (e)=> {
 
 
 const RegisterComponent = ()=>{
+   const[firebaseREGErr,setFierBaseregError] = useState('');
   const registerHandle = (e) =>{
     e.preventDefault()
     const  name = `${e.target["firstName"].value} ${e.target["lastName"].value}`
@@ -80,7 +93,7 @@ const RegisterComponent = ()=>{
     const role = "user"
 
       if(passwoard === cpasswoard){
-        userRegister(email,passwoard,name,address,phoneNumber,profileImage,role);
+        userRegister(email,passwoard,name,address,phoneNumber,profileImage,role,setFierBaseregError);
       }
   }
   return(
@@ -89,19 +102,20 @@ const RegisterComponent = ()=>{
         <h1 className="text-2xl font-semibold mb-6 text-center">Create your account</h1>
         <form onSubmit={registerHandle}>
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <LoginInput inputtype="text" lable="First Name" placeholder="Your first name" name="firstName" validator={(v)=>v && v.trim().length>0} errMsg="Enter first name" />
-            <LoginInput inputtype="text" lable="Last Name" placeholder="Your last name" name="lastName" validator={(v)=>v && v.trim().length>0} errMsg="Enter last name" />
+            <LoginInput inputtype="text" lable="First Name" placeholder="Your first name" name="firstName" validator={(v)=>v && v.trim().length>0} errMsg="Enter first name" isLogInHandle={false}/>
+            <LoginInput inputtype="text" lable="Last Name" placeholder="Your last name" name="lastName" validator={(v)=>v && v.trim().length>0} errMsg="Enter last name" isLogInHandle={false}/>
           </div>
-          <LoginInput inputtype="email" lable="Email Address" placeholder="Your email address" name="email" validator={(v) => /\S+@\S+\.\S+/.test(v)} errMsg="Enter a valid email" />
-          <LoginInput inputtype="text" lable="Address" placeholder="Your address" name="address" validator={(v)=>v && v.trim().length>0} errMsg="Enter address" />
+          <LoginInput inputtype="email" lable="Email Address" placeholder="Your email address" name="email" validator={(v) => /\S+@\S+\.\S+/.test(v)} errMsg="Enter a valid email" isLogInHandle={false}/>
+          <LoginInput inputtype="text" lable="Address" placeholder="Your address" name="address" validator={(v)=>v && v.trim().length>0} errMsg="Enter address" isLogInHandle={false}/>
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <LoginInput inputtype="password" lable="Password" placeholder="Password" name="password" validator={(v)=>v && v.length>=6} errMsg="Password must be at least 6 characters" />
-            <LoginInput inputtype="password" lable="Confirm Password" placeholder="Confirm password" name="confirmPassword" validator={(v)=>v && v.length>=6} errMsg="Confirm password must be at least 6 characters" />
+            <LoginInput inputtype="password" lable="Password" placeholder="Password" name="password" validator={(v)=>v && v.length>=6} errMsg="Password must be at least 6 characters" isLogInHandle={false}/>
+            <LoginInput inputtype="password" lable="Confirm Password" placeholder="Confirm password" name="confirmPassword" validator={(v)=>v && v.length>=6} errMsg="Confirm password must be at least 6 characters" isLogInHandle={false}/>
           </div>
-          <LoginInput inputtype="text" lable="Phone Number" placeholder="Your phone number" name="phoneNumber" validator={(v)=>v && v.trim().length>0} errMsg="Enter phone number" />
-          <LoginInput inputtype="text" lable="Profile Image" placeholder="Your profile image URL" name="profileImage" validator={(v)=>v && v.trim().length>0} errMsg="Enter profile image URL" />
+          <LoginInput inputtype="text" lable="Phone Number" placeholder="Your phone number" name="phoneNumber" validator={(v)=>v && v.trim().length>0} errMsg="Enter phone number" isLogInHandle={false}/>
+          <LoginInput inputtype="text" lable="Profile Image" placeholder="Your profile image URL" name="profileImage" validator={(v)=>v && v.trim().length>0} errMsg="Enter profile image URL" isLogInHandle={false}/>
           <button className="w-full bg-main-background text-white py-2 rounded-md hover:bg-red mt-4" type='submit'>Register</button>
         </form>
+        { <p className="text-sm text-red-600 mt-1">{firebaseREGErr}</p> }
         <p className="text-sm text-center text-gray-600 mt-4">Already have an account? <span className="text-main-background cursor-pointer" onClick={()=>{}}>Sign In</span></p>
       </div>
     </div>
@@ -109,10 +123,10 @@ const RegisterComponent = ()=>{
 }
 
 
-const LoginInput =({inputtype, lable, placeholder, name, validator, errMsg}) =>{
+const LoginInput =({inputtype, lable, placeholder, name, validator, errMsg,fierbaseErr,setFierBaseLoginError,isLogInHandle}) =>{
   const[error,setError] = useState(false)
   const[inputValue,setInputValue] = useState("")
-  const[localErrMsg,setLocalErrMsg] = useState("")
+  const[localErrMsg,setLocalErrMsg] = useState("") 
 
   const handleBlur = () =>{
     if (typeof validator === 'function'){
@@ -135,6 +149,10 @@ const LoginInput =({inputtype, lable, placeholder, name, validator, errMsg}) =>{
         setLocalErrMsg("")
       }
     }
+    if(isLogInHandle){
+      setFierBaseLoginError({ emailErr:'',  passwoardErr:''})
+    }
+    
   }
 
   return(
@@ -151,6 +169,7 @@ const LoginInput =({inputtype, lable, placeholder, name, validator, errMsg}) =>{
         required
       />
       {error && localErrMsg ? <p className="text-sm text-red-600 mt-1">{localErrMsg}</p> : null}
+      {fierbaseErr ? <p className="text-sm text-red-600 mt-1">{fierbaseErr}</p> : null}
     </div>
   )
 }

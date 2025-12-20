@@ -2,7 +2,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../FireBase/firebase";
 import setDataDocument from "../dataFetch/setDataDocument";
 
-const userRegister = (email, password,name,address,phoneNumber,profilepicture,role)=>{
+const userRegister = (email, password,name,address,phoneNumber,profilepicture,role,setFierBaseregError)=>{
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         // Signed up 
@@ -22,6 +22,7 @@ const userRegister = (email, password,name,address,phoneNumber,profilepicture,ro
     .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+        setFierBaseregError(errorMessage)
         console.log(errorMessage);
         
     });
