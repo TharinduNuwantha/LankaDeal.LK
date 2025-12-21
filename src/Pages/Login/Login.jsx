@@ -82,6 +82,7 @@ const loginHandle = (e)=> {
 
 const RegisterComponent = ()=>{
    const[firebaseREGErr,setFierBaseregError] = useState('');
+   const navigater = useNavigate()
   const registerHandle = (e) =>{
     e.preventDefault()
     const  name = `${e.target["firstName"].value} ${e.target["lastName"].value}`
@@ -94,7 +95,7 @@ const RegisterComponent = ()=>{
     const role = "user"
 
       if(passwoard === cpasswoard){
-        userRegister(email,passwoard,name,address,phoneNumber,profileImage,role,setFierBaseregError);
+        userRegister(email,passwoard,name,address,phoneNumber,profileImage,role,setFierBaseregError,navigater);
       }
   }
   return(
@@ -103,17 +104,17 @@ const RegisterComponent = ()=>{
         <h1 className="text-2xl font-semibold mb-6 text-center">Create your account</h1>
         <form onSubmit={registerHandle}>
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <LoginInput inputtype="text" lable="First Name" placeholder="Your first name" name="firstName" validator={(v)=>v && v.trim().length>0} errMsg="Enter first name" isLogInHandle={false}/>
-            <LoginInput inputtype="text" lable="Last Name" placeholder="Your last name" name="lastName" validator={(v)=>v && v.trim().length>0} errMsg="Enter last name" isLogInHandle={false}/>
+            <LoginInput inputtype="text" lable="First Name" placeholder="Your first name" name="firstName" validator={(v)=>v && v.trim().length>0} errMsg="Enter first name" setFierBaseLoginError={setFierBaseregError}  isLogInHandle={false}/>
+            <LoginInput inputtype="text" lable="Last Name" placeholder="Your last name" name="lastName" validator={(v)=>v && v.trim().length>0} errMsg="Enter last name" setFierBaseLoginError={setFierBaseregError} isLogInHandle={false}/>
           </div>
-          <LoginInput inputtype="email" lable="Email Address" placeholder="Your email address" name="email" validator={(v) => /\S+@\S+\.\S+/.test(v)} errMsg="Enter a valid email" isLogInHandle={false}/>
-          <LoginInput inputtype="text" lable="Address" placeholder="Your address" name="address" validator={(v)=>v && v.trim().length>0} errMsg="Enter address" isLogInHandle={false}/>
+          <LoginInput inputtype="email" lable="Email Address" placeholder="Your email address" name="email" validator={(v) => /\S+@\S+\.\S+/.test(v)} errMsg="Enter a valid email" setFierBaseLoginError={setFierBaseregError}  isLogInHandle={false}/>
+          <LoginInput inputtype="text" lable="Address" placeholder="Your address" name="address" validator={(v)=>v && v.trim().length>0} errMsg="Enter address" setFierBaseLoginError={setFierBaseregError} isLogInHandle={false}/>
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <LoginInput inputtype="password" lable="Password" placeholder="Password" name="password" validator={(v)=>v && v.length>=6} errMsg="Password must be at least 6 characters" isLogInHandle={false}/>
-            <LoginInput inputtype="password" lable="Confirm Password" placeholder="Confirm password" name="confirmPassword" validator={(v)=>v && v.length>=6} errMsg="Confirm password must be at least 6 characters" isLogInHandle={false}/>
+            <LoginInput inputtype="password" lable="Password" placeholder="Password" name="password" validator={(v)=>v && v.length>=6} errMsg="Password must be at least 6 characters" setFierBaseLoginError={setFierBaseregError} isLogInHandle={false}/>
+            <LoginInput inputtype="password" lable="Confirm Password" placeholder="Confirm password" name="confirmPassword" validator={(v)=>v && v.length>=6} errMsg="Confirm password must be at least 6 characters" setFierBaseLoginError={setFierBaseregError} isLogInHandle={false}/>
           </div>
-          <LoginInput inputtype="text" lable="Phone Number" placeholder="Your phone number" name="phoneNumber" validator={(v)=>v && v.trim().length>0} errMsg="Enter phone number" isLogInHandle={false}/>
-          <LoginInput inputtype="text" lable="Profile Image" placeholder="Your profile image URL" name="profileImage" validator={(v)=>v && v.trim().length>0} errMsg="Enter profile image URL" isLogInHandle={false}/>
+          <LoginInput inputtype="text" lable="Phone Number" placeholder="Your phone number" name="phoneNumber" validator={(v)=>v && v.trim().length>0} errMsg="Enter phone number" setFierBaseLoginError={setFierBaseregError} isLogInHandle={false}/>
+          <LoginInput inputtype="text" lable="Profile Image" placeholder="Your profile image URL" name="profileImage" validator={(v)=>v && v.trim().length>0} errMsg="Enter profile image URL" setFierBaseLoginError={setFierBaseregError} isLogInHandle={false}/>
           <button className="w-full bg-main-background text-white py-2 rounded-md hover:bg-red mt-4" type='submit'>Register</button>
         </form>
         { <p className="text-sm text-red-600 mt-1">{firebaseREGErr}</p> }
@@ -152,7 +153,10 @@ const LoginInput =({inputtype, lable, placeholder, name, validator, errMsg,fierb
     }
     if(isLogInHandle){
       setFierBaseLoginError({ emailErr:'',  passwoardErr:''})
+    }else{
+      setFierBaseLoginError('')
     }
+
     
   }
 
