@@ -77,24 +77,14 @@ const router = createBrowserRouter([
   },
 
 
-  {
-    element:<AdminProtected/>,
-    children:[
-      {
-        path:'/admin',
-        children:[
-          {
-            index:true,
-            element:<Admin/>
-          },
-          {
-            path:'createproduct',
-            element:<AddProduct/>
-          }
-        ]
-      }
-    ]
-  }
+{
+  path: "/admin",
+  element: <AdminProtected />,
+  children: [
+    { index: true, element: <Admin /> },
+    { path: "createproduct", element: <AddProduct /> }
+  ]
+}
 ])
 
 const AppRouters = () => {
