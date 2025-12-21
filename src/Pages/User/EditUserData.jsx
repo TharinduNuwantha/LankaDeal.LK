@@ -81,6 +81,9 @@ const EditUserData = () => {
   const userData = useSelector(userSelecter)
   const dispatch = useDispatch()
 
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [imageTab, setImageTab] = useState('device'); // 'device' or 'url'
+  const [tempImageUrl, setTempImageUrl] = useState('');
 
   // Initialize state
   const [formData, setFormData] = useState({
@@ -119,6 +122,26 @@ const EditUserData = () => {
     });
   }
 
+const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Create a temporary URL to preview the file immediately
+      const objectUrl = URL.createObjectURL(file);
+      setTempImageUrl(objectUrl);
+      
+      // NOTE: In a real app, you would upload 'file' to Firebase Storage here
+      // and get the download URL. For now, we are using the ObjectURL or Base64.
+    }
+  }
+
+  const handleSaveImage = () => {
+    if (tempImageUrl) {
+        setFormData(prev => ({ ...prev, profilepicture: tempImageUrl }));
+        setIsImageModalOpen(false);
+        setTempImageUrl(''); // Reset temp
+    }
+  }
+
 const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -132,7 +155,7 @@ const handleSubmit = async (e) => {
 
     try {
         const washingtonRef = doc(db, "users", formData.uid);
-
+        console.log('image link ====> ',setTempImageUrl)
         const updatedUserData = {
             name: formData.name,
             email: formData.email,
@@ -142,7 +165,8 @@ const handleSubmit = async (e) => {
             district: formData.district,
             city: formData.city,
             zip: formData.zip,
-            country: formData.country
+            country: formData.country,
+            profilepicture: formData.profilepicture
         }
 
         await updateDoc(washingtonRef, updatedUserData);
@@ -191,15 +215,96 @@ const handleSubmit = async (e) => {
     <div className="min-h-screen flex justify-center items-center p-4">
       <div className="bg-white w-full max-w-lg rounded-xl shadow-md p-6">
 
-        {/* Profile Picture */}
-        <div className="flex justify-center mb-4">
-          <img
-            src={formData.profilepicture || 'https://via.placeholder.com/100'}
-            alt="Profile"
-            className="w-24 h-24 rounded-full object-cover border"
-          />
+<div className="flex justify-center mb-6 relative">
+            <div className="relative group">
+                <img
+                    src={formData.profilepicture || 'https://via.placeholder.com/150'}
+                    alt="Profile"
+                    className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                />
+                
+                {/* --- THIS IS THE MISSING BUTTON --- */}
+                <button
+                    type="button"
+                    onClick={() => setIsImageModalOpen(true)}
+                    className="absolute bottom-1 right-1 bg-blue-600 p-2 rounded-full text-white hover:bg-blue-700 shadow-md transition-all hover:scale-110"
+                    title="Change Profile Picture"
+                >
+                    {/* SVG Icon for Edit/Camera */}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                    </svg>
+                </button>
+                {/* ---------------------------------- */}
+                
+            </div>
         </div>
+{/* --- IMAGE UPLOAD POPUP MODAL --- */}
+        {isImageModalOpen && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
+                <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-fadeIn">
+                    {/* Modal Header */}
+                    <div className="flex justify-between items-center p-4 border-b">
+                        <h3 className="text-lg font-semibold text-gray-800">Update Profile Photo</h3>
+                        <button onClick={() => setIsImageModalOpen(false)} className="text-gray-500 hover:text-red-500">
+                             ✕
+                        </button>
+                    </div>
 
+                    {/* Modal Tabs */}
+                    <div className="flex border-b">
+                        <button 
+                            className={`flex-1 py-3 text-sm font-medium ${imageTab === 'device' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+                            onClick={() => setImageTab('device')}
+                        >
+                            Upload Device
+                        </button>
+                        <button 
+                            className={`flex-1 py-3 text-sm font-medium ${imageTab === 'url' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+                            onClick={() => setImageTab('url')}
+                        >
+                            Image URL
+                        </button>
+                    </div>
+
+                    {/* Modal Content */}
+                    <div className="p-6">
+                        {imageTab === 'device' ? (
+                            <div className="text-center">
+                                <label className="cursor-pointer block border-2 border-dashed border-gray-300 rounded-lg p-6 hover:bg-gray-50 transition">
+                                    <div className="text-gray-400 mb-2">📂</div>
+                                    <span className="text-sm text-gray-600">Click to select file</span>
+                                    <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                                </label>
+                            </div>
+                        ) : (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Paste Image Link</label>
+                                <input 
+                                    type="text" 
+                                    className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    placeholder="https://example.com/image.png"
+                                    onChange={(e) => setTempImageUrl(e.target.value)}
+                                />
+                            </div>
+                        )}
+
+                        {/* Preview */}
+                        {tempImageUrl && (
+                            <div className="mt-4 flex justify-center">
+                                <img src={tempImageUrl} alt="Preview" className="w-20 h-20 rounded-full object-cover border shadow-sm" />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Modal Actions */}
+                    <div className="p-4 border-t flex gap-3">
+                        <button onClick={() => setIsImageModalOpen(false)} className="flex-1 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm">Cancel</button>
+                        <button onClick={handleSaveImage} className="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 shadow-md">Set Image</button>
+                    </div>
+                </div>
+            </div>
+        )}
         {/* User Edit Form */}
         <form className="space-y-4 text-gray-700" onSubmit={handleSubmit}>
           
