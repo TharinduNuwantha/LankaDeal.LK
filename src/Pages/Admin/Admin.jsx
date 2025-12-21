@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 // import { removeUser } from '../../Store/ReduxSlice/userSlice';
 import logout from '../../utils/auth/logout';
-import './Admin.css'
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, 
@@ -35,14 +34,34 @@ import {
   ArrowDownward as ArrowDownIcon,
   CalendarToday as CalendarIcon,
   Download as DownloadIcon,
-  FilterList as FilterIcon
+  FilterList as FilterIcon,
+  Chat as ChatIcon,
+  Mic as MicIcon,
+  Send as SendIcon,
+  SmartToy as AIIcon,
+  KeyboardVoice as VoiceIcon,
+  Stop as StopIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon
 } from '@mui/icons-material';
+import { removeUser } from '../../Store/ReduxSlice/userClise';
 
 const Admin = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Changed default to false for mobile
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatExpanded, setChatExpanded] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [messages, setMessages] = useState([
+    { id: 1, text: 'Hello! I\'m your AI assistant. How can I help you today?', sender: 'ai', time: '10:00 AM' },
+    { id: 2, text: 'I want to check my sales analytics', sender: 'user', time: '10:01 AM' },
+    { id: 3, text: 'Sure! I can show you sales analytics. You can go to the Analytics tab or ask me specific questions.', sender: 'ai', time: '10:01 AM' },
+  ]);
+  const [newMessage, setNewMessage] = useState('');
+  const chatContainerRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   // Sales Data for Charts
   const salesData = [
@@ -97,15 +116,97 @@ const Admin = () => {
 
   const handleLogout = () => {
     logout();
-    // dispatch(removeUser());
+    dispatch(removeUser());
     navigate('/login');
   };
 
+  const handleSendMessage = () => {
+    if (newMessage.trim()) {
+      const newMsg = {
+        id: messages.length + 1,
+        text: newMessage,
+        sender: 'user',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages([...messages, newMsg]);
+      setNewMessage('');
+      
+      // Simulate AI response
+      setTimeout(() => {
+        const aiResponse = {
+          id: messages.length + 2,
+          text: `I received: "${newMessage}". This is an AI response. In a real system, I would process your query and provide helpful information about your e-commerce dashboard.`,
+          sender: 'ai',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages(prev => [...prev, aiResponse]);
+      }, 1000);
+    }
+  };
+
+  const startRecording = () => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'en-US';
+
+      recognitionRef.current.onstart = () => {
+        setIsRecording(true);
+      };
+
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setNewMessage(transcript);
+        setIsRecording(false);
+      };
+
+      recognitionRef.current.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsRecording(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsRecording(false);
+      };
+
+      recognitionRef.current.start();
+    } else {
+      alert('Speech recognition is not supported in this browser.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const toggleChat = () => {
+    setChatOpen(!chatOpen);
+    if (!chatOpen) {
+      setChatExpanded(false);
+    }
+  };
+
+  const toggleChatExpand = () => {
+    setChatExpanded(!chatExpanded);
+  };
+
+  // Auto scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   const Sidebar = () => (
-    <div className={`fixed md:relative h-screen bg-gradient-to-b from-gray-900 to-black text-white transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'} z-40`}>
+    <div className={`fixed md:relative h-screen bg-gradient-to-b from-gray-900 to-black text-white transition-all duration-300 z-40 ${sidebarOpen ? 'w-64 translate-x-0' : '-translate-x-full md:translate-x-0 md:w-20'}`}>
       {/* Logo */}
       <div className="p-6 border-b border-gray-800 flex items-center justify-between">
-        <div className={`flex items-center gap-3 ${!sidebarOpen && 'justify-center'}`}>
+        <div className={`flex items-center gap-3 ${!sidebarOpen && 'md:justify-center'}`}>
           <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-red-600 to-yellow-500 flex items-center justify-center">
             <StoreIcon className="text-white" />
           </div>
@@ -138,7 +239,10 @@ const Admin = () => {
         ].map((item) => (
           <button
             key={item.id}
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => {
+              setActiveTab(item.id);
+              setSidebarOpen(false); // Close sidebar on mobile after selection
+            }}
             className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${activeTab === item.id 
               ? 'bg-gradient-to-r from-red-700 to-red-800 text-white shadow-lg' 
               : 'hover:bg-gray-800 text-gray-300 hover:text-white'
@@ -165,47 +269,167 @@ const Admin = () => {
     </div>
   );
 
+  const AIChatBox = () => (
+    <div className={`fixed right-4 transition-all duration-500 z-50 ${chatExpanded ? 'bottom-4 w-96 h-[600px]' : 'bottom-4 w-80 h-16'} ${!chatOpen && 'hidden'}`}>
+      {/* Chat Header */}
+      <div 
+        className={`bg-gradient-to-r from-gray-900 to-black text-white rounded-t-2xl p-4 shadow-xl cursor-pointer ${!chatExpanded && 'rounded-2xl'}`}
+        onClick={toggleChatExpand}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-red-600 to-yellow-500 flex items-center justify-center">
+              <AIIcon className="text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold">AI Assistant</h3>
+              <p className="text-xs text-gray-300">Ask me anything</p>
+            </div>
+          </div>
+          <button className="text-gray-300 hover:text-white">
+            {chatExpanded ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+          </button>
+        </div>
+      </div>
+
+      {/* Chat Body - Only show when expanded */}
+      {chatExpanded && (
+        <div className="bg-white rounded-b-2xl shadow-xl h-[calc(100%-64px)] flex flex-col">
+          {/* Messages */}
+          <div 
+            ref={chatContainerRef}
+            className="flex-1 overflow-y-auto p-4 space-y-4"
+          >
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className={`max-w-[80%] rounded-2xl p-3 ${msg.sender === 'user' 
+                  ? 'bg-gradient-to-r from-red-600 to-red-700 text-white rounded-tr-none' 
+                  : 'bg-gray-100 text-gray-800 rounded-tl-none'
+                }`}>
+                  <p>{msg.text}</p>
+                  <span className={`text-xs mt-1 block ${msg.sender === 'user' ? 'text-red-200' : 'text-gray-500'}`}>
+                    {msg.time}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Voice Recording Animation - Show when recording */}
+          {isRecording && (
+            <div className="px-4 py-2 border-t">
+              <div className="flex items-center justify-center gap-3 p-3 bg-red-50 rounded-xl animate-pulse">
+                <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
+                  <VoiceIcon className="text-white text-sm" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-red-700 font-medium">Listening...</div>
+                  <div className="flex items-center gap-1 mt-1">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-1 h-6 bg-red-600 rounded-full animate-bounce"
+                        style={{ animationDelay: `${i * 0.1}s` }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <button
+                  onClick={stopRecording}
+                  className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700"
+                >
+                  Stop
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Input Area */}
+          <div className="p-4 border-t">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={isRecording ? stopRecording : startRecording}
+                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${isRecording 
+                  ? 'bg-red-600 text-white animate-pulse' 
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                }`}
+              >
+                {isRecording ? <StopIcon /> : <MicIcon />}
+              </button>
+              
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  placeholder="Type your message..."
+                  className="w-full px-4 py-3 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all duration-300"
+                />
+                {newMessage && (
+                  <button
+                    onClick={handleSendMessage}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    <SendIcon />
+                  </button>
+                )}
+              </div>
+            </div>
+            
+            <div className="mt-2 text-xs text-gray-500">
+              {isRecording ? 'Click stop to end recording' : 'Click mic to speak or type your message'}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   const DashboardContent = () => (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {[
           {
             title: 'Total Revenue',
             value: `₹${stats.totalRevenue.toLocaleString()}`,
             change: stats.revenueChange,
-            icon: <MoneyIcon className="text-3xl" />,
+            icon: <MoneyIcon className="text-2xl md:text-3xl" />,
             color: 'from-green-500 to-emerald-600',
           },
           {
             title: 'Total Orders',
             value: stats.totalOrders.toLocaleString(),
             change: stats.ordersChange,
-            icon: <CartIcon className="text-3xl" />,
+            icon: <CartIcon className="text-2xl md:text-3xl" />,
             color: 'from-blue-500 to-cyan-600',
           },
           {
             title: 'Total Products',
             value: stats.totalProducts.toLocaleString(),
             change: stats.productsChange,
-            icon: <InventoryIcon className="text-3xl" />,
+            icon: <InventoryIcon className="text-2xl md:text-3xl" />,
             color: 'from-purple-500 to-pink-600',
           },
           {
             title: 'Total Customers',
             value: stats.totalCustomers.toLocaleString(),
             change: stats.customersChange,
-            icon: <PeopleIcon className="text-3xl" />,
+            icon: <PeopleIcon className="text-2xl md:text-3xl" />,
             color: 'from-orange-500 to-red-600',
           },
         ].map((stat, index) => (
-          <div key={index} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <div className="flex justify-between items-start mb-4">
+          <div key={index} className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div className="flex justify-between items-start mb-3 md:mb-4">
               <div>
-                <p className="text-sm text-gray-500 font-medium">{stat.title}</p>
-                <h3 className="text-2xl font-bold mt-1">{stat.value}</h3>
+                <p className="text-xs md:text-sm text-gray-500 font-medium">{stat.title}</p>
+                <h3 className="text-xl md:text-2xl font-bold mt-1">{stat.value}</h3>
               </div>
-              <div className={`p-3 rounded-xl bg-gradient-to-r ${stat.color} text-white`}>
+              <div className={`p-2 md:p-3 rounded-lg md:rounded-xl bg-gradient-to-r ${stat.color} text-white`}>
                 {stat.icon}
               </div>
             </div>
@@ -213,15 +437,15 @@ const Admin = () => {
               {stat.change > 0 ? (
                 <>
                   <ArrowUpIcon className="text-green-500 text-sm" />
-                  <span className="text-green-500 font-medium">+{stat.change}%</span>
+                  <span className="text-green-500 font-medium text-sm">+{stat.change}%</span>
                 </>
               ) : (
                 <>
                   <ArrowDownIcon className="text-red-500 text-sm" />
-                  <span className="text-red-500 font-medium">{stat.change}%</span>
+                  <span className="text-red-500 font-medium text-sm">{stat.change}%</span>
                 </>
               )}
-              <span className="text-gray-500 text-sm ml-auto">From last month</span>
+              <span className="text-gray-500 text-xs md:text-sm ml-auto">From last month</span>
             </div>
           </div>
         ))}
@@ -230,18 +454,18 @@ const Admin = () => {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sales Chart */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
-          <div className="flex justify-between items-center mb-6">
+        <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="text-lg font-bold">Sales Overview</h3>
               <p className="text-gray-500 text-sm">Monthly revenue and orders</p>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium transition-colors">
+            <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium transition-colors">
               <CalendarIcon className="text-sm" />
               This Year
             </button>
           </div>
-          <div className="h-72">
+          <div className="h-64 md:h-72">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={salesData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -257,18 +481,18 @@ const Admin = () => {
         </div>
 
         {/* Category Distribution */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
-          <div className="flex justify-between items-center mb-6">
+        <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="text-lg font-bold">Category Distribution</h3>
               <p className="text-gray-500 text-sm">Sales by product category</p>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium transition-colors">
+            <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium transition-colors">
               <DownloadIcon className="text-sm" />
               Export
             </button>
           </div>
-          <div className="h-72">
+          <div className="h-64 md:h-72">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -277,7 +501,7 @@ const Admin = () => {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
+                  outerRadius={70}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -296,8 +520,8 @@ const Admin = () => {
       {/* Recent Orders & Top Products */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Orders */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
-          <div className="flex justify-between items-center mb-6">
+        <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="text-lg font-bold">Recent Orders</h3>
               <p className="text-gray-500 text-sm">Latest customer orders</p>
@@ -307,7 +531,7 @@ const Admin = () => {
             </button>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[600px]">
               <thead>
                 <tr className="text-left text-gray-500 text-sm border-b">
                   <th className="pb-3">Order ID</th>
@@ -342,30 +566,30 @@ const Admin = () => {
         </div>
 
         {/* Top Products */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
-          <div className="flex justify-between items-center mb-6">
+        <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="text-lg font-bold">Top Products</h3>
               <p className="text-gray-500 text-sm">Best selling products</p>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition-colors">
+            <button className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition-colors">
               <AddCircleIcon className="text-sm" />
               Add Product
             </button>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {topProducts.map((product) => (
               <div key={product.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors">
                 <div>
-                  <h4 className="font-medium">{product.name}</h4>
-                  <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                  <h4 className="font-medium text-sm md:text-base">{product.name}</h4>
+                  <div className="flex items-center gap-3 md:gap-4 mt-1 text-xs md:text-sm text-gray-500">
                     <span>Sales: {product.sales}</span>
                     <span>Stock: {product.stock}</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold">₹{product.revenue.toLocaleString()}</div>
-                  <div className="text-sm text-gray-500">Revenue</div>
+                  <div className="font-bold text-sm md:text-base">₹{product.revenue.toLocaleString()}</div>
+                  <div className="text-xs md:text-sm text-gray-500">Revenue</div>
                 </div>
               </div>
             ))}
@@ -378,13 +602,13 @@ const Admin = () => {
   const ProductsContent = () => (
     <div className="space-y-6">
       {/* Products Header */}
-      <div className="bg-white rounded-2xl p-6 shadow-lg">
+      <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold">Products Management</h2>
-            <p className="text-gray-500">Manage your product inventory and listings</p>
+            <h2 className="text-xl md:text-2xl font-bold">Products Management</h2>
+            <p className="text-gray-500 text-sm">Manage your product inventory and listings</p>
           </div>
-          <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl">
+          <button className="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl">
             <AddCircleIcon />
             Add New Product
           </button>
@@ -392,8 +616,8 @@ const Admin = () => {
       </div>
 
       {/* Products Table */}
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div className="p-6 border-b">
+      <div className="bg-white rounded-xl md:rounded-2xl shadow-lg overflow-hidden">
+        <div className="p-4 md:p-6 border-b">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="relative flex-1 max-w-md">
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -404,11 +628,11 @@ const Admin = () => {
               />
             </div>
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 hover:border-gray-400 rounded-xl font-medium transition-colors">
+              <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 hover:border-gray-400 rounded-xl font-medium text-sm transition-colors">
                 <FilterIcon />
                 Filter
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 hover:border-gray-400 rounded-xl font-medium transition-colors">
+              <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 hover:border-gray-400 rounded-xl font-medium text-sm transition-colors">
                 <DownloadIcon />
                 Export
               </button>
@@ -417,15 +641,15 @@ const Admin = () => {
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[800px]">
             <thead className="bg-gray-50">
               <tr>
-                <th className="text-left p-4 font-medium text-gray-700">Product</th>
-                <th className="text-left p-4 font-medium text-gray-700">Category</th>
-                <th className="text-left p-4 font-medium text-gray-700">Price</th>
-                <th className="text-left p-4 font-medium text-gray-700">Stock</th>
-                <th className="text-left p-4 font-medium text-gray-700">Status</th>
-                <th className="text-left p-4 font-medium text-gray-700">Actions</th>
+                <th className="text-left p-3 md:p-4 font-medium text-gray-700 text-sm md:text-base">Product</th>
+                <th className="text-left p-3 md:p-4 font-medium text-gray-700 text-sm md:text-base">Category</th>
+                <th className="text-left p-3 md:p-4 font-medium text-gray-700 text-sm md:text-base">Price</th>
+                <th className="text-left p-3 md:p-4 font-medium text-gray-700 text-sm md:text-base">Stock</th>
+                <th className="text-left p-3 md:p-4 font-medium text-gray-700 text-sm md:text-base">Status</th>
+                <th className="text-left p-3 md:p-4 font-medium text-gray-700 text-sm md:text-base">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -437,15 +661,15 @@ const Admin = () => {
                 { id: 5, name: 'Fitness Band', category: 'Sports', price: 1999, stock: 67, status: 'active' },
               ].map((product) => (
                 <tr key={product.id} className="border-t hover:bg-gray-50">
-                  <td className="p-4">
+                  <td className="p-3 md:p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-gray-100"></div>
-                      <span className="font-medium">{product.name}</span>
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gray-100"></div>
+                      <span className="font-medium text-sm md:text-base">{product.name}</span>
                     </div>
                   </td>
-                  <td className="p-4 text-gray-600">{product.category}</td>
-                  <td className="p-4 font-bold">₹{product.price.toLocaleString()}</td>
-                  <td className="p-4">
+                  <td className="p-3 md:p-4 text-gray-600 text-sm md:text-base">{product.category}</td>
+                  <td className="p-3 md:p-4 font-bold text-sm md:text-base">₹{product.price.toLocaleString()}</td>
+                  <td className="p-3 md:p-4">
                     <div className="flex items-center gap-2">
                       <span className={product.stock < 20 ? 'text-red-600 font-bold' : 'font-bold'}>
                         {product.stock}
@@ -457,23 +681,23 @@ const Admin = () => {
                       )}
                     </div>
                   </td>
-                  <td className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  <td className="p-3 md:p-4">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}>
                       {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
                     </span>
                   </td>
-                  <td className="p-4">
+                  <td className="p-3 md:p-4">
                     <div className="flex items-center gap-2">
-                      <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <ViewIcon />
+                      <button className="p-1 md:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <ViewIcon className="text-sm md:text-base" />
                       </button>
-                      <button className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors">
-                        <EditIcon />
+                      <button className="p-1 md:p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                        <EditIcon className="text-sm md:text-base" />
                       </button>
-                      <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                        <DeleteIcon />
+                      <button className="p-1 md:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                        <DeleteIcon className="text-sm md:text-base" />
                       </button>
                     </div>
                   </td>
@@ -483,25 +707,25 @@ const Admin = () => {
           </table>
         </div>
         
-        <div className="p-6 border-t flex items-center justify-between">
-          <div className="text-gray-500">
+        <div className="p-4 md:p-6 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="text-gray-500 text-sm">
             Showing 1-5 of 89 products
           </div>
           <div className="flex items-center gap-2">
-            <button className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50">
-              <ArrowUpIcon className="transform -rotate-90" />
+            <button className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50">
+              <ArrowUpIcon className="transform -rotate-90 text-sm" />
             </button>
-            <button className="w-10 h-10 flex items-center justify-center bg-red-600 text-white rounded-lg font-medium">
+            <button className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-red-600 text-white rounded-lg font-medium text-sm">
               1
             </button>
-            <button className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50">
+            <button className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
               2
             </button>
-            <button className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50">
+            <button className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
               3
             </button>
-            <button className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50">
-              <ArrowUpIcon className="transform rotate-90" />
+            <button className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50">
+              <ArrowUpIcon className="transform rotate-90 text-sm" />
             </button>
           </div>
         </div>
@@ -517,37 +741,37 @@ const Admin = () => {
         return <ProductsContent />;
       case 'categories':
         return (
-          <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <h2 className="text-2xl font-bold mb-6">Categories Management</h2>
-            {/* Add categories content here */}
+          <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Categories Management</h2>
+            <p className="text-gray-500">Category management content will be added here.</p>
           </div>
         );
       case 'orders':
         return (
-          <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <h2 className="text-2xl font-bold mb-6">Orders Management</h2>
-            {/* Add orders content here */}
+          <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Orders Management</h2>
+            <p className="text-gray-500">Order management content will be added here.</p>
           </div>
         );
       case 'customers':
         return (
-          <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <h2 className="text-2xl font-bold mb-6">Customers Management</h2>
-            {/* Add customers content here */}
+          <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Customers Management</h2>
+            <p className="text-gray-500">Customer management content will be added here.</p>
           </div>
         );
       case 'analytics':
         return (
-          <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <h2 className="text-2xl font-bold mb-6">Analytics</h2>
-            {/* Add analytics content here */}
+          <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Analytics</h2>
+            <p className="text-gray-500">Analytics content will be added here.</p>
           </div>
         );
       case 'settings':
         return (
-          <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <h2 className="text-2xl font-bold mb-6">Settings</h2>
-            {/* Add settings content here */}
+          <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Settings</h2>
+            <p className="text-gray-500">Settings content will be added here.</p>
           </div>
         );
       default:
@@ -561,9 +785,12 @@ const Admin = () => {
       <div className="md:hidden fixed top-0 left-0 right-0 bg-gradient-to-r from-gray-900 to-black text-white p-4 z-30">
         <div className="flex items-center justify-between">
           <button onClick={() => setSidebarOpen(!sidebarOpen)}>
-            <MenuIcon />
+            {sidebarOpen ? <CloseIcon /> : <MenuIcon />}
           </button>
           <div className="flex items-center gap-4">
+            <button className="relative" onClick={toggleChat}>
+              <ChatIcon />
+            </button>
             <button className="relative">
               <NotificationsIcon />
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white text-xs rounded-full flex items-center justify-center">
@@ -588,9 +815,9 @@ const Admin = () => {
         )}
 
         {/* Main Content */}
-        <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
-          {/* Top Bar */}
-          <div className="hidden md:flex items-center justify-between bg-white border-b px-6 py-4">
+        <div className={`flex-1 transition-all duration-300 w-full ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
+          {/* Top Bar - Desktop */}
+          <div className="hidden md:flex items-center justify-between bg-white border-b px-4 md:px-6 py-4">
             <div className="flex-1 max-w-xl">
               <div className="relative">
                 <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -602,7 +829,11 @@ const Admin = () => {
               </div>
             </div>
             
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 md:gap-6">
+              <button className="relative" onClick={toggleChat}>
+                <ChatIcon className="text-gray-600" />
+              </button>
+              
               <button className="relative">
                 <NotificationsIcon className="text-gray-600" />
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white text-xs rounded-full flex items-center justify-center">
@@ -611,11 +842,11 @@ const Admin = () => {
               </button>
               
               <div className="flex items-center gap-3">
-                <div className="text-right">
+                <div className="text-right hidden md:block">
                   <p className="font-medium">Admin User</p>
                   <p className="text-sm text-gray-500">Super Admin</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-red-600 to-yellow-500 flex items-center justify-center text-white font-bold">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-red-600 to-yellow-500 flex items-center justify-center text-white font-bold">
                   AU
                 </div>
               </div>
@@ -623,11 +854,24 @@ const Admin = () => {
           </div>
 
           {/* Content Area */}
-          <div className="p-4 md:p-6 mt-16 md:mt-0">
+          <div className="p-3 md:p-4 lg:p-6 mt-16 md:mt-0">
             {getContent()}
           </div>
         </div>
       </div>
+
+      {/* AI Chat Box */}
+      <AIChatBox />
+
+      {/* Chat Toggle Button - Mobile when chat is closed */}
+      {!chatOpen && (
+        <button
+          onClick={toggleChat}
+          className="fixed bottom-4 right-4 w-14 h-14 rounded-full bg-gradient-to-r from-red-600 to-yellow-500 text-white shadow-2xl z-50 flex items-center justify-center hover:scale-110 transition-transform duration-300 md:hidden"
+        >
+          <ChatIcon />
+        </button>
+      )}
     </div>
   );
 };

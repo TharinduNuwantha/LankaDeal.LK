@@ -13,6 +13,7 @@ import AdminProtected from './AdminProtected'
 import Admin from '../Pages/Admin/Admin'
 import UrlNotFound from '../Pages/404/UrlNotFound'
 import EditUserData from '../Pages/User/EditUserData'
+import AddProduct from '../Pages/Admin/Products/Create Products/CreateAddProduct'
 
 
 
@@ -81,7 +82,16 @@ const router = createBrowserRouter([
     children:[
       {
         path:'/admin',
-        element:<Admin/>
+        children:[
+          {
+            index:true,
+            element:<Admin/>
+          },
+          {
+            path:'createproduct',
+            element:<AddProduct/>
+          }
+        ]
       }
     ]
   }

@@ -1,0 +1,74 @@
+/* File upload animations */
+.file-upload-enter {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.file-upload-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.file-upload-exit {
+  opacity: 1;
+}
+
+.file-upload-exit-active {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Progress bar animation */
+.progress-bar-fill {
+  background: linear-gradient(90deg, #dc2626, #fbbf24);
+  animation: shimmer 2s infinite linear;
+  background-size: 1000px 100%;
+}
+
+/* Category selection animation */
+.category-selected {
+  animation: pulse-glow 2s ease-in-out;
+  box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+}
+
+/* Form validation animation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake-animation {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+/* Feature tag animation */
+.feature-tag-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.feature-tag-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.feature-tag-exit {
+  opacity: 1;
+}
+
+.feature-tag-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}
