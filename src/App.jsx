@@ -8,7 +8,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './FireBase/firebase';
 import getDataDocument from './utils/dataFetch/getDataDocument';
 import { useDispatch, useSelector } from 'react-redux';
-import { addUser, removeUser, userSelecter } from './Store/ReduxSlice/userClise';
+import { addUser, removeUser, userSelecter, isLoadingSelector } from './Store/ReduxSlice/userClise';
 
 
 function App() {
@@ -16,26 +16,24 @@ function App() {
   const userData = useSelector(userSelecter)
   console.log(userData);
   
-  useEffect(()=>{
-    const userCheack = ()=>{
-        onAuthStateChanged(auth, (user) => {
-        if (user) {
-          // User is signed in, see docs for a list of available properties
-          // https://firebase.google.com/docs/reference/js/auth.user
-          const uid = user.uid;
-          getDataDocument('users', uid, (dataset) => {
-            dispatch(addUser(dataset))
-          })
-          // ...
-        } else {  
-          // User is signed out
-          console.log("no user");
-          dispatch(addUser({name:"no-user "}))
-        }
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const uid = user.uid;
+      console.log("user kenek indoooo", user);
+
+      getDataDocument('users', uid, (dataset) => {
+        dispatch(addUser(dataset));
       });
+    } else {
+      console.log("no user");
+      dispatch(removeUser({ name: "no-user" }));
     }
-    return()=> userCheack
-  },[])
+  });
+
+  return () => unsubscribe();
+}, [dispatch]);
+
   return (
     <div>
       <AppRouters/>

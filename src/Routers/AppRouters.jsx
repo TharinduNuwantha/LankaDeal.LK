@@ -12,6 +12,7 @@ import ItemPage from '../Pages/ItemPage/ItemPage'
 import AdminProtected from './AdminProtected'
 import Admin from '../Pages/Admin/Admin'
 import UrlNotFound from '../Pages/404/UrlNotFound'
+import EditUserData from '../Pages/User/EditUserData'
 
 
 
@@ -51,7 +52,15 @@ const router = createBrowserRouter([
         children:[
           {
             path:'profile',
-            element:<User/>
+            children:[
+              {
+                index:true,
+                element:<User/>,
+              },{
+                path:'edit',
+                element:<EditUserData/>
+              }
+            ]
           }
         ]
       }

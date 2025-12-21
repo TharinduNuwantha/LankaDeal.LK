@@ -10,6 +10,7 @@ const AdminProtected = () => {
   const [canView,setCanview] = useState(false);
   const userData = useSelector(userSelecter);
 const navigate = useNavigate()
+console.log("redex data => ",userData);
 
 useEffect(()=>{
   if(userData.name){  

@@ -1,10 +1,10 @@
 import React from 'react'
-import logout from '../../utils/auth/logout'
 import { useSelector } from 'react-redux'
 import { userSelecter } from '../../Store/ReduxSlice/userClise'
 import { useNavigate } from 'react-router-dom'
+import logout from '../../utils/auth/logout'
 
-const User = () => {
+const EditUserData = () => {
   const userData = useSelector(userSelecter)
   const navigate = useNavigate()
 
@@ -37,7 +37,7 @@ const User = () => {
         <div className="flex gap-3 mt-6">
           <button
             className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700 transition"
-            onClick={() => navigate('/profile/edit')}
+            onClick={() => navigate('/user/edit')}
           >
             Edit Data
           </button>
@@ -55,4 +55,4 @@ const User = () => {
   )
 }
 
-export default User
+export default EditUserData

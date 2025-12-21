@@ -8,12 +8,13 @@ import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
   const[select,setSelect] = useState('login')
-
+  const navigate = useNavigate()
   return (
     <div className='w-full h-screen flex flex-col items-center justify-center'>
      {select === 'login' ?<LoginComponent/>:<RegisterComponent/>} 
       {select === 'login' ?<p>Don't have an account?{" "}<span onClick={()=>setSelect("register")}>Sign Up</span></p>:<p>Already havean account(" ")<span onClick={()=>setSelect("login")}>Sign In</span></p>} 
-      
+      <button onClick={() => navigate('/')} className="mt-4 px-4 py-2 bg-main-background text-white rounded-md">Go to Home</button>
+       
     </div>
   )
 }
