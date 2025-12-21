@@ -27,10 +27,44 @@ const User = () => {
           <p><span className="font-semibold">Email:</span> {userData?.email || 'N/A'}</p>
           <p><span className="font-semibold">Phone:</span> {userData?.phoneNumber || 'N/A'}</p>
           <p><span className="font-semibold">Address:</span> {userData?.address || 'N/A'}</p>
-          <p><span className="font-semibold">Role:</span> {userData?.role || 'N/A'}</p>
-          <p className="break-all">
-            <span className="font-semibold">UID:</span> {userData?.uid || 'N/A'}
+          <p>
+            <span className="font-semibold">Province:</span>{' '}
+            {userData?.province ? (
+              userData.province
+            ) : (
+              <span className="text-red-500">Action needed</span>
+            )}
           </p>
+
+          <p>
+            <span className="font-semibold">District:</span>{' '}
+            {userData?.district ? (
+              userData.district
+            ) : (
+              <span className="text-red-500">Action needed</span>
+            )}
+          </p>
+
+          <p>
+            <span className="font-semibold">City:</span>{' '}
+            {userData?.city ? (
+              userData.city
+            ) : (
+              <span className="text-red-500">Action needed</span>
+            )}
+          </p>
+
+
+          <p>
+            <span className="font-semibold">ZIP / Postal Code:</span>{' '}
+            {userData?.zip ? (
+              userData.zip
+            ) : (
+              <span className="text-red-500">Action needed</span>
+            )}
+          </p>
+
+
         </div>
 
         {/* Buttons */}

@@ -4,6 +4,8 @@ import Footer from '../components/Footer/Footer'
 import { Outlet } from 'react-router-dom'
 import Loarding from '../Pages/Loarding/Loarding'
 import ModalPayment from '../modals/ModalPayment'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const MainLayout = () => {
     const paymentModelRef = useRef()
@@ -18,6 +20,10 @@ const MainLayout = () => {
       <main className='flex-1 pt-5 md:pt-5'>
         <Outlet/>
       </main>
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+      />
       <Footer/>
     </div>
   )
