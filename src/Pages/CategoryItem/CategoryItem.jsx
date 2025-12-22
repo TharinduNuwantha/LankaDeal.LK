@@ -25,15 +25,20 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import getDataFromSubCollection from '../../utils/dataFetch/getDataFromSubCollection';
 import Loarding from '../Loarding/Loarding';
 
-
 const CategoryItem = () => {
   const category = useSelector(categorySelector);
   const { categoryId } = useParams();
-  const [categoryTitle] = category.filter((ele) => ele.id === categoryId);
   
+  // Find category title safely
+  const categoryTitle = category.find((ele) => ele.id === categoryId) || { title: 'Category' };
+
   const [viewMode, setViewMode] = useState('grid');
   const [filterOpen, setFilterOpen] = useState(false);
   const [wishlisted, setWishlisted] = useState({});
+  const [categoryItemsData, setCategoryItemsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [filters, setFilters] = useState({
     priceRange: [0, 10000],
     ratings: [],
@@ -43,112 +48,20 @@ const CategoryItem = () => {
     fastDelivery: false
   });
 
-  const categoryItemsArr = [
-    {
-        id: 1,
-        imageUrl: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
-        title: 'Wireless Bluetooth Headphones Premium',
-        price: 2599,
-        originalPrice: 3499,
-        discount: 26,
-        rating: 4.5,
-        reviewCount: 128,
-        isNew: true,
-        isFeatured: true,
-        fastDelivery: true,
-        inStock: true
-    },
-    {
-        id: 2,
-        imageUrl: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=600&h=600&fit=crop&q=80',
-        title: 'Smart Watch Pro Series 2024',
-        price: 12999,
-        originalPrice: 15999,
-        discount: 19,
-        rating: 4.8,
-        reviewCount: 89,
-        isNew: true,
-        fastDelivery: true,
-        inStock: true
-    },
-    {
-        id: 3,
-        imageUrl: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=600&fit=crop&q=80',
-        title: 'Professional DSLR Camera Kit',
-        price: 45999,
-        originalPrice: 59999,
-        discount: 23,
-        rating: 4.9,
-        reviewCount: 56,
-        isFeatured: true,
-        onSale: true,
-        inStock: true
-    },
-    {
-        id: 4,
-        imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=600&fit=crop&q=80',
-        title: 'Ultra Thin Laptop 16GB RAM',
-        price: 72999,
-        originalPrice: 84999,
-        discount: 14,
-        rating: 4.7,
-        reviewCount: 203,
-        fastDelivery: true,
-        inStock: false
-    },
-    {
-        id: 5,
-        imageUrl: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=600&fit=crop&q=80',
-        title: 'Wireless Gaming Mouse RGB',
-        price: 1999,
-        originalPrice: 2999,
-        discount: 33,
-        rating: 4.4,
-        reviewCount: 312,
-        isNew: true,
-        onSale: true,
-        inStock: true
-    },
-    {
-        id: 6,
-        imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=600&fit=crop&q=80',
-        title: '4K Ultra HD Smart TV 55"',
-        price: 45999,
-        originalPrice: 59999,
-        discount: 23,
-        rating: 4.6,
-        reviewCount: 178,
-        isFeatured: true,
-        fastDelivery: true,
-        inStock: true
-    },
-    {
-        id: 7,
-        imageUrl: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&h=600&fit=crop&q=80',
-        title: 'Noise Cancelling Earbuds Pro',
-        price: 8999,
-        originalPrice: 11999,
-        discount: 25,
-        rating: 4.3,
-        reviewCount: 94,
-        isNew: true,
-        inStock: true
-    },
-    {
-        id: 8,
-        imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&q=80',
-        title: 'Fitness Tracker Smart Band',
-        price: 3499,
-        originalPrice: 4999,
-        discount: 30,
-        rating: 4.2,
-        reviewCount: 267,
-        onSale: true,
-        fastDelivery: true,
-        inStock: true
+  useEffect(() => {
+    if (categoryId) {
+      setLoading(true);
+      setError(null);
+      
+      // Fetch products from the 'products' subcollection
+      getDataFromSubCollection('category', categoryId, 'products', (data) => {
+        setCategoryItemsData(data);
+        setLoading(false);
+      });
     }
-  ];
+  }, [categoryId]);
 
+  // Handle filter changes
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
       ...prev,
@@ -181,7 +94,64 @@ const CategoryItem = () => {
     return count;
   };
 
-  const FilterPopup = () => ( 
+  // Apply filters to data
+  const getFilteredData = () => {
+    let filtered = [...categoryItemsData];
+
+    // Price filter
+    filtered = filtered.filter(item => 
+      item.price >= filters.priceRange[0] && 
+      item.price <= filters.priceRange[1]
+    );
+
+    // Rating filter
+    if (filters.ratings.length > 0) {
+      filtered = filtered.filter(item => {
+        const itemRating = Math.floor(item.rating || 0);
+        return filters.ratings.includes(itemRating);
+      });
+    }
+
+    // In stock filter
+    if (filters.inStock) {
+      filtered = filtered.filter(item => item.inStock !== false);
+    }
+
+    // On sale filter
+    if (filters.onSale) {
+      filtered = filtered.filter(item => item.onSale === true);
+    }
+
+    // Fast delivery filter
+    if (filters.fastDelivery) {
+      filtered = filtered.filter(item => item.fastDelivery === true);
+    }
+
+    // Sort
+    switch (filters.sortBy) {
+      case 'price-low':
+        filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+        break;
+      case 'price-high':
+        filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
+        break;
+      case 'rating':
+        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        break;
+      case 'newest':
+        filtered.sort((a, b) => (b.id || '').localeCompare(a.id || ''));
+        break;
+      default:
+        // Popular - you might want to add a popularity field
+        break;
+    }
+
+    return filtered;
+  };
+
+  const filteredData = getFilteredData();
+
+  const FilterPopup = () => (
     <div 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center md:items-center"
       onClick={() => setFilterOpen(false)}
@@ -445,16 +415,21 @@ const CategoryItem = () => {
     </div>
   );
 
-  const[categoryItemsData,setCategoryItemsData] = useState([])
-  useEffect(()=>{
-    getDataFromSubCollection('category',categoryId,categoryId,setCategoryItemsData);
-  },[])
+  if (loading) {
+    return <Loarding />;
+  }
 
-  console.log('category Data ===> ',categoryItemsData);
-if(categoryItemsData.length ===0){
-  return <Loarding/>
-}
-  
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600">Error loading products</h2>
+          <p className="text-gray-600 mt-2">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Breadcrumb & Header */}
@@ -468,14 +443,14 @@ if(categoryItemsData.length ===0){
                 <span className="text-red-500">›</span>
                 <span className="hover:text-yellow-500 cursor-pointer">Categories</span>
                 <span className="text-red-500">›</span>
-                <span className="font-semibold text-yellow-500">{categoryTitle?.title || 'Category'}</span>
+                <span className="font-semibold text-yellow-500">{categoryTitle.title}</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                {categoryTitle?.title || 'Category'}
-                <span className="text-yellow-500 ml-2">({categoryItemsArr.length})</span>
+                {categoryTitle.title}
+                <span className="text-yellow-500 ml-2">({filteredData.length})</span>
               </h1>
               <p className="text-gray-300 max-w-2xl">
-                Explore our premium collection of {categoryTitle?.title || 'category'} products. 
+                Explore our premium collection of {categoryTitle.title} products. 
                 Handpicked quality with competitive prices.
               </p>
             </div>
@@ -483,7 +458,7 @@ if(categoryItemsData.length ===0){
             <div className="flex items-center gap-4">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-yellow-500">{categoryItemsArr.length}</div>
+                  <div className="text-2xl font-bold text-yellow-500">{filteredData.length}</div>
                   <div className="text-sm text-gray-300">Products</div>
                 </div>
               </div>
@@ -542,40 +517,49 @@ if(categoryItemsData.length ===0){
         </div>
 
         {/* Products Grid/List */}
-        <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'flex flex-col'} gap-6`}>
-          {categoryItemsData.map((product) => (
-            <CategoryItemUnit
-              key={product.id}
-              {...product}
-              viewMode={viewMode}
-              wishlisted={wishlisted[product.id]}
-              onWishlistToggle={() => setWishlisted(prev => ({
-                ...prev,
-                [product.id]: !prev[product.id]
-              }))}
-            />
-          ))}
-        </div>
+        {filteredData.length === 0 ? (
+          <div className="text-center py-16">
+            <h3 className="text-2xl font-bold text-gray-700 mb-4">No products found</h3>
+            <p className="text-gray-500">Try adjusting your filters or search term</p>
+          </div>
+        ) : (
+          <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'flex flex-col'} gap-6`}>
+            {filteredData.map((product) => (
+              <CategoryItemUnit
+                key={product.id}
+                {...product}
+                viewMode={viewMode}
+                wishlisted={wishlisted[product.id]}
+                onWishlistToggle={() => setWishlisted(prev => ({
+                  ...prev,
+                  [product.id]: !prev[product.id]
+                }))}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Pagination */}
-        <div className="mt-12 flex justify-center">
-          <div className="flex items-center gap-2">
-            <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-lg hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors">
-              <ArrowBackIosNewIcon className="text-sm" />
-            </button>
-            {[1, 2, 3, '...', 8].map((page, idx) => (
-              <button
-                key={idx}
-                className={`w-10 h-10 flex items-center justify-center rounded-lg font-medium transition-all duration-300 ${page === 1 ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg' : 'bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 hover:text-red-600'}`}
-              >
-                {page}
+        {filteredData.length > 0 && (
+          <div className="mt-12 flex justify-center">
+            <div className="flex items-center gap-2">
+              <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-lg hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors">
+                <ArrowBackIosNewIcon className="text-sm" />
               </button>
-            ))}
-            <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-lg hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors">
-              <ArrowForwardIosIcon className="text-sm" />
-            </button>
+              {[1, 2, 3, '...', 8].map((page, idx) => (
+                <button
+                  key={idx}
+                  className={`w-10 h-10 flex items-center justify-center rounded-lg font-medium transition-all duration-300 ${page === 1 ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg' : 'bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 hover:text-red-600'}`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-lg hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors">
+                <ArrowForwardIosIcon className="text-sm" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Filter Popup */}
@@ -584,21 +568,19 @@ if(categoryItemsData.length ===0){
   );
 };
 
-export default CategoryItem;
-
 const CategoryItemUnit = ({ 
   id,
   imageUrl, 
   title, 
-  price, 
-  originalPrice, 
-  discount, 
-  rating, 
-  reviewCount,
-  isNew,
-  isFeatured,
-  fastDelivery,
-  inStock,
+  price = 0, 
+  originalPrice = 0, 
+  discount = 0, 
+  rating = 0, 
+  reviewCount = 0,
+  isNew = false,
+  isFeatured = false,
+  fastDelivery = false,
+  inStock = true,
   viewMode,
   wishlisted,
   onWishlistToggle
@@ -624,6 +606,11 @@ const CategoryItemUnit = ({
     return stars;
   };
 
+  // Calculate discount if not provided
+  const calculatedDiscount = discount || (originalPrice > 0 
+    ? Math.round(((originalPrice - price) / originalPrice) * 100) 
+    : 0);
+
   if (viewMode === 'list') {
     return (
       <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-red-200 transition-all duration-500 hover:shadow-2xl group">
@@ -642,9 +629,9 @@ const CategoryItemUnit = ({
                   FEATURED
                 </span>
               )}
-              {discount > 20 && (
+              {calculatedDiscount > 20 && (
                 <span className="bg-gradient-to-r from-black to-gray-900 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                  -{discount}%
+                  -{calculatedDiscount}%
                 </span>
               )}
             </div>
@@ -663,11 +650,17 @@ const CategoryItemUnit = ({
             </div>
 
             {/* Image */}
-            <img 
-              src={imageUrl} 
-              alt={title}
-              className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700"
-            />
+            {imageUrl ? (
+              <img 
+                src={imageUrl} 
+                alt={title}
+                className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                No Image
+              </div>
+            )}
           </div>
 
           {/* Content */}
@@ -676,7 +669,7 @@ const CategoryItemUnit = ({
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <LocalShippingIcon className="text-sm" />
-                <span>Electronics</span>
+                <span>Category</span>
               </div>
               {!inStock && (
                 <span className="bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
@@ -687,7 +680,7 @@ const CategoryItemUnit = ({
 
             {/* Title */}
             <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors">
-              {title}
+              {title || 'Untitled Product'}
             </h3>
 
             {/* Rating */}
@@ -695,7 +688,7 @@ const CategoryItemUnit = ({
               <div className="flex items-center">
                 {renderStars()}
               </div>
-              <span className="text-sm text-gray-600 font-semibold">{rating}</span>
+              <span className="text-sm text-gray-600 font-semibold">{rating.toFixed(1)}</span>
               <span className="text-sm text-gray-500">({reviewCount} reviews)</span>
             </div>
 
@@ -707,8 +700,10 @@ const CategoryItemUnit = ({
                   Fast Delivery
                 </span>
               )}
-              <span className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-sm">1 Year Warranty</span>
-              <span className="bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-sm">Free Shipping</span>
+              <span className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-sm">Warranty</span>
+              {originalPrice > price && (
+                <span className="bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-sm">Sale</span>
+              )}
             </div>
 
             {/* Price & Actions */}
@@ -716,10 +711,14 @@ const CategoryItemUnit = ({
               <div>
                 <div className="flex items-center gap-3 mb-1">
                   <span className="text-3xl font-bold text-gray-900">₹{price.toLocaleString()}</span>
-                  <span className="text-lg text-gray-500 line-through">₹{originalPrice.toLocaleString()}</span>
-                  <span className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1 rounded-full text-sm font-bold">
-                    Save {discount}%
-                  </span>
+                  {originalPrice > price && (
+                    <>
+                      <span className="text-lg text-gray-500 line-through">₹{originalPrice.toLocaleString()}</span>
+                      <span className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1 rounded-full text-sm font-bold">
+                        Save {calculatedDiscount}%
+                      </span>
+                    </>
+                  )}
                 </div>
                 <p className="text-sm text-gray-500">EMI starts at ₹{Math.round(price/12).toLocaleString()}/month</p>
               </div>
@@ -754,9 +753,9 @@ const CategoryItemUnit = ({
               FEATURED
             </span>
           )}
-          {discount > 20 && (
+          {calculatedDiscount > 20 && (
             <span className="bg-gradient-to-r from-black to-gray-900 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-              -{discount}%
+              -{calculatedDiscount}%
             </span>
           )}
         </div>
@@ -775,11 +774,17 @@ const CategoryItemUnit = ({
         </div>
 
         {/* Image */}
-        <img 
-          src={imageUrl} 
-          alt={title}
-          className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-700"
-        />
+        {imageUrl ? (
+          <img 
+            src={imageUrl} 
+            alt={title}
+            className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-700"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400">
+            No Image
+          </div>
+        )}
 
         {/* Gradient Border Effect */}
         <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-gradient-to-r group-hover:from-red-600 group-hover:via-yellow-500 group-hover:to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -790,7 +795,7 @@ const CategoryItemUnit = ({
         {/* Category */}
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
           <LocalShippingIcon className="text-sm" />
-          <span>Electronics</span>
+          <span>Category</span>
           {!inStock && (
             <span className="ml-auto bg-red-50 text-red-700 px-2 py-1 rounded text-xs font-semibold">
               Out of Stock
@@ -800,7 +805,7 @@ const CategoryItemUnit = ({
 
         {/* Title */}
         <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-red-700 transition-colors">
-          {title}
+          {title || 'Untitled Product'}
         </h3>
 
         {/* Rating */}
@@ -808,7 +813,7 @@ const CategoryItemUnit = ({
           <div className="flex items-center">
             {renderStars()}
           </div>
-          <span className="text-sm text-gray-600 font-semibold">{rating}</span>
+          <span className="text-sm text-gray-600 font-semibold">{rating.toFixed(1)}</span>
           <span className="text-sm text-gray-500">({reviewCount})</span>
         </div>
 
@@ -827,7 +832,9 @@ const CategoryItemUnit = ({
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-2xl font-bold text-gray-900">₹{price.toLocaleString()}</span>
-            <span className="text-base text-gray-500 line-through">₹{originalPrice.toLocaleString()}</span>
+            {originalPrice > price && (
+              <span className="text-base text-gray-500 line-through">₹{originalPrice.toLocaleString()}</span>
+            )}
           </div>
           <p className="text-xs text-gray-500">EMI ₹{Math.round(price/12).toLocaleString()}/mo</p>
         </div>
@@ -841,3 +848,5 @@ const CategoryItemUnit = ({
     </div>
   );
 };
+
+export default CategoryItem;

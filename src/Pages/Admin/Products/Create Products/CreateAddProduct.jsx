@@ -30,7 +30,7 @@ const AddProduct = () => {
       "Home Theater Systems",
       "Streaming Devices"
     ],
-    "Mobile & Accessories": [
+    "Mobile & Accessories": [ 
       "Smartphones",
       "Tablets",
       "Mobile Cases & Covers",
