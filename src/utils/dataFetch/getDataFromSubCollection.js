@@ -7,7 +7,7 @@ const dbData = {};
 
 const getDataFromSubCollection = (collectionName, documentId, subCollectionName, setFunction) => {
   console.log(`Fetching: ${collectionName}/${documentId}/${subCollectionName}`);
-  console.log('ඩොකියිමන් අයිඩී ',documentId)
+  console.log('ඩොකියිමන් අයිඩී ',)
   // Check cache first
   if (
     dbData[collectionName] &&
@@ -23,40 +23,72 @@ const getDataFromSubCollection = (collectionName, documentId, subCollectionName,
 
   // Fetch from Firebase
   try {
-    const subCollectionRef = collection(db, collectionName, documentId, subCollectionName);
-    console.log('කනෙක්ශන් රෙෆ් : ',subCollectionRef);
+    // const subCollectionRef = collection(db, collectionName, documentId, subCollectionName);
+    // console.log('කනෙක්ශන් රෙෆ් : ',subCollectionRef);
     
-    getDocs(subCollectionRef).then((querySnapshot) => {
-      console.log(`Data read from DB: ${querySnapshot.size} documents`);
+    // getDocs(subCollectionRef).then((querySnapshot) => {
+    //   console.log(`Data read from DB: ${querySnapshot.size} documents`);
       
-      const dataArr = [];
-      querySnapshot.forEach((doc) => {
-        // Include the document ID as 'id' field
-        dataArr.push({ 
-          id: doc.id, 
-          ...doc.data() 
-        });
-      });
+    //   const dataArr = [];
+    //   querySnapshot.forEach((doc) => {
+    //     // Include the document ID as 'id' field
+    //     dataArr.push({ 
+    //       id: doc.id, 
+    //       ...doc.data() 
+    //     });
+    //   });
 
-      console.log('Processed array:', dataArr);
+    //   console.log('Processed array:', dataArr);
 
-      // Update cache
-      if (!dbData[collectionName]) {
-        dbData[collectionName] = {};
-      }
-      if (!dbData[collectionName][documentId]) {
-        dbData[collectionName][documentId] = {};
-      }
+    //   // Update cache
+    //   if (!dbData[collectionName]) {
+    //     dbData[collectionName] = {};
+    //   }
+    //   if (!dbData[collectionName][documentId]) {
+    //     dbData[collectionName][documentId] = {};
+    //   }
       
-      dbData[collectionName][documentId][subCollectionName] = dataArr;
+    //   dbData[collectionName][documentId][subCollectionName] = dataArr;
 
-      // Update state
-      setFunction(dataArr);
-         console.log('දෙවනි එක: ',dataArr);
+    //   // Update state
+    //   setFunction(dataArr);
+    //      console.log('දෙවනි එක: ',dataArr);
       
-    }).catch((err) => {
-      console.error("Error fetching data from Firebase:", err);
-      setFunction([]); // Set empty array on error
+    // }).catch((err) => {
+    //   console.error("Error fetching data from Firebase:", err);
+    //   setFunction([]); // Set empty array on error
+    // });
+
+  const productsCollectionRef = collection(
+    db, 
+    "category", 
+    "Health_and_Wellness", 
+    "Nutrition_and_Supplements", 
+    "Protein_Supplements", 
+    "products"
+  );
+  
+  const dataArr2 =[]
+  // Return the promise chain
+return getDocs(productsCollectionRef)
+  .then((querySnapshot) => {
+    const allProducts = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      
+      // Now you can run separate logic
+      dataArr2.push(data); 
+      
+      return {
+        id: doc.id,
+        ...data
+      };
+    });
+    console.log('මෙක බලහන් => ',dataArr2)
+    setFunction(dataArr2)
+    return allProducts;
+  })
+    .catch((error) => {
+      console.error("Error fetching documents: ", error);
     });
 
   } catch (error) {
