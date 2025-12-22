@@ -826,10 +826,10 @@ const CategoryItemUnit = ({
         {/* Price */}
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-2xl font-bold text-gray-900">₹{price.toLocaleString()}</span>
-            <span className="text-base text-gray-500 line-through">₹{originalPrice.toLocaleString()}</span>
+            <span className="text-2xl font-bold text-gray-900">Rs.{price.toLocaleString()}</span>
+            <span className="text-base text-gray-500 line-through">Rs.{originalPrice.toLocaleString()}</span>
           </div>
-          <p className="text-xs text-gray-500">EMI ₹{Math.round(price/12).toLocaleString()}/mo</p>
+          <p className="text-xs text-gray-500">EMI Rs.{Math.round(price/12).toLocaleString()}/mo</p>
         </div>
 
         {/* Action Button */}
