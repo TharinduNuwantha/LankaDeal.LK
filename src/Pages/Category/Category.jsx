@@ -414,9 +414,10 @@ const Category = () => {
               </select>
             </div>
           </div>
-
+              {console.log(filteredCategories)}
           <div className={`category-grid ${viewMode === 'list' ? 'list-layout' : 'grid-layout'}`}>
             {filteredCategories.map((category, index) => (
+                
               <CategoryUnitItem 
                 key={category.categoryId}
                 imageUrl={category.img}

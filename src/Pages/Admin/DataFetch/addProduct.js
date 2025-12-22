@@ -1,32 +1,34 @@
 // productService.js
-import { getDatabase, ref, push, set } from "firebase/database";
-import { app } from "../../../FireBase/firebase"; 
-
-// Initialize DB
-const db = getDatabase(app);
+// 1. Change imports to use FIRESTORE
+import { collection, addDoc } from "firebase/firestore";
+// 2. Import the Firestore 'db' instance you exported as default
+import db from "../../../FireBase/firebase"; 
 
 /**
- * Uploads a new product to the specific Category Path in Firebase.
- * * @param {string} categoryPath - The generated path (e.g., "/category/Electronics/...")
- * @param {object} productData - The object containing title, price, image, etc.
- * @returns {Promise<string>} - Returns the new Product ID on success
+ * Uploads a new product to a subcollection in Firestore.
+ * * Logic: 
+ * If categoryPath is "category/Electronics/Audio/Headphones",
+ * we will save the product into: "category/Electronics/Audio/Headphones/products"
+ * * @param {string} categoryPath - The path to the specific category document
+ * @param {object} productData - The product details
+ * @returns {Promise<string>} - Returns the new Product ID
  */
 export const addProductToFirebase = async (categoryPath, productData) => {
+  console.log('Target Firestore Path:', categoryPath);
+
   try {
-    // 1. Create a reference to the specific category path
-    const categoryRef = ref(db, categoryPath);
+    // 3. Create a reference to a "products" subcollection inside the category path
+    // This creates: category -> [Main] -> [Sub] -> [Child] -> products -> [New_ID]
+    const productsCollectionRef = collection(db, categoryPath, "products");
 
-    // 2. Generate a unique key (ID) for the new product
-    const newProductRef = push(categoryRef);
+    // 4. Add the document (Firestore automatically generates a unique ID)
+    const docRef = await addDoc(productsCollectionRef, productData);
 
-    // 3. Save the data to that unique key
-    await set(newProductRef, productData);
-
-    console.log("Product added successfully with ID:", newProductRef.key);
-    return newProductRef.key;
+    console.log("Product added to Firestore with ID:", docRef.id);
+    return docRef.id;
 
   } catch (error) {
-    console.error("Error adding product:", error);
-    throw error; // Re-throw to handle it in the UI if needed
+    console.error("Error adding product to Firestore:", error);
+    throw error;
   }
 };

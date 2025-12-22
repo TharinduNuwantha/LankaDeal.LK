@@ -5,10 +5,11 @@ const dbData = {};
 
 const getDataFromColaction = (collectionName,setFunction)=> {
     if(dbData[collectionName] && dbData[collectionName].length>0){
+        console.log('category ==> ',dbData[collectionName])
         setFunction(dbData[collectionName])
     }else{
         getDocs(collection(db, collectionName)).then((querySnapshot)=>{
-        console.log('data read from DB');
+        console.log('data read from DB මම පකෝ');
             
          const dataArr =[];
          querySnapshot.forEach((doc) => {

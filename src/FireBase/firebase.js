@@ -9,6 +9,7 @@ import { getAuth } from "firebase/auth";
 const firebaseConfig = {
   apiKey: "AIzaSyAxMzHeOMI1I07TpqogkHsArEfCMupumIc",
   authDomain: "lankadeal-77b4e.firebaseapp.com",
+  databaseURL: "https://lankadeal-77b4e-default-rtdb.firebaseio.com",
   projectId: "lankadeal-77b4e",
   storageBucket: "lankadeal-77b4e.firebasestorage.app",
   messagingSenderId: "1015749746276",
@@ -19,6 +20,6 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 const auth = getAuth(app);
-export {auth};
+export { auth, app };
 export default db;
 // firebase deploy

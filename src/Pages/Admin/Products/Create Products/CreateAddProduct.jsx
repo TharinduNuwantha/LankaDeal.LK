@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { addProductToFirebase } from '../../DataFetch/addProduct';
 
 const AddProduct = () => {
   // --- 1. State for Category Selection ---
@@ -298,38 +299,69 @@ const AddProduct = () => {
   }, [formData.price, formData.originalPrice]);
 
   // --- 6. Submit Handler ---
-  const handleSubmit = (e) => {
+// Make the function async
+const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Generate the Category Path
-    // Note: We replace spaces with underscores to match your format if needed
-    // e.g., "Audio & Video" -> "Audio_and_Video"
-    const cleanPath = (str) => str.replace(/\s&\s/g, '_and_').replace(/\s/g, '_');
-    
-    const categoryPath = `/category/${cleanPath(selectedMain)}/${cleanPath(selectedSub)}/${cleanPath(selectedChild)}`;
+    // ERROR CHECK 1: Validate inputs before processing
+    if (!selectedMain || !selectedSub || !selectedChild) {
+        alert("Please select all category levels!");
+        return;
+    }
 
-    // 2. Construct the Final Object
-    const finalProductData = {
-      categoryPath: categoryPath,
-      title: formData.title,
-      description: formData.description,
-      price: formData.price, // string as requested
-      originalPrice: formData.originalPrice, // string as requested
-      discount: formData.discount, // string
-      stockCount: formData.stockCount,
-      imageUrl: formData.imageUrl,
-      fastDelivery: formData.fastDelivery,
-      inStock: formData.inStock,
-      isFeatured: formData.isFeatured,
-      rating: "0", // Default for new product
-      reviewCount: "0", // Default for new product
-      createdAt: new Date().toISOString()
-    };
+    try {
+        // 1. Generate the Category Path
+        // Improved regex: Removes spaces/special chars to prevent Firebase errors
+        const cleanPath = (str) => str.replace(/\s&\s/g, '_and_').replace(/\s/g, '_');
+        
+        // Note: Removed the leading '/' inside the string. 
+        // Firebase works better with "category/..." rather than "/category/..."
+        const categoryPath = `category/${cleanPath(selectedMain)}/${cleanPath(selectedSub)}/${cleanPath(selectedChild)}`;
+        const img1 = formData.img1;
+        const img2 = formData.img2;
+        const img3 = formData.img3;
+        const img4 = formData.img4;
+        const imagesArr =[]
+        imagesArr.push(img1)
+        imagesArr.push(img2)
+        imagesArr.push(img3)
+        imagesArr.push(img4)
+        // 2. Construct the Final Object
+        const finalProductData = {
+            categoryPath: categoryPath,
+            title: formData.title,
+            description: formData.description,
+            price: formData.price, 
+            originalPrice: formData.originalPrice, 
+            discount: formData.discount,
+            stockCount: formData.stockCount,
+            imageUrl: formData.imageUrl,
+            moreImage:imagesArr,
+            fastDelivery: formData.fastDelivery,
+            inStock: formData.inStock,
+            isFeatured: formData.isFeatured,
+            rating: "0", 
+            reviewCount: "0", 
+            createdAt: new Date().toISOString()
+        };
 
-    console.log("Saving to Firebase:", finalProductData);
-    alert("Check Console for Output");
-    // Here you would call: await set(ref(db, 'products/' + productId), finalProductData);
-  };
+        console.log("Saving to Firebase:", finalProductData);
+
+        // ERROR CHECK 2: Await the promise!
+        await addProductToFirebase(categoryPath, finalProductData);
+        
+        // Success Feedback
+        alert("Product Added Successfully!");
+        
+        // Optional: Reset form or redirect here
+        // setFormData({...initialState}); 
+
+    } catch (error) {
+        // Error Feedback
+        console.error("Submission failed", error);
+        alert("Failed to add product. Check console for details.");
+    }
+};
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
@@ -425,6 +457,46 @@ const AddProduct = () => {
                 placeholder="https://..."
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-medium">Image 1</label>
+              <input 
+                type="text" name="img1" required
+                className="w-full p-2 border rounded" 
+                 onChange={handleInputChange}
+                placeholder="https://..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium">Image 2</label>
+              <input 
+                type="text" name="img2" required
+                className="w-full p-2 border rounded" 
+                 onChange={handleInputChange}
+                placeholder="https://..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Image 3</label>
+              <input 
+                type="text" name="img3" required
+                className="w-full p-2 border rounded" 
+                 onChange={handleInputChange}
+                placeholder="https://..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium">Image 4</label>
+              <input 
+                type="text" name="img4" required
+                className="w-full p-2 border rounded" 
+                 onChange={handleInputChange}
+                placeholder="https://..."
+              />
+            </div>
+
 
             <div>
               <label className="block text-sm font-medium">Description</label>
