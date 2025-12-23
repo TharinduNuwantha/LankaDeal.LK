@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { categorySelector } from "../../Store/ReduxSlice/categorySlice";
 import { useParams } from "react-router-dom";
 import { IconButton, Rating, Slider, Checkbox, FormControlLabel, Radio, RadioGroup } from "@mui/material";
@@ -24,9 +24,12 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import getDataFromSubCollection from '../../utils/dataFetch/getDataFromSubCollection';
 import Loarding from '../Loarding/Loarding';
+import extractCategoryFromPath from './catagorynameSpilier'
 
 
 const CategoryItem = () => {
+    const[categoryItemsData,setCategoryItemsData] = useState([])
+  const dispatch = useDispatch()
   const category = useSelector(categorySelector);
   const { categoryId } = useParams();
   const [categoryTitle] = category.filter((ele) => ele.id === categoryId);
@@ -43,111 +46,6 @@ const CategoryItem = () => {
     fastDelivery: false
   });
 
-  const categoryItemsArr = [
-    {
-        id: 1,
-        imageUrl: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
-        title: 'Wireless Bluetooth Headphones Premium',
-        price: 2599,
-        originalPrice: 3499,
-        discount: 26,
-        rating: 4.5,
-        reviewCount: 128,
-        isNew: true,
-        isFeatured: true,
-        fastDelivery: true,
-        inStock: true
-    },
-    {
-        id: 2,
-        imageUrl: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=600&h=600&fit=crop&q=80',
-        title: 'Smart Watch Pro Series 2024',
-        price: 12999,
-        originalPrice: 15999,
-        discount: 19,
-        rating: 4.8,
-        reviewCount: 89,
-        isNew: true,
-        fastDelivery: true,
-        inStock: true
-    },
-    {
-        id: 3,
-        imageUrl: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=600&fit=crop&q=80',
-        title: 'Professional DSLR Camera Kit',
-        price: 45999,
-        originalPrice: 59999,
-        discount: 23,
-        rating: 4.9,
-        reviewCount: 56,
-        isFeatured: true,
-        onSale: true,
-        inStock: true
-    },
-    {
-        id: 4,
-        imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=600&fit=crop&q=80',
-        title: 'Ultra Thin Laptop 16GB RAM',
-        price: 72999,
-        originalPrice: 84999,
-        discount: 14,
-        rating: 4.7,
-        reviewCount: 203,
-        fastDelivery: true,
-        inStock: false
-    },
-    {
-        id: 5,
-        imageUrl: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=600&fit=crop&q=80',
-        title: 'Wireless Gaming Mouse RGB',
-        price: 1999,
-        originalPrice: 2999,
-        discount: 33,
-        rating: 4.4,
-        reviewCount: 312,
-        isNew: true,
-        onSale: true,
-        inStock: true
-    },
-    {
-        id: 6,
-        imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=600&fit=crop&q=80',
-        title: '4K Ultra HD Smart TV 55"',
-        price: 45999,
-        originalPrice: 59999,
-        discount: 23,
-        rating: 4.6,
-        reviewCount: 178,
-        isFeatured: true,
-        fastDelivery: true,
-        inStock: true
-    },
-    {
-        id: 7,
-        imageUrl: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&h=600&fit=crop&q=80',
-        title: 'Noise Cancelling Earbuds Pro',
-        price: 8999,
-        originalPrice: 11999,
-        discount: 25,
-        rating: 4.3,
-        reviewCount: 94,
-        isNew: true,
-        inStock: true
-    },
-    {
-        id: 8,
-        imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&q=80',
-        title: 'Fitness Tracker Smart Band',
-        price: 3499,
-        originalPrice: 4999,
-        discount: 30,
-        rating: 4.2,
-        reviewCount: 267,
-        onSale: true,
-        fastDelivery: true,
-        inStock: true
-    }
-  ];
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
@@ -252,7 +150,7 @@ const CategoryItem = () => {
                 <h4 className="text-lg font-bold text-gray-900">Price Range</h4>
               </div>
               <span className="bg-gradient-to-r from-red-50 to-yellow-50 text-red-700 font-bold px-3 py-1 rounded-full text-sm border border-red-200">
-                ₹{filters.priceRange[0].toLocaleString()} - ₹{filters.priceRange[1].toLocaleString()}
+                Rs.{filters.priceRange[0].toLocaleString()} - Rs.{filters.priceRange[1].toLocaleString()}
               </span>
             </div>
             <div className="px-2">
@@ -277,8 +175,8 @@ const CategoryItem = () => {
                 }}
               />
               <div className="flex justify-between text-sm text-gray-500 mt-2">
-                <span>₹0</span>
-                <span>₹1,00,000</span>
+                <span>Rs.0</span>
+                <span>Rs.1,00,000</span>
               </div>
             </div>
           </div>
@@ -445,9 +343,9 @@ const CategoryItem = () => {
     </div>
   );
 
-  const[categoryItemsData,setCategoryItemsData] = useState([])
+
   useEffect(()=>{
-    getDataFromSubCollection('category',categoryId,categoryId,setCategoryItemsData);
+    getDataFromSubCollection('category',categoryId,categoryId,setCategoryItemsData,dispatch);
   },[])
 
   console.log('category Data ===> ',categoryItemsData);
@@ -468,14 +366,14 @@ if(categoryItemsData.length ===0){
                 <span className="text-red-500">›</span>
                 <span className="hover:text-yellow-500 cursor-pointer">Categories</span>
                 <span className="text-red-500">›</span>
-                <span className="font-semibold text-yellow-500">{categoryTitle?.title || 'Category'}</span>
+                <span className="font-semibold text-yellow-500">{extractCategoryFromPath(categoryItemsData[0].categoryPath) || 'Category'}</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                {categoryTitle?.title || 'Category'}
-                <span className="text-yellow-500 ml-2">({categoryItemsArr.length})</span>
+                {extractCategoryFromPath(categoryItemsData[0].categoryPath) || 'Category'}
+                <span className="text-yellow-500 ml-2">({categoryItemsData.length})</span>
               </h1>
               <p className="text-gray-300 max-w-2xl">
-                Explore our premium collection of {categoryTitle?.title || 'category'} products. 
+                Explore our premium collection of {extractCategoryFromPath(categoryItemsData[0].categoryPath) || 'category'} products. 
                 Handpicked quality with competitive prices.
               </p>
             </div>
@@ -483,7 +381,7 @@ if(categoryItemsData.length ===0){
             <div className="flex items-center gap-4">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-yellow-500">{categoryItemsArr.length}</div>
+                  <div className="text-2xl font-bold text-yellow-500">{categoryItemsData.length}</div>
                   <div className="text-sm text-gray-300">Products</div>
                 </div>
               </div>
@@ -601,7 +499,9 @@ const CategoryItemUnit = ({
   inStock,
   viewMode,
   wishlisted,
-  onWishlistToggle
+  onWishlistToggle,
+  categoryPath='pakaya/pakaya/pakaya'
+
 }) => {
   const renderStars = () => {
     const stars = [];
@@ -676,7 +576,7 @@ const CategoryItemUnit = ({
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <LocalShippingIcon className="text-sm" />
-                <span>Electronics</span>
+                <span>{extractCategoryFromPath(categoryPath)}</span>
               </div>
               {!inStock && (
                 <span className="bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
@@ -715,13 +615,13 @@ const CategoryItemUnit = ({
             <div className="mt-auto flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-3 mb-1">
-                  <span className="text-3xl font-bold text-gray-900">₹{price.toLocaleString()}</span>
-                  <span className="text-lg text-gray-500 line-through">₹{originalPrice.toLocaleString()}</span>
+                  <span className="text-3xl font-bold text-gray-900">Rs.{price.toLocaleString()}</span>
+                  <span className="text-lg text-gray-500 line-through">Rs.{originalPrice.toLocaleString()}</span>
                   <span className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1 rounded-full text-sm font-bold">
                     Save {discount}%
                   </span>
                 </div>
-                <p className="text-sm text-gray-500">EMI starts at ₹{Math.round(price/12).toLocaleString()}/month</p>
+                <p className="text-sm text-gray-500">EMI starts at Rs.{Math.round(price/12).toLocaleString()}/month</p>
               </div>
               
               <div className="flex items-center gap-3">
@@ -790,7 +690,8 @@ const CategoryItemUnit = ({
         {/* Category */}
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
           <LocalShippingIcon className="text-sm" />
-          <span>Electronics</span>
+          
+          <span>{extractCategoryFromPath(categoryPath)}</span>
           {!inStock && (
             <span className="ml-auto bg-red-50 text-red-700 px-2 py-1 rounded text-xs font-semibold">
               Out of Stock

@@ -1,16 +1,20 @@
 import { collectionGroup, query, where, getDocs } from "firebase/firestore";
 import db from "../../FireBase/firebase";
+import { useDispatch } from "react-redux";
+import addData from "../../Store/ReduxSlice/categorySlice"
 
 // Cache object
 const dbData = {};
 
 const getDataFromSubCollection = (collectionName, documentId, subCollectionName, setFunction) => {
+  const dispatch = useDispatch
   console.log(`Searching all products under category: ${documentId}`);
 
   // 1. Check cache first
   if (dbData[documentId]) {
     console.log('Returning cached data');
     setFunction(dbData[documentId]);
+    dispatch(addData(dbData[documentId]))
     return;
   }
 
