@@ -37,11 +37,11 @@ const router = createBrowserRouter([
                   path: ':categoryId',
                   children:[
                     {
-                      index:true,
+                      index:true, 
                       element: <CategoryItem />
                     },
                     {
-                      path:':itemId',
+                      path:':id',
                       element:<ItemPage/>
                     }
                   ]
