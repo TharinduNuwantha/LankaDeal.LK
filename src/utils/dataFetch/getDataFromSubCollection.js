@@ -1,20 +1,21 @@
 import { collectionGroup, query, where, getDocs } from "firebase/firestore";
 import db from "../../FireBase/firebase";
-import { useDispatch } from "react-redux";
-import addData from "../../Store/ReduxSlice/categorySlice"
+import { addData } from "../../Store/ReduxSlice/categorySlice";
+
+
 
 // Cache object
 const dbData = {};
 
-const getDataFromSubCollection = (collectionName, documentId, subCollectionName, setFunction) => {
-  const dispatch = useDispatch
+const getDataFromSubCollection = (collectionName, documentId, subCollectionName, setFunction,dispatch,addData) => {
+
   console.log(`Searching all products under category: ${documentId}`);
 
   // 1. Check cache first
   if (dbData[documentId]) {
     console.log('Returning cached data');
     setFunction(dbData[documentId]);
-    dispatch(addData(dbData[documentId]))
+
     return;
   }
 
@@ -44,6 +45,12 @@ const getDataFromSubCollection = (collectionName, documentId, subCollectionName,
       
       // Update State
       setFunction(dataArr2);
+      // dispatch(addData({test:"test 1 bro"}))
+                  dispatch(addData({
+                  id: 'home-appliances',
+                  title: 'anee denwath'
+              }));
+
     })
     .catch((error) => {
       console.error("Error fetching data: ", error);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { categorySelector } from "../../Store/ReduxSlice/categorySlice";
-import { useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { IconButton, Rating, Slider, Checkbox, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -25,14 +25,17 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import getDataFromSubCollection from '../../utils/dataFetch/getDataFromSubCollection';
 import Loarding from '../Loarding/Loarding';
 import extractCategoryFromPath from './catagorynameSpilier'
-
+import { addData } from '../../Store/ReduxSlice/categorySlice'
 
 const CategoryItem = () => {
+  const location = useLocation();
     const[categoryItemsData,setCategoryItemsData] = useState([])
-  const dispatch = useDispatch()
-  const category = useSelector(categorySelector);
+ const dispatch = useDispatch();
+
+
+
   const { categoryId } = useParams();
-  const [categoryTitle] = category.filter((ele) => ele.id === categoryId);
+
   
   const [viewMode, setViewMode] = useState('grid');
   const [filterOpen, setFilterOpen] = useState(false);
@@ -345,7 +348,7 @@ const CategoryItem = () => {
 
 
   useEffect(()=>{
-    getDataFromSubCollection('category',categoryId,categoryId,setCategoryItemsData,dispatch);
+    getDataFromSubCollection('category',categoryId,categoryId,setCategoryItemsData,dispatch,addData);
   },[])
 
   console.log('category Data ===> ',categoryItemsData);
@@ -447,6 +450,7 @@ if(categoryItemsData.length ===0){
               {...product}
               viewMode={viewMode}
               wishlisted={wishlisted[product.id]}
+              location={location}
               onWishlistToggle={() => setWishlisted(prev => ({
                 ...prev,
                 [product.id]: !prev[product.id]
@@ -500,7 +504,8 @@ const CategoryItemUnit = ({
   viewMode,
   wishlisted,
   onWishlistToggle,
-  categoryPath='pakaya/pakaya/pakaya'
+  categoryPath='', 
+  location
 
 }) => {
   const renderStars = () => {
@@ -526,6 +531,8 @@ const CategoryItemUnit = ({
 
   if (viewMode === 'list') {
     return (
+      <Link to={`${location.pathname}/${id}`}>
+        {console.log('mamayi bolaw yakaaaaaa',id)}
       <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-red-200 transition-all duration-500 hover:shadow-2xl group">
         <div className="flex flex-col md:flex-row gap-6 p-6">
           {/* Image Container */}
@@ -633,12 +640,13 @@ const CategoryItemUnit = ({
             </div>
           </div>
         </div>
-      </div>
+      </div></Link>
     );
   }
 
   // Grid View
   return (
+       <Link to={`${location.pathname}/${id}`}>
     <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-transparent transition-all duration-500 hover:shadow-2xl group">
       {/* Image Container */}
       <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
@@ -739,6 +747,6 @@ const CategoryItemUnit = ({
           Add to Cart
         </button>
       </div>
-    </div>
+    </div></Link>
   );
 };

@@ -1,7 +1,12 @@
 import { IconButton } from '@mui/material'
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
+import { useSelector } from 'react-redux'
+import { categorySelector } from '../../Store/ReduxSlice/categorySlice'
+import { useParams } from 'react-router-dom'
 
 const ItemPage = () => {
+  // FIX: Use 'categoryId' instead of 'id' to match your router config
+  const { categoryId, itemId } = useParams(); 
 
   const itemimageArr = [
     'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=600&fit=crop&q=80',
@@ -13,28 +18,36 @@ const ItemPage = () => {
   const mainImageRef = useRef()
   const subImagesRef = useRef([])
 
+  const categoriesTT = useSelector(categorySelector);
+
+  useEffect(() => {
+      console.log("All categories:", categoriesTT);
+      console.log("URL categoryId:", categoryId); // This will now show 'Health_and_Wellness'
+      
+      if (categoriesTT && categoryId) {
+          // Filter to find object where the category id matches the URL
+          const filteredCategory = categoriesTT.find(cat => cat.id === categoryId);
+          console.log("Filtered category Object:", filteredCategory);
+      }
+      
+  }, [categoriesTT, categoryId]);
+
   return (
-    <div className='px-5 py-[10px] w-full h-screen overflow-y-scroll'>
-        <h1 className='text-lg font-bold px-3 mb-7'>Item Title</h1>
-        <img ref={mainImageRef} src={itemimageArr[0]} alt='Main Image' className='w-full object-contain rounded-md'/>
-        <div className='w-full mt-5 grid grid-cols-4 text-center grid-rows-1 gap-3'>
-            {itemimageArr.map((ele,index)=>
-            <IconButton key={index} sx={{
-              padding:'0',
-              borderRadius:"2px"
-            }} onClick={()=>{
-              subImagesRef.current[index].style.border = '1px solid gold'
-              mainImageRef.current.src = subImagesRef.current[index].src
-              for(let i=0;i<itemimageArr.length;i++){
-                if(i !== index){
-                  subImagesRef.current[i].style.border = "none"
-                }
-              }
-            }}>
-              <img ref={(refEle)=>(subImagesRef.current[index]=refEle)} name={`Item Image ref : ${index}`} src={ele} alt={ele}  className='w-full object-contain rounded-sm'/>
-              </IconButton>
-            )}
+    <div>
+        {/* Keeping your temporary UI data exactly as it is */}
+        <h1>Item Title</h1>
+        <div style={{ display: 'flex', gap: '10px' }}>
+            {itemimageArr.map((ele, index) => (
+                <img 
+                    key={index}
+                    ref={(el) => (subImagesRef.current[index] = el)} 
+                    src={ele} 
+                    alt="temp" 
+                    style={{ width: '100px', cursor: 'pointer' }}
+                />
+            ))}
         </div>
+        <img ref={mainImageRef} style={{ width: '300px', marginTop: '20px' }} alt="main" />
     </div>
   )
 }
