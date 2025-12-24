@@ -299,7 +299,7 @@ const Category = () => {
   );
  
   useEffect(()=>{
-    getDataFromColaction('category',setCategoryData)
+    getDataFromColaction('category2',setCategoryData)
   },[])
   console.log('category Component Data',categoryData);
   if(categoryData.length === 0){

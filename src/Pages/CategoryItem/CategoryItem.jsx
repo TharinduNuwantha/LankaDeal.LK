@@ -348,7 +348,7 @@ const CategoryItem = () => {
 
 
   useEffect(()=>{
-    getDataFromSubCollection('category',categoryId,categoryId,setCategoryItemsData,dispatch,addData);
+    getDataFromSubCollection('category2',categoryId,categoryId,setCategoryItemsData,dispatch,addData);
   },[])
 
   console.log('category Data ===> ',categoryItemsData);

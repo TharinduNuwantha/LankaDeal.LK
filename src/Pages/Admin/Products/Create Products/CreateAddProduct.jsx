@@ -316,7 +316,7 @@ const handleSubmit = async (e) => {
         
         // Note: Removed the leading '/' inside the string. 
         // Firebase works better with "category/..." rather than "/category/..."
-        const categoryPath = `category/${cleanPath(selectedMain)}/${cleanPath(selectedSub)}/${cleanPath(selectedChild)}`;
+        const categoryPath = `category2/${cleanPath(selectedMain)}`;
         const img1 = formData.img1;
         const img2 = formData.img2;
         const img3 = formData.img3;

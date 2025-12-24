@@ -1,4 +1,4 @@
-import { collectionGroup, query, where, getDocs } from "firebase/firestore";
+import { collectionGroup, query, where, getDocs, collection } from "firebase/firestore";
 import db from "../../FireBase/firebase";
 import { addData } from "../../Store/ReduxSlice/categorySlice";
 
@@ -9,56 +9,61 @@ const dbData = {};
 
 const getDataFromSubCollection = (collectionName, documentId, subCollectionName, setFunction,dispatch,addData) => {
 
-  console.log(`Searching all products under category: ${documentId}`);
+const myArr = [];
+  const colRef = collection(db, collectionName, documentId, "products");
 
-  // 1. Check cache first
-  if (dbData[documentId]) {
-    console.log('Returning cached data');
-    setFunction(dbData[documentId]);
-
-    return;
-  }
-
-  // 2. Fetch using Collection Group
-  // This finds ALL "products" collections, then we filter by the parent path
-  const productsQuery = query(collectionGroup(db, "products"));
-
-  getDocs(productsQuery)
+  getDocs(colRef)
     .then((querySnapshot) => {
-      const dataArr2 = [];
-      
       querySnapshot.forEach((doc) => {
-        // We check if the document's path includes your dynamic ID (e.g., "Health_and_Wellness")
-        if (doc.ref.path.includes(documentId)) {
-          dataArr2.push({
-            id: doc.id,
-            ...doc.data(),
-            fullPath: doc.ref.path // Optional: helps you see where it came from
-          });
-        }
+       
+        myArr.push({ id: doc.id, ...doc.data() });
       });
 
-      console.log(`Found ${dataArr2.length} items for ${documentId}`);
-      
-      // Update Cache
-      dbData[documentId] = dataArr2;
-      
-      // Update State
-      setFunction(dataArr2);
-      // dispatch(addData({test:"test 1 bro"}))
-                  dispatch(addData({
-                  id: 'home-appliances',
-                  title: 'anee denwath'
-              }));
-
+   
+      setFunction(myArr);
     })
     .catch((error) => {
-      console.error("Error fetching data: ", error);
-      setFunction([]);
+      console.error("Error fetching documents:", error);
     });
+
 };
 
 export default getDataFromSubCollection;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // const subCollectionRef = collection(db, collectionName, documentId, subCollectionName);
     // console.log('කනෙක්ශන් රෙෆ් : ',subCollectionRef);
