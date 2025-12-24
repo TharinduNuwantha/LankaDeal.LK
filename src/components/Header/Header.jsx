@@ -19,10 +19,17 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import HomeIcon from '@mui/icons-material/Home';
 import Badge from '@mui/material/Badge';
 import { useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
+ 
 const Header = ({paymentModelRef}) => {
   const [searchQuery, setSearchQuery] = useState('');
-
+   const navigate = useNavigate();
+  const handleSearch = () => {
+    if (searchQuery.trim() !== "") {
+      // Redirect to /search with query parameter
+      navigate(`/search?=${encodeURIComponent(searchQuery)}`);
+    }
+  };
   return (
     <>
       {/* Top Announcement Bar */}
@@ -98,7 +105,9 @@ const Header = ({paymentModelRef}) => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                   
-                  <button className="bg-gradient-to-r from-red-600 to-red-700 text-white px-4 xl:px-6 py-2 xl:py-3 rounded-lg hover:from-red-700 hover:to-red-800 transition-all shadow-lg">
+                  <button className="bg-gradient-to-r from-red-600 to-red-700 text-white px-4 xl:px-6 py-2 xl:py-3 rounded-lg hover:from-red-700 hover:to-red-800 transition-all shadow-lg"
+                   onClick={handleSearch}
+                  >
                     <SearchIcon sx={{ fontSize: 20 }} />
                   </button>
                 </div>
@@ -231,7 +240,7 @@ const Header = ({paymentModelRef}) => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button className="bg-red-600 text-white px-3 py-1 rounded-lg ml-1 text-sm">
+              <button className="bg-red-600 text-white px-3 py-1 rounded-lg ml-1 text-sm" onClick={handleSearch}>
                 Search
               </button>
             </div>
