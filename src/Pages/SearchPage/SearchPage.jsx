@@ -1,9 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { searchProducts } from "./searchProducts";
 import AIChatBot from "../../Layout/AIChatBot";
+import { useSelector } from "react-redux";
+import { userSelecter } from "../../Store/ReduxSlice/userClise";
+import ModelLogging from "../../modals/ModelLogging";
 
 const SearchPage = () => {
+    const modellogginRef = useRef()
   const navigate = useNavigate();
   const location = useLocation();
   const [query, setQuery] = useState("");
@@ -11,6 +15,7 @@ const SearchPage = () => {
   const [filteredResults, setFilteredResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const userData = useSelector(userSelecter);
   
   const [filters, setFilters] = useState({
     categories: [],
@@ -129,6 +134,12 @@ const SearchPage = () => {
   };
 
   const handleAddToCart = (product) => {
+    if(userData.name){
+        if(!(userData.name === 'default') || !(userData.name === '') || !(userData.name === 'no-user')){
+            modellogginRef.current.handleOpen()
+            
+        }
+    }
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
     const existingProductIndex = existingCart.findIndex(item => item.id === product.id);
     
@@ -139,7 +150,7 @@ const SearchPage = () => {
     }
     
     localStorage.setItem("cart", JSON.stringify(existingCart));
-    alert(`${product.title} added to cart!`);
+    // alert(`${product.title} added to cart!`);
   };
 
   const handleAddToAIChat = (product) => {
@@ -189,7 +200,7 @@ const SearchPage = () => {
               </button>
             </div>
           </form>
-
+            <ModelLogging ref={modellogginRef} />
           {allResults.length > 0 && (
             <div className="mb-4 lg:hidden">
               <button
