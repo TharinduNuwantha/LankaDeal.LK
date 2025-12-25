@@ -37,7 +37,7 @@ const AIChatBot = () => {
           text: `Great! I've added "${product.title}" to our conversation. What would you like to know about ${selectedProducts.length > 0 ? 'these products' : 'this product'}?`,
           timestamp: new Date()
         };
-        setMessages(prev => [...prev, productMessage]);
+        // setMessages(prev => [...prev, productMessage]);
       } else {
         setIsOpen(true);
         const alreadyAddedMessage = {
@@ -379,6 +379,12 @@ const AIChatBot = () => {
                   className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs whitespace-nowrap hover:bg-blue-200 transition-colors"
                 >
                   Check Prices
+                </button>
+                <button
+                  onClick={() => setInputMessage("Which one do you recommend?")}
+                  className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs whitespace-nowrap hover:bg-green-200 transition-colors"
+                >
+                  Recommend
                 </button>
                 <button
                   onClick={() => setInputMessage("Which one do you recommend?")}
