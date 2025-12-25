@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import { generateAIResponse, searchRelatedProducts } from "../Pages/SearchPage/services/geminiService";
+import { canAnswerLocally, generateLocalResponse } from "../Pages/SearchPage/services/localResponseGenerator";
 
 const AIChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -6,7 +9,7 @@ const AIChatBot = () => {
     {
       id: 1,
       type: "bot",
-      text: "Hello! 👋 I'm your shopping assistant. How can I help you today?",
+      text: "Hello! 👋 I'm your AI shopping assistant powered by Gemini. How can I help you today?",
       timestamp: new Date()
     }
   ]);
@@ -16,32 +19,26 @@ const AIChatBot = () => {
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
 
-  // Listen for product additions from other components
+  // Listen for product additions
   useEffect(() => {
     const handleProductAdd = (event) => {
       console.log("Event received in AIChatBot:", event.detail);
       const product = event.detail;
       
-      // Check if product already exists
       const exists = selectedProducts.some(p => p.id === product.id);
       
       if (!exists) {
-        // Add product to selected products
         setSelectedProducts(prev => [...prev, product]);
-        
-        // Open chat
         setIsOpen(true);
         
-        // Add bot message
         const productMessage = {
           id: Date.now(),
           type: "bot",
           text: `Great! I've added "${product.title}" to our conversation. What would you like to know about ${selectedProducts.length > 0 ? 'these products' : 'this product'}?`,
           timestamp: new Date()
         };
-        // setMessages(prev => [...prev, productMessage]);
+        setMessages(prev => [...prev, productMessage]);
       } else {
-        // Product already added
         setIsOpen(true);
         const alreadyAddedMessage = {
           id: Date.now(),
@@ -49,7 +46,7 @@ const AIChatBot = () => {
           text: `"${product.title}" is already in our conversation. Ask me anything about it!`,
           timestamp: new Date()
         };
-       // setMessages(prev => [...prev, alreadyAddedMessage]);
+        setMessages(prev => [...prev, alreadyAddedMessage]);
       }
     };
 
@@ -57,7 +54,6 @@ const AIChatBot = () => {
     return () => window.removeEventListener('addProductToChat', handleProductAdd);
   }, [selectedProducts]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -83,7 +79,6 @@ const AIChatBot = () => {
     e.preventDefault();
     if (!inputMessage.trim()) return;
 
-    // Add user message
     const userMessage = {
       id: Date.now(),
       type: "user",
@@ -91,127 +86,82 @@ const AIChatBot = () => {
       timestamp: new Date()
     };
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputMessage;
     setInputMessage("");
     
-    // Simulate bot typing
     setIsTyping(true);
     
-    // Simulate AI response
-    setTimeout(() => {
-      const botResponse = generateBotResponse(inputMessage, selectedProducts);
+    try {
+      let botResponse;
+      let productLinks = [];
+
+      // Try local response first
+      if (canAnswerLocally(currentInput)) {
+        const localResult = generateLocalResponse(currentInput, selectedProducts);
+        
+        if (localResult.canAnswer) {
+          botResponse = localResult.response;
+          productLinks = localResult.productLinks || [];
+          console.log("Response generated locally");
+        }
+      }
+
+      // If local can't answer or needs more context, use AI
+      if (!botResponse) {
+        console.log("Using Gemini AI for response");
+        
+        // Check if we need more product context
+        let additionalProducts = [];
+        if (selectedProducts.length < 3) {
+          additionalProducts = await searchRelatedProducts(currentInput, 10);
+          console.log(`Found ${additionalProducts.length} related products from database`);
+        }
+
+        botResponse = await generateAIResponse(
+          currentInput,
+          selectedProducts,
+          additionalProducts.length > 0 ? additionalProducts : null
+        );
+
+        // Extract product references from AI response
+        productLinks = extractProductLinks(botResponse, [...selectedProducts, ...additionalProducts]);
+      }
+
       const botMessage = {
         id: Date.now() + 1,
         type: "bot",
         text: botResponse,
+        productLinks: productLinks,
         timestamp: new Date()
       };
+      
       setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Error generating response:", error);
+      const errorMessage = {
+        id: Date.now() + 1,
+        type: "bot",
+        text: "I apologize, but I'm having trouble processing your request. Please try again.",
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1000 + Math.random() * 1000);
+    }
   };
 
-  const generateBotResponse = (userMsg, products) => {
-    const msg = userMsg.toLowerCase();
-    
-    if (products.length === 0) {
-      return "You haven't added any products yet. Click 'Add to Chat' on any product to start discussing it with me!";
-    }
-    
-    // Compare products
-    if (msg.includes("compare") && products.length > 1) {
-      let comparison = "Here's a comparison of your selected products:\n\n";
-      products.forEach((p, idx) => {
-        comparison += `${idx + 1}. ${p.title}\n   Price: Rs. ${p.price}\n   Stock: ${p.inStock ? 'In Stock' : 'Out of Stock'}\n   Delivery: ${p.fastDelivery ? 'Fast 🚀' : 'Standard'}\n\n`;
-      });
-      return comparison;
-    }
-    
-    // Price related
-    if (msg.includes("price") || msg.includes("cost") || msg.includes("cheap")) {
-      if (products.length === 1) {
-        const p = products[0];
-        return `The ${p.title} is priced at Rs. ${p.price}. ${p.originalPrice ? `That's ${p.discount} off from the original price of Rs. ${p.originalPrice}!` : ''}`;
-      } else {
-        const prices = products.map(p => `${p.title}: Rs. ${p.price}`).join('\n');
-        const cheapest = products.reduce((min, p) => parseFloat(p.price) < parseFloat(min.price) ? p : min);
-        return `Here are the prices:\n\n${prices}\n\nThe most affordable option is ${cheapest.title} at Rs. ${cheapest.price}.`;
+  const extractProductLinks = (responseText, products) => {
+    const links = [];
+    products.forEach(product => {
+      if (responseText.includes(product.title)) {
+        links.push({
+          id: product.id,
+          title: product.title,
+          categoryPath: product.categoryPath
+        });
       }
-    }
-    
-    // Delivery related
-    if (msg.includes("delivery") || msg.includes("shipping")) {
-      const fastDelivery = products.filter(p => p.fastDelivery);
-      if (fastDelivery.length === products.length) {
-        return `Great news! All selected products qualify for fast delivery 🚀 (2-3 business days).`;
-      } else if (fastDelivery.length > 0) {
-        return `${fastDelivery.length} of your selected products have fast delivery 🚀. The others have standard delivery (5-7 business days).`;
-      } else {
-        return `All selected products have standard delivery, which typically takes 5-7 business days.`;
-      }
-    }
-    
-    // Stock related
-    if (msg.includes("stock") || msg.includes("available")) {
-      const inStock = products.filter(p => p.inStock);
-      if (inStock.length === products.length) {
-        return `All ${products.length} selected products are in stock and ready to ship!`;
-      } else if (inStock.length > 0) {
-        return `${inStock.length} out of ${products.length} products are currently in stock. Some items may require waiting for restock.`;
-      } else {
-        return `Unfortunately, all selected products are currently out of stock. Would you like me to help you find alternatives?`;
-      }
-    }
-    
-    // Details about all products
-    if (msg.includes("details") || msg.includes("tell me more") || msg.includes("info")) {
-      let details = "Here are the details for your selected products:\n\n";
-      products.forEach((p, idx) => {
-        details += `${idx + 1}. ${p.title}\n`;
-        details += `   ${p.description}\n`;
-        details += `   Price: Rs. ${p.price}\n`;
-        details += `   Stock: ${p.inStock ? 'Available' : 'Out of Stock'}\n\n`;
-      });
-      return details;
-    }
-    
-    // Recommendation
-    if (msg.includes("recommend") || msg.includes("suggest") || msg.includes("which one")) {
-      if (products.length === 1) {
-        return `You've selected a great product! The ${products[0].title} is ${products[0].inStock ? 'in stock and ready to ship' : 'currently out of stock'}. Would you like to know more about it?`;
-      } else {
-        const inStock = products.filter(p => p.inStock);
-        const fastDelivery = inStock.filter(p => p.fastDelivery);
-        
-        if (fastDelivery.length > 0) {
-          const best = fastDelivery.reduce((min, p) => parseFloat(p.price) < parseFloat(min.price) ? p : min);
-          return `Based on your selection, I recommend the ${best.title} at Rs. ${best.price}. It's in stock and offers fast delivery! 🚀`;
-        } else if (inStock.length > 0) {
-          const best = inStock.reduce((min, p) => parseFloat(p.price) < parseFloat(min.price) ? p : min);
-          return `I recommend the ${best.title} at Rs. ${best.price}. It's currently in stock!`;
-        }
-      }
-    }
-    
-    // Total price
-    if (msg.includes("total") || msg.includes("all together")) {
-      const total = products.reduce((sum, p) => sum + parseFloat(p.price), 0);
-      return `The total for all ${products.length} selected products would be Rs. ${total.toFixed(2)}.`;
-    }
-    
-    // General responses
-    if (msg.includes("hello") || msg.includes("hi")) {
-      return `Hello! I see you have ${products.length} product${products.length > 1 ? 's' : ''} selected. How can I help you with ${products.length > 1 ? 'them' : 'it'}?`;
-    }
-    
-    if (msg.includes("help")) {
-      return "I can help you with:\n• Compare products\n• Price information\n• Delivery options\n• Stock availability\n• Product recommendations\n\nWhat would you like to know?";
-    }
-    
-    if (msg.includes("thank")) {
-      return "You're welcome! Is there anything else I can help you with?";
-    }
-    
-    return `I'd be happy to help you with your ${products.length} selected product${products.length > 1 ? 's' : ''}! You can ask me to compare them, check prices, delivery options, or get recommendations.`;
+    });
+    return links;
   };
 
   const clearChat = () => {
@@ -274,7 +224,7 @@ const AIChatBot = () => {
               <div>
                 <h3 className="font-bold text-lg">AI Shopping Assistant</h3>
                 <p className="text-xs text-purple-100">
-                  {selectedProducts.length > 0 ? `${selectedProducts.length} product${selectedProducts.length > 1 ? 's' : ''} selected` : 'Ready to help'}
+                  {selectedProducts.length > 0 ? `${selectedProducts.length} product${selectedProducts.length > 1 ? 's' : ''} selected` : 'Powered by Gemini AI'}
                 </p>
               </div>
             </div>
@@ -342,7 +292,7 @@ const AIChatBot = () => {
                 key={message.id}
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`flex gap-2 max-w-[80%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`flex gap-2 max-w-[85%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                   {/* Avatar */}
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                     message.type === 'user' ? 'bg-blue-600' : 'bg-gradient-to-br from-purple-600 to-blue-600'
@@ -364,6 +314,24 @@ const AIChatBot = () => {
                         : 'bg-white text-gray-800 border border-gray-200 rounded-tl-none shadow-sm'
                     }`}>
                       <p className="text-sm whitespace-pre-line">{message.text}</p>
+                      
+                      {/* Product Links */}
+                      {message.productLinks && message.productLinks.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <p className="text-xs font-semibold text-gray-600 mb-2">Related Products:</p>
+                          <div className="space-y-1">
+                            {message.productLinks.map((product, idx) => (
+                              <Link
+                                key={idx}
+                                to={`/category/${product.categoryPath.split('/')[1]}/${product.id}`}
+                                className="block text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                              >
+                                🔗 {product.title}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <p className="text-xs text-gray-400 mt-1 px-2">
                       {formatTime(message.timestamp)}
@@ -400,72 +368,23 @@ const AIChatBot = () => {
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {selectedProducts.length > 1 && (
                   <button
-                    onClick={() => {
-                      setInputMessage("Compare these products");
-                      document.querySelector('input[type="text"]')?.focus();
-                    }}
+                    onClick={() => setInputMessage("Compare these products")}
                     className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs whitespace-nowrap hover:bg-purple-200 transition-colors"
                   >
                     Compare All
                   </button>
                 )}
                 <button
-                  onClick={() => {
-                    setInputMessage("What are the prices?");
-                    document.querySelector('input[type="text"]')?.focus();
-                  }}
+                  onClick={() => setInputMessage("What are the prices?")}
                   className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs whitespace-nowrap hover:bg-blue-200 transition-colors"
                 >
                   Check Prices
                 </button>
                 <button
-                  onClick={() => {
-                    setInputMessage("Which one do you recommend?");
-                    document.querySelector('input[type="text"]')?.focus();
-                  }}
+                  onClick={() => setInputMessage("Which one do you recommend?")}
                   className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs whitespace-nowrap hover:bg-green-200 transition-colors"
                 >
                   Recommend
-                </button>
-                
-                <button
-                  onClick={() => {
-                    setInputMessage("මේ භාණ්ඩ අතර වෙනස මොකක්ද?");
-                    document.querySelector('input[type="text"]')?.focus();
-                  }}
-                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs whitespace-nowrap hover:bg-blue-200 transition-colors"
-                >
-                  සසඳා බලන්න
-                </button>
-
-                <button
-                  onClick={() => {
-                    setInputMessage("දැනට තියෙන විශේෂ වට්ටම් මොනවාද?");
-                    document.querySelector('input[type="text"]')?.focus();
-                  }}
-                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs whitespace-nowrap hover:bg-blue-200 transition-colors"
-                >
-                  වට්ටම් බලන්න
-                </button>
-
-                <button
-                  onClick={() => {
-                    setInputMessage("දැනට තියෙන විශේෂ වට්ටම් මොනවාද?");
-                    document.querySelector('input[type="text"]')?.focus();
-                  }}
-                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs whitespace-nowrap hover:bg-blue-200 transition-colors"
-                >
-                  වට්ටම් බලන්න
-                </button>
-
-                <button
-                  onClick={() => {
-                    setInputMessage("මට ගැලපෙන හොඳම දේවල් මොනවාද?");
-                    document.querySelector('input[type="text"]')?.focus();
-                  }}
-                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs whitespace-nowrap hover:bg-blue-200 transition-colors"
-                >
-                  යෝජනා කරන්න
                 </button>
               </div>
             </div>
@@ -478,7 +397,7 @@ const AIChatBot = () => {
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Type your message..."
+                placeholder="Ask me anything about products..."
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
               />
               <button

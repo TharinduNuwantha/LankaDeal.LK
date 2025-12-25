@@ -1,6 +1,6 @@
 // myapp/src/services/geminiService.js
 import { collectionGroup, getDocs, query, limit } from "firebase/firestore";
-import db from "../FireBase/firebase";
+import db from "../../../FireBase/firebase";
 
 export const generateAIResponse = async (userMessage, selectedProducts, additionalContext = null) => {
   try {
