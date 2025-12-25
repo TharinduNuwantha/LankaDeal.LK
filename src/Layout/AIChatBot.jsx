@@ -39,7 +39,7 @@ const AIChatBot = () => {
           text: `Great! I've added "${product.title}" to our conversation. What would you like to know about ${selectedProducts.length > 0 ? 'these products' : 'this product'}?`,
           timestamp: new Date()
         };
-        setMessages(prev => [...prev, productMessage]);
+        // setMessages(prev => [...prev, productMessage]);
       } else {
         // Product already added
         setIsOpen(true);
@@ -49,7 +49,7 @@ const AIChatBot = () => {
           text: `"${product.title}" is already in our conversation. Ask me anything about it!`,
           timestamp: new Date()
         };
-        setMessages(prev => [...prev, alreadyAddedMessage]);
+       // setMessages(prev => [...prev, alreadyAddedMessage]);
       }
     };
 
@@ -426,6 +426,46 @@ const AIChatBot = () => {
                   className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs whitespace-nowrap hover:bg-green-200 transition-colors"
                 >
                   Recommend
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setInputMessage("මේ භාණ්ඩ අතර වෙනස මොකක්ද?");
+                    document.querySelector('input[type="text"]')?.focus();
+                  }}
+                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs whitespace-nowrap hover:bg-blue-200 transition-colors"
+                >
+                  සසඳා බලන්න
+                </button>
+
+                <button
+                  onClick={() => {
+                    setInputMessage("දැනට තියෙන විශේෂ වට්ටම් මොනවාද?");
+                    document.querySelector('input[type="text"]')?.focus();
+                  }}
+                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs whitespace-nowrap hover:bg-blue-200 transition-colors"
+                >
+                  වට්ටම් බලන්න
+                </button>
+
+                <button
+                  onClick={() => {
+                    setInputMessage("දැනට තියෙන විශේෂ වට්ටම් මොනවාද?");
+                    document.querySelector('input[type="text"]')?.focus();
+                  }}
+                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs whitespace-nowrap hover:bg-blue-200 transition-colors"
+                >
+                  වට්ටම් බලන්න
+                </button>
+
+                <button
+                  onClick={() => {
+                    setInputMessage("මට ගැලපෙන හොඳම දේවල් මොනවාද?");
+                    document.querySelector('input[type="text"]')?.focus();
+                  }}
+                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs whitespace-nowrap hover:bg-blue-200 transition-colors"
+                >
+                  යෝජනා කරන්න
                 </button>
               </div>
             </div>
