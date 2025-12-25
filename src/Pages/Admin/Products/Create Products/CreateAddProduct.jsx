@@ -326,10 +326,21 @@ const handleSubmit = async (e) => {
         imagesArr.push(img2)
         imagesArr.push(img3)
         imagesArr.push(img4)
+
+
+          function getKeywords(title) {
+            return title
+              .toLowerCase()        
+              .trim()               
+              .split(/\s+/)        
+          }
+
+          const keywords = getKeywords(formData.title);
         // 2. Construct the Final Object
         const finalProductData = {
             categoryPath: categoryPath,
             title: formData.title,
+            keywords:keywords,
             description: formData.description,
             price: formData.price, 
             originalPrice: formData.originalPrice, 
