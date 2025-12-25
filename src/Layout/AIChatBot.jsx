@@ -387,11 +387,32 @@ const AIChatBot = () => {
                   Recommend
                 </button>
                 <button
-                  onClick={() => setInputMessage("Which one do you recommend?")}
+                  onClick={() => setInputMessage("මේ භාණ්ඩ අතර වෙනස මොකක්ද?")}
                   className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs whitespace-nowrap hover:bg-green-200 transition-colors"
                 >
-                  Recommend
+                  සසඳා බලන්න
                 </button>
+
+                <button
+                  onClick={() => setInputMessage("මට ගැලපෙන හොඳම දේවල් මොනවාද?")}
+                  className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs whitespace-nowrap hover:bg-green-200 transition-colors"
+                >
+                  යෝජනා කරන්න
+                </button>
+
+                <button
+                  onClick={() => setInputMessage("දැනට තියෙන අඩුම මිල ගණන් මොනවාද?")}
+                  className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs whitespace-nowrap hover:bg-green-200 transition-colors"
+                >
+                  මිල ගණන් බලන්න
+                </button>
+                <button
+                  onClick={() => setInputMessage("දැනට තියෙන විශේෂ වට්ටම් මොනවාද?")}
+                  className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs whitespace-nowrap hover:bg-green-200 transition-colors"
+                >
+                  වට්ටම් බලන්න
+                </button>
+                
               </div>
             </div>
           )}

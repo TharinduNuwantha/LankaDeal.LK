@@ -135,7 +135,7 @@ const SearchPage = () => {
 
   const handleAddToCart = (product) => {
     if(userData.name){
-        if(!(userData.name === 'default') || !(userData.name === '') || !(userData.name === 'no-user')){
+        if(userData.name === 'default' || userData.name === '' || userData.name === 'no-user'){
             modellogginRef.current.handleOpen()
             
         }
