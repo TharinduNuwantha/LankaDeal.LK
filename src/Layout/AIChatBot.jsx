@@ -219,69 +219,72 @@ const AIChatBot = () => {
   return (
     <>
       {/* Floating Chat Button with Magical/Professional Effect */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 w-20 h-20 rounded-full shadow-2xl transition-all duration-500 transform hover:scale-110 group"
-        aria-label="Toggle chat"
-        style={{
-          background: 'radial-gradient(circle at 30% 30%, #e43b3b 0%, #b82c2c 100%)',
-          boxShadow: `
-            0 0 20px rgba(228, 59, 59, 0.4),
-            0 0 40px rgba(228, 59, 59, 0.2),
-            0 0 60px rgba(228, 59, 59, 0.1),
-            inset 0 2px 4px rgba(255, 255, 255, 0.3)
-          `
-        }}
-      >
-        {/* Pulsing Ring Effect */}
-        <div className="absolute inset-0 rounded-full animate-ping-slow opacity-20"
-          style={{
-            background: 'linear-gradient(45deg, #e43b3b, #ff6b6b)',
-            animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite'
-          }}>
-        </div>
-        
-        {/* Outer Ring Glow */}
-        <div className="absolute inset-[-4px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          style={{
-            background: 'linear-gradient(45deg, transparent, rgba(228, 59, 59, 0.3), transparent)',
-            filter: 'blur(8px)'
-          }}>
-        </div>
-        
-        {/* Inner Content */}
-        <div className="relative w-full h-full rounded-full flex items-center justify-center">
-          {/* Icon Container */}
-          <div className="relative transform transition-transform duration-300 group-hover:rotate-12">
-            {isOpen ? (
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <>
-                {/* AI Icon with Sparkle Effect */}
-                <div className="relative">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                  </svg>
-                  
-                  {/* Sparkle Dots */}
-                  <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-yellow-400 animate-pulse"></div>
-                  <div className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-blue-400 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-                </div>
-                
-                {/* Product Count Badge */}
-                {selectedProducts.length > 0 && (
-                  <span className="absolute -top-2 -right-2 w-7 h-7 bg-white text-red-600 text-xs rounded-full flex items-center justify-center font-bold border-2 border-red-500 shadow-lg animate-bounce"
-                    style={{ animationDuration: '2s' }}>
-                    {selectedProducts.length}
-                  </span>
-                )}
-              </>
-            )}
+<button
+  onClick={() => setIsOpen(!isOpen)}
+  className="fixed z-50 w-20 h-20 rounded-full shadow-2xl transition-all duration-500 transform hover:scale-110 group
+             right-6 bottom-24 md:bottom-6" // Mobile: bottom-24 (~6rem), Desktop: bottom-6
+  aria-label="Toggle chat"
+  style={{
+    background: 'radial-gradient(circle at 30% 30%, #e43b3b 0%, #b82c2c 100%)',
+    boxShadow: `
+      0 0 20px rgba(228, 59, 59, 0.4),
+      0 0 40px rgba(228, 59, 59, 0.2),
+      0 0 60px rgba(228, 59, 59, 0.1),
+      inset 0 2px 4px rgba(255, 255, 255, 0.3)
+    `
+  }}
+>
+  {/* Pulsing Ring Effect */}
+  <div 
+    className="absolute inset-0 rounded-full animate-ping-slow opacity-20"
+    style={{
+      background: 'linear-gradient(45deg, #e43b3b, #ff6b6b)',
+      animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite'
+    }}
+  />
+  
+  {/* Outer Ring Glow */}
+  <div 
+    className="absolute inset-[-4px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+    style={{
+      background: 'linear-gradient(45deg, transparent, rgba(228, 59, 59, 0.3), transparent)',
+      filter: 'blur(8px)'
+    }}
+  />
+  
+  {/* Inner Content */}
+  <div className="relative w-full h-full rounded-full flex items-center justify-center">
+    {/* Icon Container */}
+    <div className="relative transform transition-transform duration-300 group-hover:rotate-12">
+      {isOpen ? (
+        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      ) : (
+        <>
+          {/* AI Icon with Sparkle Effect */}
+          <div className="relative">
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+            
+            {/* Sparkle Dots */}
+            <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-yellow-400 animate-pulse"></div>
+            <div className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-blue-400 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
           </div>
-        </div>
-      </button>
+          
+          {/* Product Count Badge */}
+          {selectedProducts.length > 0 && (
+            <span className="absolute -top-2 -right-2 w-7 h-7 bg-white text-red-600 text-xs rounded-full flex items-center justify-center font-bold border-2 border-red-500 shadow-lg animate-bounce"
+              style={{ animationDuration: '2s' }}>
+              {selectedProducts.length}
+            </span>
+          )}
+        </>
+      )}
+    </div>
+  </div>
+</button>
 
       {/* Chat Window */}
       {isOpen && (
