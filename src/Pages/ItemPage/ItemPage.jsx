@@ -36,8 +36,13 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../../Store/ReduxSlice/userClise';
+
 
 const ItemPage = () => {
+  const dispatch = useDispatch();
+  
   // Refs
   const mainImageRef = useRef();
   const subImagesRef = useRef([]);
@@ -149,30 +154,15 @@ const ItemPage = () => {
 
   // Handle add to cart
   const handleAddToCart = () => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const existingItemIndex = cart.findIndex(item => item.id === id);
+   
     
-    const cartItem = {
-      id,
-      title: itemData.title,
-      price: itemData.price,
-      image: itemData.imageUrl,
-      quantity,
-      categoryId,
-      color: selectedColor,
-      brand: itemData.brand
-    };
     
-    if (existingItemIndex > -1) {
-      cart[existingItemIndex].quantity += quantity;
-    } else {
-      cart.push(cartItem);
-    }
+dispatch(addToCart({test:'tt'}));
     
-    localStorage.setItem('cart', JSON.stringify(cart));
+ 
     
     // Show success notification
-    alert(`✓ ${quantity} ${quantity > 1 ? 'items' : 'item'} added to cart!`);
+    alert(`✓ ${quantity} ${quantity > 1 ? 'items' : 'item'} added to cart! `);
   };
 
   // Handle buy now
