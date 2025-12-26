@@ -70,233 +70,233 @@ const Category = () => {
     return count;
   };
 
-  const FilterPopup = () => (
-    <div className="filter-popup-overlay" onClick={() => setFilterOpen(false)}>
-      <div className="filter-popup-container" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="filter-popup-header">
-          <div className="filter-header-content">
-            <TuneIcon className="filter-header-icon" />
-            <div>
-              <h3 className="filter-popup-title">Filters & Sorting</h3>
-              <p className="filter-popup-subtitle">Refine your search results</p>
-            </div>
-          </div>
-          <button 
-            className="filter-close-btn"
-            onClick={() => setFilterOpen(false)}
-            aria-label="Close filters"
-          >
-            <CloseIcon />
-          </button>
-        </div>
+  // const FilterPopup = () => (
+  //   <div className="filter-popup-overlay" onClick={() => setFilterOpen(false)}>
+  //     <div className="filter-popup-container" onClick={(e) => e.stopPropagation()}>
+  //       {/* Header */}
+  //       <div className="filter-popup-header">
+  //         <div className="filter-header-content">
+  //           <TuneIcon className="filter-header-icon" />
+  //           <div>
+  //             <h3 className="filter-popup-title">Filters & Sorting</h3>
+  //             <p className="filter-popup-subtitle">Refine your search results</p>
+  //           </div>
+  //         </div>
+  //         <button 
+  //           className="filter-close-btn"
+  //           onClick={() => setFilterOpen(false)}
+  //           aria-label="Close filters"
+  //         >
+  //           <CloseIcon />
+  //         </button>
+  //       </div>
 
-        {/* Content */}
-        <div className="filter-popup-content">
-          {/* Sort By Section */}
-          <div className="filter-section">
-            <div className="filter-section-header">
-              <SortIcon className="section-icon" />
-              <h4 className="section-title">Sort By</h4>
-            </div>
-            <RadioGroup
-              value={filters.sortBy}
-              onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-              className="sort-radio-group"
-            >
-              <FormControlLabel 
-                value="popular" 
-                control={<Radio />} 
-                label="Most Popular" 
-                className="radio-item"
-              />
-              <FormControlLabel 
-                value="newest" 
-                control={<Radio />} 
-                label="Newest First" 
-                className="radio-item"
-              />
-              <FormControlLabel 
-                value="price-low" 
-                control={<Radio />} 
-                label="Price: Low to High" 
-                className="radio-item"
-              />
-              <FormControlLabel 
-                value="price-high" 
-                control={<Radio />} 
-                label="Price: High to Low" 
-                className="radio-item"
-              />
-              <FormControlLabel 
-                value="name" 
-                control={<Radio />} 
-                label="Name: A to Z" 
-                className="radio-item"
-              />
-            </RadioGroup>
-          </div>
+  //       {/* Content */}
+  //       <div className="filter-popup-content">
+  //         {/* Sort By Section */}
+  //         <div className="filter-section">
+  //           <div className="filter-section-header">
+  //             <SortIcon className="section-icon" />
+  //             <h4 className="section-title">Sort By</h4>
+  //           </div>
+  //           <RadioGroup
+  //             value={filters.sortBy}
+  //             onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+  //             className="sort-radio-group"
+  //           >
+  //             <FormControlLabel 
+  //               value="popular" 
+  //               control={<Radio />} 
+  //               label="Most Popular" 
+  //               className="radio-item"
+  //             />
+  //             <FormControlLabel 
+  //               value="newest" 
+  //               control={<Radio />} 
+  //               label="Newest First" 
+  //               className="radio-item"
+  //             />
+  //             <FormControlLabel 
+  //               value="price-low" 
+  //               control={<Radio />} 
+  //               label="Price: Low to High" 
+  //               className="radio-item"
+  //             />
+  //             <FormControlLabel 
+  //               value="price-high" 
+  //               control={<Radio />} 
+  //               label="Price: High to Low" 
+  //               className="radio-item"
+  //             />
+  //             <FormControlLabel 
+  //               value="name" 
+  //               control={<Radio />} 
+  //               label="Name: A to Z" 
+  //               className="radio-item"
+  //             />
+  //           </RadioGroup>
+  //         </div>
 
-          {/* Price Range */}
-          <div className="filter-section">
-            <div className="filter-section-header">
-              <LocalOfferIcon className="section-icon" />
-              <h4 className="section-title">Price Range</h4>
-              <span className="price-range-values">
-                Rs. {filters.priceRange[0].toLocaleString()} - Rs. {filters.priceRange[1].toLocaleString()}
-              </span>
-            </div>
-            <div className="price-slider-container">
-              <Slider
-                value={filters.priceRange}
-                onChange={(e, newValue) => handleFilterChange('priceRange', newValue)}
-                valueLabelDisplay="auto"
-                min={0}
-                max={10000}
-                step={100}
-                className="price-slider"
-              />
-              <div className="price-limits">
-                <span>Rs. 0</span>
-                <span>Rs. 10,000</span>
-              </div>
-            </div>
-          </div>
+  //         {/* Price Range */}
+  //         <div className="filter-section">
+  //           <div className="filter-section-header">
+  //             <LocalOfferIcon className="section-icon" />
+  //             <h4 className="section-title">Price Range</h4>
+  //             <span className="price-range-values">
+  //               Rs. {filters.priceRange[0].toLocaleString()} - Rs. {filters.priceRange[1].toLocaleString()}
+  //             </span>
+  //           </div>
+  //           <div className="price-slider-container">
+  //             <Slider
+  //               value={filters.priceRange}
+  //               onChange={(e, newValue) => handleFilterChange('priceRange', newValue)}
+  //               valueLabelDisplay="auto"
+  //               min={0}
+  //               max={10000}
+  //               step={100}
+  //               className="price-slider"
+  //             />
+  //             <div className="price-limits">
+  //               <span>Rs. 0</span>
+  //               <span>Rs. 10,000</span>
+  //             </div>
+  //           </div>
+  //         </div>
 
-          {/* Ratings */}
-          <div className="filter-section">
-            <div className="filter-section-header">
-              <StarIcon className="section-icon" />
-              <h4 className="section-title">Customer Ratings</h4>
-            </div>
-            <div className="ratings-container">
-              {[4, 3, 2, 1].map(rating => (
-                <FormControlLabel
-                  key={rating}
-                  control={
-                    <Checkbox
-                      checked={filters.ratings.includes(rating)}
-                      onChange={(e) => {
-                        const newRatings = e.target.checked
-                          ? [...filters.ratings, rating]
-                          : filters.ratings.filter(r => r !== rating);
-                        handleFilterChange('ratings', newRatings);
-                      }}
-                      icon={<CheckBoxOutlineBlankIcon />}
-                      checkedIcon={<CheckBoxIcon />}
-                    />
-                  }
-                  label={
-                    <div className="rating-label">
-                      <div className="rating-stars">
-                        {[...Array(5)].map((_, i) => (
-                          <StarIcon key={i} className={i < rating ? 'star-filled' : 'star-empty'} />
-                        ))}
-                      </div>
-                      <span className="rating-text">& above</span>
-                    </div>
-                  }
-                  className="checkbox-item"
-                />
-              ))}
-            </div>
-          </div>
+  //         {/* Ratings */}
+  //         <div className="filter-section">
+  //           <div className="filter-section-header">
+  //             <StarIcon className="section-icon" />
+  //             <h4 className="section-title">Customer Ratings</h4>
+  //           </div>
+  //           <div className="ratings-container">
+  //             {[4, 3, 2, 1].map(rating => (
+  //               <FormControlLabel
+  //                 key={rating}
+  //                 control={
+  //                   <Checkbox
+  //                     checked={filters.ratings.includes(rating)}
+  //                     onChange={(e) => {
+  //                       const newRatings = e.target.checked
+  //                         ? [...filters.ratings, rating]
+  //                         : filters.ratings.filter(r => r !== rating);
+  //                       handleFilterChange('ratings', newRatings);
+  //                     }}
+  //                     icon={<CheckBoxOutlineBlankIcon />}
+  //                     checkedIcon={<CheckBoxIcon />}
+  //                   />
+  //                 }
+  //                 label={
+  //                   <div className="rating-label">
+  //                     <div className="rating-stars">
+  //                       {[...Array(5)].map((_, i) => (
+  //                         <StarIcon key={i} className={i < rating ? 'star-filled' : 'star-empty'} />
+  //                       ))}
+  //                     </div>
+  //                     <span className="rating-text">& above</span>
+  //                   </div>
+  //                 }
+  //                 className="checkbox-item"
+  //               />
+  //             ))}
+  //           </div>
+  //         </div>
 
-          {/* Additional Filters */}
-          <div className="filter-section">
-            <div className="filter-section-header">
-              <FilterListIcon className="section-icon" />
-              <h4 className="section-title">More Filters</h4>
-            </div>
-            <div className="additional-filters">
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.inStock}
-                    onChange={(e) => handleFilterChange('inStock', e.target.checked)}
-                    icon={<CheckBoxOutlineBlankIcon />}
-                    checkedIcon={<CheckBoxIcon />}
-                  />
-                }
-                label="In Stock Only"
-                className="checkbox-item"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.onSale}
-                    onChange={(e) => handleFilterChange('onSale', e.target.checked)}
-                    icon={<CheckBoxOutlineBlankIcon />}
-                    checkedIcon={<CheckBoxIcon />}
-                  />
-                }
-                label="On Sale"
-                className="checkbox-item"
-              />
-            </div>
-          </div>
+  //         {/* Additional Filters */}
+  //         <div className="filter-section">
+  //           <div className="filter-section-header">
+  //             <FilterListIcon className="section-icon" />
+  //             <h4 className="section-title">More Filters</h4>
+  //           </div>
+  //           <div className="additional-filters">
+  //             <FormControlLabel
+  //               control={
+  //                 <Checkbox
+  //                   checked={filters.inStock}
+  //                   onChange={(e) => handleFilterChange('inStock', e.target.checked)}
+  //                   icon={<CheckBoxOutlineBlankIcon />}
+  //                   checkedIcon={<CheckBoxIcon />}
+  //                 />
+  //               }
+  //               label="In Stock Only"
+  //               className="checkbox-item"
+  //             />
+  //             <FormControlLabel
+  //               control={
+  //                 <Checkbox
+  //                   checked={filters.onSale}
+  //                   onChange={(e) => handleFilterChange('onSale', e.target.checked)}
+  //                   icon={<CheckBoxOutlineBlankIcon />}
+  //                   checkedIcon={<CheckBoxIcon />}
+  //                 />
+  //               }
+  //               label="On Sale"
+  //               className="checkbox-item"
+  //             />
+  //           </div>
+  //         </div>
 
-          {/* Selected Filters */}
-          {(filters.ratings.length > 0 || filters.inStock || filters.onSale) && (
-            <div className="selected-filters">
-              <h5 className="selected-filters-title">Active Filters:</h5>
-              <div className="filter-chips">
-                {filters.ratings.map(rating => (
-                  <span key={rating} className="filter-chip">
-                    {rating}+ Stars
-                    <button 
-                      onClick={() => handleFilterChange('ratings', filters.ratings.filter(r => r !== rating))}
-                      className="chip-remove"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-                {filters.inStock && (
-                  <span className="filter-chip">
-                    In Stock
-                    <button 
-                      onClick={() => handleFilterChange('inStock', false)}
-                      className="chip-remove"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
-                {filters.onSale && (
-                  <span className="filter-chip">
-                    On Sale
-                    <button 
-                      onClick={() => handleFilterChange('onSale', false)}
-                      className="chip-remove"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+  //         {/* Selected Filters */}
+  //         {(filters.ratings.length > 0 || filters.inStock || filters.onSale) && (
+  //           <div className="selected-filters">
+  //             <h5 className="selected-filters-title">Active Filters:</h5>
+  //             <div className="filter-chips">
+  //               {filters.ratings.map(rating => (
+  //                 <span key={rating} className="filter-chip">
+  //                   {rating}+ Stars
+  //                   <button 
+  //                     onClick={() => handleFilterChange('ratings', filters.ratings.filter(r => r !== rating))}
+  //                     className="chip-remove"
+  //                   >
+  //                     ×
+  //                   </button>
+  //                 </span>
+  //               ))}
+  //               {filters.inStock && (
+  //                 <span className="filter-chip">
+  //                   In Stock
+  //                   <button 
+  //                     onClick={() => handleFilterChange('inStock', false)}
+  //                     className="chip-remove"
+  //                   >
+  //                     ×
+  //                   </button>
+  //                 </span>
+  //               )}
+  //               {filters.onSale && (
+  //                 <span className="filter-chip">
+  //                   On Sale
+  //                   <button 
+  //                     onClick={() => handleFilterChange('onSale', false)}
+  //                     className="chip-remove"
+  //                   >
+  //                     ×
+  //                   </button>
+  //                 </span>
+  //               )}
+  //             </div>
+  //           </div>
+  //         )}
+  //       </div>
 
-        {/* Footer */}
-        <div className="filter-popup-footer">
-          <button 
-            className="filter-btn reset-btn"
-            onClick={handleResetFilters}
-          >
-            Reset All
-          </button>
-          <button 
-            className="filter-btn apply-btn"
-            onClick={handleApplyFilters}
-          >
-            Apply Filters
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  //       {/* Footer */}
+  //       <div className="filter-popup-footer">
+  //         <button 
+  //           className="filter-btn reset-btn"
+  //           onClick={handleResetFilters}
+  //         >
+  //           Reset All
+  //         </button>
+  //         <button 
+  //           className="filter-btn apply-btn"
+  //           onClick={handleApplyFilters}
+  //         >
+  //           Apply Filters
+  //         </button>
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
  
   useEffect(()=>{
     getDataFromColaction('category2',setCategoryData)
@@ -449,7 +449,7 @@ const Category = () => {
       </div>
 
       {/* Mobile Filter Button */}
-      <button 
+      {/* <button 
         className="mobile-filter-btn"
         onClick={() => setFilterOpen(true)}
       >
@@ -458,10 +458,10 @@ const Category = () => {
         {getActiveFilterCount() > 0 && (
           <span className="filter-badge">{getActiveFilterCount()}</span>
         )}
-      </button>
+      </button> */}
 
       {/* Filter Popup */}
-      {filterOpen && <FilterPopup />}
+      {/* {filterOpen && <FilterPopup />} */}
     </div>
   );
 };
