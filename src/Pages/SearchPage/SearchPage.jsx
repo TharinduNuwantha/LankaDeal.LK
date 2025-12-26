@@ -7,7 +7,7 @@ import { userSelecter } from "../../Store/ReduxSlice/userClise";
 import ModelLogging from "../../modals/ModelLogging";
 
 const SearchPage = () => {
-    const modellogginRef = useRef()
+  const modellogginRef = useRef();
   const navigate = useNavigate();
   const location = useLocation();
   const [query, setQuery] = useState("");
@@ -16,6 +16,10 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const userData = useSelector(userSelecter);
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
   
   const [filters, setFilters] = useState({
     categories: [],
@@ -38,6 +42,11 @@ const SearchPage = () => {
   useEffect(() => {
     applyFilters();
   }, [filters, allResults]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredResults]);
 
   const performSearch = async (searchQuery) => {
     if (!searchQuery.trim()) return;
@@ -101,6 +110,7 @@ const SearchPage = () => {
       delivery: "all"
     });
 
+    setCurrentPage(1);
     navigate(`/search?q=${encodeURIComponent(query)}`, { replace: false });
     await performSearch(query);
   };
@@ -136,8 +146,7 @@ const SearchPage = () => {
   const handleAddToCart = (product) => {
     if(userData.name){
         if(userData.name === 'default' || userData.name === '' || userData.name === 'no-user'){
-            modellogginRef.current.handleOpen()
-            
+            modellogginRef.current.handleOpen();
         }
     }
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -150,7 +159,6 @@ const SearchPage = () => {
     }
     
     localStorage.setItem("cart", JSON.stringify(existingCart));
-    // alert(`${product.title} added to cart!`);
   };
 
   const handleAddToAIChat = (product) => {
@@ -171,6 +179,67 @@ const SearchPage = () => {
       }
     });
     window.dispatchEvent(event);
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredResults.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentResults = filteredResults.slice(startIndex, endIndex);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handlePageClick = (pageNum) => {
+    setCurrentPage(pageNum);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxPagesToShow = 5;
+    
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
   };
 
   const activeFiltersCount = 
@@ -200,7 +269,8 @@ const SearchPage = () => {
               </button>
             </div>
           </form>
-            <ModelLogging ref={modellogginRef} />
+          <ModelLogging ref={modellogginRef} />
+          
           {allResults.length > 0 && (
             <div className="mb-4 lg:hidden">
               <button
@@ -365,7 +435,7 @@ const SearchPage = () => {
             <div className="flex-1">
               {!loading && query && allResults.length > 0 && (
                 <div className="mb-4 text-gray-600">
-                  Showing {filteredResults.length} of {allResults.length} results for "{query}"
+                  Showing {startIndex + 1}-{Math.min(endIndex, filteredResults.length)} of {filteredResults.length} results for "{query}"
                 </div>
               )}
 
@@ -395,7 +465,7 @@ const SearchPage = () => {
               )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredResults.map((item) => (
+                {currentResults.map((item) => (
                   <div 
                     key={item.id} 
                     className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
@@ -466,6 +536,60 @@ const SearchPage = () => {
                   </div>
                 ))}
               </div>
+
+              {/* Pagination Controls */}
+              {filteredResults.length > itemsPerPage && (
+                <div className="mt-8 flex items-center justify-center gap-2">
+                  {/* Previous Button */}
+                  <button
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                      currentPage === 1
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 hover:bg-gray-100 shadow-md"
+                    }`}
+                  >
+                    Previous
+                  </button>
+
+                  {/* Page Numbers */}
+                  <div className="flex gap-2">
+                    {getPageNumbers().map((page, index) => (
+                      page === '...' ? (
+                        <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-500">
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={page}
+                          onClick={() => handlePageClick(page)}
+                          className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                            currentPage === page
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-700 hover:bg-gray-100 shadow-md"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      )
+                    ))}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                      currentPage === totalPages
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 hover:bg-gray-100 shadow-md"
+                    }`}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

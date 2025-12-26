@@ -298,9 +298,30 @@ const AddProduct = () => {
     }
   }, [formData.price, formData.originalPrice]);
 
-  // --- 6. Submit Handler ---
-// Make the function async
-const handleSubmit = async (e) => {
+  // --- 6. Clear Form Handler ---
+  const handleClearForm = () => {
+    // Reset category selections
+    setSelectedMain('');
+    setSelectedSub('');
+    setSelectedChild('');
+    
+    // Reset form data to initial state
+    setFormData({
+      title: '',
+      description: '',
+      price: '',
+      originalPrice: '',
+      discount: '',
+      stockCount: '',
+      imageUrl: '',
+      fastDelivery: false,
+      inStock: true,
+      isFeatured: false,
+    });
+  };
+
+  // --- 7. Submit Handler ---
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // ERROR CHECK 1: Validate inputs before processing
@@ -364,8 +385,8 @@ const handleSubmit = async (e) => {
         // Success Feedback
         alert("Product Added Successfully!");
         
-        // Optional: Reset form or redirect here
-        // setFormData({...initialState}); 
+        // Clear form after successful submission
+        handleClearForm();
 
     } catch (error) {
         // Error Feedback
@@ -591,12 +612,23 @@ const handleSubmit = async (e) => {
           </label>
         </div>
 
-        <button 
-          type="submit" 
-          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
-        >
-          Add Product to Firebase
-        </button>
+        {/* --- Form Action Buttons --- */}
+        <div className="flex gap-4">
+          <button 
+            type="submit" 
+            className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+          >
+            Add Product to Firebase
+          </button>
+          
+          <button 
+            type="button" 
+            onClick={handleClearForm}
+            className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition"
+          >
+            Clear Form
+          </button>
+        </div>
 
       </form>
     </div>
