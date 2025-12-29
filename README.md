@@ -206,7 +206,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact
 
-Project Link: [https://github.com/yourusername/lankadeal.lk](https://github.com/yourusername/lankadeal.lk)
+Project Link: [https://github.com/yourusername/lankadeal.lk](https://github.com/TharinduNuwantha/LankaDeal.LK)
 
 ## Acknowledgments
 
