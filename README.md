@@ -6,6 +6,10 @@ An AI-powered e-commerce platform that revolutionizes online shopping in Sri Lan
 
 LankaDeal.lk solves the common frustration of spending hours searching for products and comparing prices across multiple websites. Our platform uses an intelligent AI chatbot assistant to help users quickly find the best-quality products at the lowest prices, all in one place.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TharinduNuwantha/LankaDeal.LK/fd3e485dca13e52cef3bc155b20d99563bbf678b/src/img/homeSHot.png" alt="LankaDeal Homepage" width="700"/>
+</p>
+
 ## Key Features
 
 - **AI Chatbot Assistant**: Conversational interface powered by Google Generative AI that understands your needs and recommends products based on your preferences and budget
@@ -121,11 +125,29 @@ myapp/
 ### AI-Powered Chat Assistant
 The chatbot uses Google's Generative AI to provide intelligent product recommendations, answer queries, and guide users through their shopping journey.
 
+#### Desktop Experience
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TharinduNuwantha/LankaDeal.LK/fd3e485dca13e52cef3bc155b20d99563bbf678b/src/img/askchatbot%20desktop.png" alt="AI Chatbot Desktop" width="700"/>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TharinduNuwantha/LankaDeal.LK/fd3e485dca13e52cef3bc155b20d99563bbf678b/src/img/Ask%20chatbot%20desktop%202.png" alt="AI Chatbot Desktop Conversation" width="700"/>
+</p>
+
+#### Mobile Experience
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TharinduNuwantha/LankaDeal.LK/fd3e485dca13e52cef3bc155b20d99563bbf678b/src/img/Ask%20chatbot%20mobile.png" alt="AI Chatbot Mobile" width="300"/>
+</p>
+
 ### Price Comparison Engine
 Automatically aggregates and compares prices from multiple sources, displaying the best deals with quality considerations.
 
 ### Responsive Design
 Built mobile-first with Tailwind CSS and Material UI, ensuring a seamless experience across all devices.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TharinduNuwantha/LankaDeal.LK/fd3e485dca13e52cef3bc155b20d99563bbf678b/src/img/mobile%20home%20shot.png" alt="Mobile View" width="300"/>
+</p>
 
 ### Real-time Data
 Firebase Firestore enables real-time price updates and inventory tracking.
