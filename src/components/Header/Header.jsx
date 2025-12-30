@@ -20,8 +20,14 @@ import HomeIcon from '@mui/icons-material/Home';
 import Badge from '@mui/material/Badge';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { userSelecter } from '../../Store/ReduxSlice/userClise';
+
  
 const Header = ({paymentModelRef}) => {
+  const userData = useSelector(userSelecter);
+  const cartData = userData.cart
+  console.log(cartData)
   const [searchQuery, setSearchQuery] = useState('');
    const navigate = useNavigate();
   const handleSearch = () => {

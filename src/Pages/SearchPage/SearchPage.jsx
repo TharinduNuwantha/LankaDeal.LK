@@ -4,12 +4,15 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { searchProducts } from "./searchProducts";
 import AIChatBot from "../../Layout/AIChatBot";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { userSelecter } from "../../Store/ReduxSlice/userClise";
 import ModelLogging from "../../modals/ModelLogging";
 import "./SearchPage.css"; // Import the CSS file
+import { addToCart } from '../../../src/utils/AddToCart/addToCart'
+
 
 const SearchPage = () => {
+  
   const modellogginRef = useRef();
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,6 +22,7 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const userData = useSelector(userSelecter);
+  const dispatch = useDispatch()
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -194,6 +198,10 @@ const SearchPage = () => {
         button.style.background = "linear-gradient(135deg, #dc2626, #e43b3b)";
       }, 1500);
     }
+
+    addToCart(userData.uid,product,userData.cart,dispatch)
+    console.log('මම සර්ච් පේජ් එක  බ්‍රෝ');
+    
   };
 
   const handleAddToAIChat = (product) => {

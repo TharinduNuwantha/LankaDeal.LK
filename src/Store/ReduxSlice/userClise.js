@@ -21,11 +21,12 @@ const userSlice = createSlice({
             state.user = action.payload;
             state.isLoading = false;
         },
-         addToCart:(state,action,addToCart)=>{
+        addToCart: (state, action) => {
             if (state.user && state.user.cart) {
                 state.user.cart.push(action.payload);
             }
-         }   
+        }
+ 
     }
 })
 
