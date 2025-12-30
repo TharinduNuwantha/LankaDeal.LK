@@ -1,23 +1,22 @@
 import { createSelector, createSlice } from "@reduxjs/toolkit";
 
-
 const initialState = {
-    user:{
-        name:"default",
-        cart:[]
+    user: {
+        name: "default",
+        cart: []
     },
     isLoading: true
 };
 
 const userSlice = createSlice({
-    name:'userClise',
+    name: 'userClise',
     initialState,
-    reducers:{
-        addUser:(state,action)=>{
+    reducers: {
+        addUser: (state, action) => {
             state.user = action.payload;
             state.isLoading = false;
         },
-        removeUser:(state,action)=>{
+        removeUser: (state, action) => {
             state.user = action.payload;
             state.isLoading = false;
         },
@@ -35,12 +34,49 @@ const userSlice = createSlice({
                     state.user.cart.push(action.payload);
                 }
             }
+        },
+        removeFromCart: (state, action) => {
+            if (state.user && state.user.cart) {
+                state.user.cart = state.user.cart.filter(
+                    item => item.id !== action.payload
+                );
+            }
+        },
+        updateQuantity: (state, action) => {
+            if (state.user && state.user.cart) {
+                const { id, quantity } = action.payload;
+                const itemIndex = state.user.cart.findIndex(item => item.id === id);
+                
+                if (itemIndex > -1) {
+                    state.user.cart[itemIndex].quantity = quantity;
+                }
+            }
+        },
+        clearCart: (state) => {
+            if (state.user) {
+                state.user.cart = [];
+            }
         }
- 
     }
-})
+});
 
-export const {addUser,removeUser,addToCart} = userSlice.actions;
-export const userSelecter = createSelector([(store)=>store.user.user],(user)=>user)
-export const isLoadingSelector = createSelector([(store)=>store.user.isLoading],(isLoading)=>isLoading)
-export default userSlice.reducer
+export const { 
+    addUser, 
+    removeUser, 
+    addToCart, 
+    removeFromCart, 
+    updateQuantity, 
+    clearCart 
+} = userSlice.actions;
+
+export const userSelecter = createSelector(
+    [(store) => store.user.user],
+    (user) => user
+);
+
+export const isLoadingSelector = createSelector(
+    [(store) => store.user.isLoading],
+    (isLoading) => isLoading
+);
+
+export default userSlice.reducer;
