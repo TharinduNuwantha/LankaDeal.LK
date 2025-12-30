@@ -179,7 +179,7 @@ const ModalPayment = forwardRef((props, ref) => {
           </p>
           <button
             onClick={handleClose}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl"
+            className="w-full bg-gradient-to-r from-[#dc2626] to-[#b91c1c] text-white py-3 rounded-xl font-semibold hover:from-[#b91c1c] hover:to-[#991b1b] transition-all shadow-lg hover:shadow-xl"
           >
             Continue Shopping
           </button>
@@ -192,7 +192,7 @@ const ModalPayment = forwardRef((props, ref) => {
     <Modal open={open} onClose={handleClose} className="flex items-center justify-center p-4">
       <div className="w-full max-w-6xl bg-gradient-to-br from-gray-50 to-white rounded-2xl max-h-[95vh] overflow-y-auto outline-none shadow-2xl">
         {/* Modern Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-6 flex items-center justify-between z-10 rounded-t-2xl">
+        <div className="sticky top-0 bg-gradient-to-r from-[#dc2626] to-[#b91c1c] text-white px-6 py-6 flex items-center justify-between z-10 rounded-t-2xl">
           <div className="flex items-center gap-3">
             <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -235,7 +235,7 @@ const ModalPayment = forwardRef((props, ref) => {
                     className="bg-white border border-gray-200 rounded-2xl p-5 flex gap-5 hover:shadow-lg transition-all duration-300 relative overflow-hidden group"
                   >
                     {/* Gradient accent */}
-                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-purple-500"></div>
+                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#dc2626] to-[#b91c1c]"></div>
                     
                     <div className="relative flex-shrink-0">
                       <img
@@ -244,7 +244,7 @@ const ModalPayment = forwardRef((props, ref) => {
                         className="w-28 h-28 object-cover rounded-xl shadow-md"
                       />
                       {item.discount && (
-                        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                        <div className="absolute -top-2 -right-2 bg-[#dc2626] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
                           {item.discount}
                         </div>
                       )}
@@ -297,7 +297,7 @@ const ModalPayment = forwardRef((props, ref) => {
                           </div>
                           
                           {item.fastDelivery && (
-                            <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold flex items-center gap-1">
+                            <span className="text-xs bg-[#fef2f2] text-[#dc2626] px-3 py-1 rounded-full font-semibold flex items-center gap-1">
                               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                               </svg>
@@ -320,7 +320,7 @@ const ModalPayment = forwardRef((props, ref) => {
                         <button
                           onClick={() => handleDeleteItem(item)}
                           disabled={deletingItem === item.id}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50"
+                          className="p-2 text-[#dc2626] hover:bg-[#fef2f2] rounded-lg transition-all disabled:opacity-50"
                           title="Remove from cart"
                         >
                           {deletingItem === item.id ? (
@@ -342,60 +342,12 @@ const ModalPayment = forwardRef((props, ref) => {
 
               {/* Sidebar - Modern Design */}
               <div className="space-y-5">
-                {/* Customer Information */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-lg">
-                  <div className="flex items-center gap-2 mb-5">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <h3 className="font-bold text-lg text-gray-800">Delivery Details</h3>
-                  </div>
-                  <div className="space-y-4">
-                    <input
-                      type="text"
-                      name="name"
-                      placeholder="Full Name *"
-                      value={customerInfo.name}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                      required
-                    />
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="Email Address *"
-                      value={customerInfo.email}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                      required
-                    />
-                    <input
-                      type="tel"
-                      name="phone"
-                      placeholder="Phone Number *"
-                      value={customerInfo.phone}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                      required
-                    />
-                    <textarea
-                      name="address"
-                      placeholder="Delivery Address *"
-                      value={customerInfo.address}
-                      onChange={handleInputChange}
-                      rows={3}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition"
-                      required
-                    />
-                  </div>
-                </div>
-
+                {/* Customer Info Section (if needed in future) */}
+                
                 {/* Order Summary */}
-                <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-6 shadow-lg">
+                <div className="bg-gradient-to-br from-[#fef2f2] to-[#fee2e2] border-2 border-[#fecaca] rounded-2xl p-6 shadow-lg">
                   <h3 className="font-bold text-lg text-gray-800 mb-5 flex items-center gap-2">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-[#dc2626]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
                     Order Summary
@@ -409,16 +361,16 @@ const ModalPayment = forwardRef((props, ref) => {
                       <span>Delivery Fee</span>
                       <span className="font-semibold">LKR {deliveryFee.toLocaleString()}</span>
                     </div>
-                    <div className="border-t-2 border-blue-200 pt-3 flex justify-between items-center">
+                    <div className="border-t-2 border-[#fecaca] pt-3 flex justify-between items-center">
                       <span className="text-lg font-bold text-gray-800">Total</span>
-                      <span className="text-2xl font-bold text-blue-600">LKR {total.toLocaleString()}</span>
+                      <span className="text-2xl font-bold text-[#dc2626]">LKR {total.toLocaleString()}</span>
                     </div>
                   </div>
 
                   <button
                     onClick={handlePlaceOrder}
                     disabled={loading || cart.length === 0}
-                    className="w-full mt-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    className="w-full mt-6 bg-gradient-to-r from-[#dc2626] to-[#b91c1c] text-white py-4 rounded-xl font-bold text-lg hover:from-[#b91c1c] hover:to-[#991b1b] transition-all disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                   >
                     {loading ? (
                       <span className="flex items-center justify-center gap-2">
