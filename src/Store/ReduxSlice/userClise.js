@@ -23,7 +23,17 @@ const userSlice = createSlice({
         },
         addToCart: (state, action) => {
             if (state.user && state.user.cart) {
-                state.user.cart.push(action.payload);
+                const existingIndex = state.user.cart.findIndex(
+                    item => item.id === action.payload.id
+                );
+                
+                if (existingIndex > -1) {
+                    // Update quantity if item exists
+                    state.user.cart[existingIndex].quantity += 1;
+                } else {
+                    // Add new item
+                    state.user.cart.push(action.payload);
+                }
             }
         }
  

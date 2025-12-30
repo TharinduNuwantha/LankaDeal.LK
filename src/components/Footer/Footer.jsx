@@ -11,17 +11,22 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import Badge from '@mui/material/Badge';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const Footer = () => {
   const [activeTab, setActiveTab] = useState('home');
+    const cart = useSelector(
+    (state) => state.user.user.cart
+  );
+    const cartLength = cart.length;
 
-  // Single row mobile navigation - NO DUPLICATES
+  // Single row mobile navigation 
   const mobileFooterItems = [
     { id: 'home', icon: HomeIcon, label: 'Home', badge: 0, linkUrl:'/' },
     { id: 'categories', icon: CategoryIcon, label: 'Category', badge: 0, linkUrl:'/category' },
     { id: 'search', icon: SearchIcon, label: 'Search', badge: 0,linkUrl:'/search' },
-    { id: 'wishlist', icon: FavoriteBorderIcon, label: 'Wishlist', badge: 3,linkUrl:'/' },
-    { id: 'cart', icon: ShoppingCartIcon, label: 'Cart', badge: 3,linkUrl:'/' },
+    { id: 'wishlist', icon: FavoriteBorderIcon, label: 'Wishlist', badge: 30,linkUrl:'/' },
+    { id: 'cart', icon: ShoppingCartIcon, label: 'Cart', badge: cartLength,linkUrl:'/' },
     { id: 'account', icon: PersonIcon, label: 'Account', badge: 0,linkUrl:'/profile' },
   ];
 

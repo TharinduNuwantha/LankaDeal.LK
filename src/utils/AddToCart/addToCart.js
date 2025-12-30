@@ -1,6 +1,8 @@
 // myapp\src\utils\AddToCart\addToCart.js
 import { doc, setDoc, arrayUnion } from "firebase/firestore"; 
 import db from "../../FireBase/firebase";
+import { addToCart as addToCartAction } from "../../Store/ReduxSlice/userClise";
+
 
 export const addToCart = async (userId, product, currentCartData, dispatch) => {
     if (!userId) {
@@ -45,10 +47,7 @@ export const addToCart = async (userId, product, currentCartData, dispatch) => {
         // FIX: Do NOT call dispatch(addToCart(...)). 
         // Use the string name of your action from your Slice.
         // If your slice name is "user", the action is likely "user/addToCart"
-        dispatch({ 
-            type: "user/addToCart", 
-            payload: itemToAdd 
-        });
+  dispatch(addToCartAction(itemToAdd));
 
     } catch (error) {
         console.error("Error updating cart:", error);

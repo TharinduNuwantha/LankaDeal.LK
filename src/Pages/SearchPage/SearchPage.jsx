@@ -12,7 +12,8 @@ import { addToCart } from '../../../src/utils/AddToCart/addToCart'
 
 
 const SearchPage = () => {
-  
+
+
   const modellogginRef = useRef();
   const navigate = useNavigate();
   const location = useLocation();
@@ -330,6 +331,9 @@ const SearchPage = () => {
 
   return (
     <>
+
+    {console.log('කාර්ට් එකේ මොනවද බන් තියෙන්නේ ? ',userData.cart.length)}
+    
       <div className="search-page min-h-screen py-8 px-4">
         <div className="max-w-7xl mx-auto">
             <form onSubmit={handleSearch} className="search-form mb-8">

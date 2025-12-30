@@ -25,9 +25,14 @@ import { userSelecter } from '../../Store/ReduxSlice/userClise';
 
  
 const Header = ({paymentModelRef}) => {
-  const userData = useSelector(userSelecter);
-  const cartData = userData.cart
-  console.log(cartData)
+  
+  const cart = useSelector(
+  (state) => state.user.user.cart
+);
+  const cartLength = cart.length;
+
+  
+
   const [searchQuery, setSearchQuery] = useState('');
    const navigate = useNavigate();
   const handleSearch = () => {
@@ -146,7 +151,7 @@ const Header = ({paymentModelRef}) => {
                     <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
                       <LocalShippingIcon sx={{ fontSize: 20, color: 'white' }} />
                     </div>
-                    <Badge badgeContent={2} color="error" sx={{
+                    <Badge badgeContent={cartLength} color="error" sx={{
                       position: 'absolute',
                       top: -5,
                       right: -5,
@@ -168,7 +173,7 @@ const Header = ({paymentModelRef}) => {
                 <button className="flex items-center space-x-1 xl:space-x-2 text-white hover:text-yellow-200 transition group relative">
                   <div className="relative">
                     <Badge 
-                      badgeContent={3} 
+                      badgeContent={cartLength} 
                       color="warning"
                       sx={{
                         '& .MuiBadge-badge': {
@@ -192,13 +197,13 @@ const Header = ({paymentModelRef}) => {
                   {/* Show price on lg+, show items count on xl+ */}
                   <div className="hidden lg:block text-left">
                     <div className="font-bold text-sm xl:text-base">$199.99</div>
-                    <div className="hidden xl:block text-xs text-gray-200">3 items</div>
+                    <div className="hidden xl:block text-xs text-gray-200">{cartLength} items</div>
                   </div>
                 </button>
 
                 {/* Wishlist - Show only on xl+ */}
                 <button className="hidden xl:flex flex-col items-center text-white hover:text-yellow-200 transition relative">
-                  <Badge badgeContent={5} color="error" sx={{
+                  <Badge badgeContent={cartLength} color="error" sx={{
                     '& .MuiBadge-badge': {
                       backgroundColor: '#ef4444',
                       color: 'white',
@@ -216,7 +221,7 @@ const Header = ({paymentModelRef}) => {
               {/* Mobile Cart Button */}
               <button className="md:hidden relative">
                 <Badge 
-                  badgeContent={3} 
+                  badgeContent={cartLength} 
                   color="warning"
                   sx={{
                     '& .MuiBadge-badge': {
