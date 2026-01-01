@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { 
   MapPin, CreditCard, Truck, Package, CheckCircle, 
   Edit2, Plus, ChevronRight, Wallet, Building2, 
-  Smartphone, Mail, User, Home, AlertCircle
+  Smartphone, Mail, User, Home, AlertCircle, Trash2,
+  Upload, X
 } from 'lucide-react';
 
 const PlaceOrderPage = () => {
-  // Order items passed as props (simulated here)
-  const [orderItems] = useState([
+  // Order items that can be modified
+  const [orderItems, setOrderItems] = useState([
     {
       id: 1,
       title: 'Wireless Bluetooth Headphones',
@@ -23,6 +24,14 @@ const PlaceOrderPage = () => {
       quantity: 2,
       imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop',
       categoryPath: 'Electronics/Wearables/Smart Watches'
+    },
+    {
+      id: 3,
+      title: 'Premium Leather Wallet',
+      price: 5500,
+      quantity: 1,
+      imageUrl: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop',
+      categoryPath: 'Fashion/Accessories/Wallets'
     }
   ]);
 
@@ -41,6 +50,18 @@ const PlaceOrderPage = () => {
   const [selectedPayment, setSelectedPayment] = useState('cod');
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
+
+  // Card details state
+  const [cardDetails, setCardDetails] = useState({
+    cardNumber: '',
+    cardName: '',
+    expiryDate: '',
+    cvv: ''
+  });
+
+  // Bank transfer state
+  const [bankSlip, setBankSlip] = useState(null);
+  const [bankSlipPreview, setBankSlipPreview] = useState(null);
 
   const shippingOptions = [
     {
@@ -87,15 +108,68 @@ const PlaceOrderPage = () => {
     }
   ];
 
+  // Remove item from order
+  const handleRemoveItem = (itemId) => {
+    setOrderItems(orderItems.filter(item => item.id !== itemId));
+  };
+
+  // Calculate totals
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const selectedShippingCost = shippingOptions.find(s => s.id === selectedShipping)?.price || 0;
   const total = subtotal + selectedShippingCost;
   const totalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Handle card input changes
+  const handleCardChange = (field, value) => {
+    setCardDetails(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle bank slip upload
+  const handleBankSlipUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setBankSlip(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBankSlipPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Remove bank slip
+  const handleRemoveBankSlip = () => {
+    setBankSlip(null);
+    setBankSlipPreview(null);
+  };
+
   const handlePlaceOrder = () => {
-    // Validate before placing order
+    // Validate order items
+    if (orderItems.length === 0) {
+      alert('Your order is empty. Please add items to continue.');
+      return;
+    }
+
+    // Validate shipping and payment
     if (!selectedShipping || !selectedPayment) {
       alert('Please select shipping and payment method');
+      return;
+    }
+
+    // Validate card details if card payment selected
+    if (selectedPayment === 'card') {
+      if (!cardDetails.cardNumber || !cardDetails.cardName || !cardDetails.expiryDate || !cardDetails.cvv) {
+        alert('Please fill in all card details');
+        return;
+      }
+    }
+
+    // Validate bank slip if bank transfer selected
+    if (selectedPayment === 'bank' && !bankSlip) {
+      alert('Please upload your bank transfer slip');
       return;
     }
     
@@ -105,6 +179,8 @@ const PlaceOrderPage = () => {
       shippingAddress,
       shippingMethod: selectedShipping,
       paymentMethod: selectedPayment,
+      cardDetails: selectedPayment === 'card' ? cardDetails : null,
+      bankSlip: selectedPayment === 'bank' ? bankSlip : null,
       total
     });
     
@@ -137,7 +213,13 @@ const PlaceOrderPage = () => {
             We've sent a confirmation email to <strong>{shippingAddress.email}</strong>
           </p>
           <button
-            onClick={() => setOrderPlaced(false)}
+            onClick={() => {
+              setOrderPlaced(false);
+              setOrderItems([]);
+              setCardDetails({ cardNumber: '', cardName: '', expiryDate: '', cvv: '' });
+              setBankSlip(null);
+              setBankSlipPreview(null);
+            }}
             className="w-full bg-gradient-to-r from-[#dc2626] to-[#b91c1c] text-white py-4 rounded-xl font-semibold text-lg hover:from-[#b91c1c] hover:to-[#991b1b] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
             Continue Shopping
@@ -438,8 +520,9 @@ const PlaceOrderPage = () => {
                   );
                 })}
 
+                {/* Cash on Delivery Info */}
                 {selectedPayment === 'cod' && (
-                  <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 flex gap-3">
+                  <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 flex gap-3 mt-4">
                     <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm text-blue-800 font-semibold mb-1">Cash on Delivery</p>
@@ -447,6 +530,137 @@ const PlaceOrderPage = () => {
                         Please keep exact change ready. Our delivery partner will collect the payment upon delivery.
                       </p>
                     </div>
+                  </div>
+                )}
+
+                {/* Card Details Form */}
+                {selectedPayment === 'card' && (
+                  <div className="bg-gradient-to-r from-gray-50 to-white border-2 border-[#dc2626] rounded-xl p-6 mt-4">
+                    <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                      <CreditCard className="w-5 h-5 text-[#dc2626]" />
+                      Enter Card Details
+                    </h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Card Number
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="1234 5678 9012 3456"
+                          maxLength="19"
+                          value={cardDetails.cardNumber}
+                          onChange={(e) => handleCardChange('cardNumber', e.target.value)}
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#dc2626] focus:outline-none transition-colors"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Cardholder Name
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="John Doe"
+                          value={cardDetails.cardName}
+                          onChange={(e) => handleCardChange('cardName', e.target.value)}
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#dc2626] focus:outline-none transition-colors"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Expiry Date
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="MM/YY"
+                            maxLength="5"
+                            value={cardDetails.expiryDate}
+                            onChange={(e) => handleCardChange('expiryDate', e.target.value)}
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#dc2626] focus:outline-none transition-colors"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            CVV
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="123"
+                            maxLength="3"
+                            value={cardDetails.cvv}
+                            onChange={(e) => handleCardChange('cvv', e.target.value)}
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#dc2626] focus:outline-none transition-colors"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bank Transfer Upload */}
+                {selectedPayment === 'bank' && (
+                  <div className="bg-gradient-to-r from-gray-50 to-white border-2 border-[#dc2626] rounded-xl p-6 mt-4">
+                    <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                      <Building2 className="w-5 h-5 text-[#dc2626]" />
+                      Upload Bank Transfer Slip
+                    </h4>
+                    
+                    <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
+                      <p className="text-sm text-blue-800 font-semibold mb-2">Bank Details:</p>
+                      <p className="text-xs text-blue-700 mb-1">Bank: Commercial Bank</p>
+                      <p className="text-xs text-blue-700 mb-1">Account Name: Your Company Name</p>
+                      <p className="text-xs text-blue-700 mb-1">Account Number: 1234567890</p>
+                      <p className="text-xs text-blue-700">Branch: Colombo</p>
+                    </div>
+
+                    {!bankSlipPreview ? (
+                      <label className="block">
+                        <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#dc2626] transition-colors cursor-pointer">
+                          <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                          <p className="text-sm font-semibold text-gray-700 mb-1">
+                            Click to upload slip
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG or PDF (Max 5MB)
+                          </p>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={handleBankSlipUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    ) : (
+                      <div className="relative border-2 border-[#dc2626] rounded-xl p-4 bg-white">
+                        <button
+                          onClick={handleRemoveBankSlip}
+                          className="absolute -top-2 -right-2 w-8 h-8 bg-[#dc2626] text-white rounded-full flex items-center justify-center hover:bg-[#b91c1c] transition-all shadow-lg"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                        {bankSlip.type.startsWith('image/') ? (
+                          <img
+                            src={bankSlipPreview}
+                            alt="Bank slip"
+                            className="w-full rounded-lg"
+                          />
+                        ) : (
+                          <div className="text-center py-4">
+                            <p className="text-sm font-semibold text-gray-700">
+                              {bankSlip.name}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              PDF uploaded successfully
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -465,25 +679,40 @@ const PlaceOrderPage = () => {
                   </h3>
                 </div>
 
-                <div className="p-6 max-h-96 overflow-y-auto space-y-4">
-                  {orderItems.map((item) => (
-                    <div key={item.id} className="flex gap-4 pb-4 border-b border-gray-100 last:border-0">
-                      <img
-                        src={item.imageUrl}
-                        alt={item.title}
-                        className="w-20 h-20 object-cover rounded-lg shadow-md flex-shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-gray-800 text-sm line-clamp-2 mb-1">
-                          {item.title}
-                        </h4>
-                        <p className="text-xs text-gray-500 mb-2">Qty: {item.quantity}</p>
-                        <p className="text-lg font-bold text-[#dc2626]">
-                          LKR {(item.price * item.quantity).toLocaleString()}
-                        </p>
-                      </div>
+                <div className="p-6 max-h-[500px] overflow-y-auto space-y-4">
+                  {orderItems.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Package className="w-16 h-16 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500 font-medium">No items in order</p>
+                      <p className="text-sm text-gray-400 mt-1">Add items to continue</p>
                     </div>
-                  ))}
+                  ) : (
+                    orderItems.map((item) => (
+                      <div key={item.id} className="group relative flex gap-4 pb-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          className="w-20 h-20 object-cover rounded-lg shadow-md flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-800 text-sm line-clamp-2 mb-1">
+                            {item.title}
+                          </h4>
+                          <p className="text-xs text-gray-500 mb-2">Qty: {item.quantity}</p>
+                          <p className="text-lg font-bold text-[#dc2626]">
+                            LKR {(item.price * item.quantity).toLocaleString()}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveItem(item.id)}
+                          className="absolute top-2 right-2 w-7 h-7 bg-red-100 text-[#dc2626] rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-[#dc2626] hover:text-white transition-all"
+                          title="Remove item"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -513,7 +742,8 @@ const PlaceOrderPage = () => {
 
                   <button
                     onClick={handlePlaceOrder}
-                    className="w-full bg-gradient-to-r from-[#dc2626] to-[#b91c1c] text-white py-4 rounded-xl font-bold text-lg hover:from-[#b91c1c] hover:to-[#991b1b] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2 mt-6"
+                    disabled={orderItems.length === 0}
+                    className="w-full bg-gradient-to-r from-[#dc2626] to-[#b91c1c] text-white py-4 rounded-xl font-bold text-lg hover:from-[#b91c1c] hover:to-[#991b1b] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2 mt-6 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed disabled:transform-none"
                   >
                     <CheckCircle className="w-5 h-5" />
                     Place Order
