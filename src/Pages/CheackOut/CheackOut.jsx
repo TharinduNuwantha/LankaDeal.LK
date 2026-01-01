@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   MapPin, CreditCard, Truck, Package, CheckCircle, 
   Edit2, Plus, ChevronRight, Wallet, Building2, 
@@ -6,18 +6,30 @@ import {
   Upload, X
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
-import { doc, serverTimestamp } from 'firebase/firestore';
+import { arrayUnion, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import db from '../../FireBase/firebase';
 import { userSelecter } from '../../Store/ReduxSlice/userClise';
 
+// 1. Import useAuth from App (adjust the path ../../App if your folder structure differs)
+import { useAuth } from '../../App';
+
 const PlaceOrderPage = () => {
 
-    const userData = useSelector(userSelecter)
-
-    const cart = useSelector(state => state.user.user.cart);
+    // 2. Get userId from the context created in App.jsx
+    const { userId } = useAuth();
+       
+        
+   const cart = useSelector(state => state.user.user?.cart || []);
+   
     
     
   const [orderItems, setOrderItems] = useState(cart);
+
+  useEffect(() => {
+    if (cart && cart.length > 0) {
+      setOrderItems(cart);
+    }
+  }, [cart]);
 
   const [shippingAddress, setShippingAddress] = useState({
     fullName: 'John Doe',
@@ -130,63 +142,72 @@ const PlaceOrderPage = () => {
     setBankSlipPreview(null);
   };
 
-  const handlePlaceOrder = () => {
-    // Validate order items
-    if (orderItems.length === 0) {
-      alert('Your order is empty. Please add items to continue.');
+const handlePlaceOrder = () => {
+  if (!userId) {
+    alert("User not logged in. Please login again.");
+    return;
+  }
+
+  if (orderItems.length === 0) {
+    alert('Your order is empty. Please add items to continue.');
+    return;
+  }
+
+  if (!selectedShipping || !selectedPayment) {
+    alert('Please select shipping and payment method');
+    return;
+  }
+
+  if (selectedPayment === 'card') {
+    if (!cardDetails?.cardNumber || !cardDetails?.cardName || !cardDetails?.expiryDate || !cardDetails?.cvv) {
+      alert('Please fill in all card details');
       return;
     }
+  }
 
-    // Validate shipping and payment
-    if (!selectedShipping || !selectedPayment) {
-      alert('Please select shipping and payment method');
-      return;
-    }
+  if (selectedPayment === 'bank' && !bankSlip) {
+    alert('Please upload your bank transfer slip');
+    return;
+  }
 
-    // Validate card details if card payment selected
-    if (selectedPayment === 'card') {
-      if (!cardDetails.cardNumber || !cardDetails.cardName || !cardDetails.expiryDate || !cardDetails.cvv) {
-        alert('Please fill in all card details');
-        return;
-      }
-    }
-
-    // Validate bank slip if bank transfer selected
-    if (selectedPayment === 'bank' && !bankSlip) {
-      alert('Please upload your bank transfer slip');
-      return;
-    }
-    
-   
-    console.log({
-      items: orderItems,
-      shippingAddress,
-      shippingMethod: selectedShipping,
-      paymentMethod: selectedPayment,
-      cardDetails: selectedPayment === 'card' ? cardDetails : null,
-      bankSlip: selectedPayment === 'bank' ? bankSlip : null,
-      total
-    });
-
-    const newOrder = {
-        items: orderItems,
-        shippingAddress,
-        shippingMethod: selectedShipping,
-        paymentMethod: selectedPayment,
-        cardDetails: selectedPayment === 'card' ? cardDetails : null,
-        bankSlip: selectedPayment === 'bank' ? bankSlip : null,
-        total,
-        createdAt: serverTimestamp(),
-        status: 'pending'
-    };
-
-
-
-
-    
-    
-    setOrderPlaced(true);
+  const newOrder = {
+    items: orderItems,
+    shippingAddress,
+    shippingMethod: selectedShipping,
+    paymentMethod: selectedPayment,
+    cardDetails: selectedPayment === 'card' ? cardDetails : null,
+    bankSlip: selectedPayment === 'bank' ? bankSlip : null,
+    total,
+    createdAt: new Date(),
+    status: 'pending'
   };
+
+  const userRef = doc(db, "users", userId);
+
+  getDoc(userRef)
+    .then((userSnap) => {
+      if (!userSnap.exists()) {
+        throw new Error("User not found");
+      }
+
+      const userData = userSnap.data();
+
+      if (!userData.orderData) {
+        return updateDoc(userRef, { orderData: [newOrder] });
+      } else {
+        return updateDoc(userRef, { orderData: arrayUnion(newOrder) });
+      }
+    })
+    .then(() => {
+      console.log("Order added successfully");
+      setOrderPlaced(true); // ✅ move here
+    })
+    .catch((error) => {
+      console.error("Error adding order:", error);
+      alert("Failed to place order");
+    });
+};
+
 
   const handleAddressChange = (field, value) => {
     setShippingAddress(prev => ({

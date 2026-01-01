@@ -1,37 +1,66 @@
-import { useEffect } from "react";
-import "./App.css";
+import { useEffect, useState, createContext, useContext } from 'react';
+import './App.css';
 
-import AppRouters from "./Routers/AppRouters";
-import { useDispatch } from "react-redux";
-import { addUser, removeUser } from "./Store/ReduxSlice/userClise";
-import getDataDocument from "./utils/dataFetch/getDataDocument";
-import { useAuth } from "./context/AuthContext";
+import Footer from './components/Footer/Footer';
+import Header from './components/Header/Header';
+import AppRouters from './Routers/AppRouters';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './FireBase/firebase';
+import getDataDocument from './utils/dataFetch/getDataDocument';
+import { useDispatch, useSelector } from 'react-redux';
+import { addUser, removeUser, userSelecter, isLoadingSelector } from './Store/ReduxSlice/userClise';
+
+// 1. Create the Context
+const AuthContext = createContext();
+
+// 2. Create and export the custom hook to use the context
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
 
 function App() {
   const dispatch = useDispatch();
-  const { uid, authLoading } = useAuth();
+  const userData = useSelector(userSelecter);
+  
+  // 3. State to hold the userId locally for the Context
+  const [userId, setUserId] = useState(null);
+
+  console.log(userData);
 
   useEffect(() => {
-    if (authLoading) return;
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const uid = user.uid;
+        console.log("user kenek indoooo", user);
+        
+        // 4. Save uid to Context state
+        setUserId(uid);
 
-    if (uid) {
-      // fetch user document using uid
-      getDataDocument("users", uid, (dataset) => {
-        dispatch(addUser(dataset));
-      });
-    } else {
-      dispatch(removeUser({ name: "no-user" }));
-    }
-  }, [uid, authLoading, dispatch]);
+        // Existing Redux logic
+        getDataDocument('users', uid, (dataset) => {
+          dispatch(addUser(dataset));
+        });
+      } else {
+        console.log("no user");
+        
+        // 5. Clear uid from Context state
+        setUserId(null);
 
-  if (authLoading) {
-    return <div>Loading...</div>;
-  }
+        // Existing Redux logic
+        dispatch(removeUser({ name: "no-user" }));
+      }
+    });
+
+    return () => unsubscribe();
+  }, [dispatch]);
 
   return (
-    <div>
-      <AppRouters />
-    </div>
+    // 6. Wrap the application in the Provider and pass the userId
+    <AuthContext.Provider value={{ userId }}>
+      <div>
+        <AppRouters />
+      </div>
+    </AuthContext.Provider>
   );
 }
 
