@@ -25,7 +25,7 @@ import { userSelecter } from '../../Store/ReduxSlice/userClise';
 
  
 const Header = ({paymentModelRef}) => {
-  
+    const userData = useSelector(userSelecter)
   const cart = useSelector(
   (state) => state.user.user.cart
 );
@@ -140,12 +140,12 @@ const Header = ({paymentModelRef}) => {
                     <PersonIcon sx={{ fontSize: 20, color: 'white' }} />
                   </div>
                   <div className="hidden xl:block ml-2 text-left">
-                    <div className="font-bold text-sm">Hello, Sign in</div>
-                    <div className="text-xs text-gray-200">Account</div>
+                    <div className="font-bold text-sm">Hello, {userData.name.split(" ")[0]}</div>
+                    <div className="text-xs text-gray-200"></div>
                   </div>
                 </button>
 
-                {/* Orders - Show only on xl+ */}
+                {/* Orders - Show only on xl+ */} 
                 <button className="hidden xl:flex items-center space-x-2 text-white hover:text-yellow-200 transition">
                   <div className="relative">
                     <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">

@@ -7,6 +7,7 @@ import { locationData } from '../../utils/countryDetails/srilankaProvince'
 import { doc, updateDoc } from 'firebase/firestore'
 import db from '../../FireBase/firebase'
 import { toast } from 'react-toastify'
+import { FiCamera, FiLink, FiX, FiSave, FiCopy, FiUpload, FiMapPin, FiNavigation, FiHome, FiUser, FiMail, FiPhone, FiMap, FiGlobe } from 'react-icons/fi'
 
 // --- INTERNAL REUSABLE COMPONENT: Modern Searchable Dropdown ---
 const SearchableDropdown = ({ label, name, value, options, onChange, disabled, placeholder }) => {
@@ -42,8 +43,8 @@ const SearchableDropdown = ({ label, name, value, options, onChange, disabled, p
   };
 
   return (
-    <div className="relative mb-1" ref={wrapperRef}>
-      <label className="block font-semibold mb-1">{label}</label>
+    <div className="relative" ref={wrapperRef}>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
       <div className="relative">
         <input
           type="text"
@@ -54,22 +55,34 @@ const SearchableDropdown = ({ label, name, value, options, onChange, disabled, p
           disabled={disabled}
           placeholder={placeholder}
           autoComplete="off" // Disables browser native history
-          className={`w-full border rounded-lg p-2 text-sm ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none'}`}
+          className={`w-full border border-gray-300 rounded-xl p-3 text-sm transition-all duration-200 ${disabled ? 'bg-gray-50 cursor-not-allowed text-gray-500' : 'bg-white focus:ring-2 focus:ring-[#dc2626] focus:border-[#dc2626] focus:outline-none hover:border-gray-400'}`}
         />
+        
+        {/* Dropdown Arrow */}
+        {!disabled && (
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
+        )}
         
         {/* The Custom Dropdown List */}
         {isOpen && !disabled && filteredOptions.length > 0 && (
-          <ul className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto">
-            {filteredOptions.map((opt) => (
-              <li
-                key={opt}
-                onClick={() => handleSelect(opt)}
-                className="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer transition-colors border-b border-gray-50 last:border-none"
-              >
-                {opt}
-              </li>
-            ))}
-          </ul>
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto animate-fadeIn">
+            <ul className="py-1">
+              {filteredOptions.map((opt) => (
+                <li
+                  key={opt}
+                  onClick={() => handleSelect(opt)}
+                  className="px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-[#b91c1c] cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-none flex items-center gap-2"
+                >
+                  <FiMapPin className="text-gray-400" />
+                  {opt}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </div>
@@ -80,6 +93,7 @@ const SearchableDropdown = ({ label, name, value, options, onChange, disabled, p
 const EditUserData = () => {
   const userData = useSelector(userSelecter)
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageTab, setImageTab] = useState('device'); // 'device' or 'url'
@@ -122,15 +136,12 @@ const EditUserData = () => {
     });
   }
 
-const handleFileChange = (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       // Create a temporary URL to preview the file immediately
       const objectUrl = URL.createObjectURL(file);
       setTempImageUrl(objectUrl);
-      
-      // NOTE: In a real app, you would upload 'file' to Firebase Storage here
-      // and get the download URL. For now, we are using the ObjectURL or Base64.
     }
   }
 
@@ -138,24 +149,24 @@ const handleFileChange = (e) => {
     if (tempImageUrl) {
         setFormData(prev => ({ ...prev, profilepicture: tempImageUrl }));
         setIsImageModalOpen(false);
+        toast.success("Profile picture updated!");
         setTempImageUrl(''); // Reset temp
     }
   }
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.uid) {
-        toast.error("Error: User ID is missing"); // Red Error Toast
+        toast.error("Error: User ID is missing");
         return;
     }
 
-    // Optional: Show a "Updating..." toast that we can update later
     const toastId = toast.loading("Updating profile...");
 
     try {
         const washingtonRef = doc(db, "users", formData.uid);
-        console.log('image link ====> ',setTempImageUrl)
+        
         const updatedUserData = {
             name: formData.name,
             email: formData.email,
@@ -171,8 +182,6 @@ const handleSubmit = async (e) => {
 
         await updateDoc(washingtonRef, updatedUserData);
 
-        // Update the loading toast to Success (Green)
-
         toast.update(toastId, { 
             render: "Profile updated successfully!", 
             type: "success", 
@@ -181,11 +190,11 @@ const handleSubmit = async (e) => {
         });
 
         dispatch(addUser(updatedUserData))
+        setTimeout(() => navigate('/user'), 1500);
 
     } catch (error) {
         console.error("Error updating document: ", error);
         
-        // Update the loading toast to Error (Red)
         toast.update(toastId, { 
             render: "Update failed: " + error.message, 
             type: "error", 
@@ -193,11 +202,11 @@ const handleSubmit = async (e) => {
             autoClose: 5000 
         });
     }
-};
+  };
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text)
-    alert('Copied to clipboard!')
+    toast.success('Copied to clipboard!')
   }
 
   // --- Derived Lists for Autocomplete ---
@@ -212,231 +221,310 @@ const handleSubmit = async (e) => {
     : [];
 
   return (
-    <div className="min-h-screen flex justify-center items-center p-4">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-md p-6">
-
-<div className="flex justify-center mb-6 relative">
-            <div className="relative group">
-                <img
-                    src={formData.profilepicture || 'https://via.placeholder.com/150'}
-                    alt="Profile"
-                    className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
-                />
-                
-                {/* --- THIS IS THE MISSING BUTTON --- */}
-                <button
-                    type="button"
-                    onClick={() => setIsImageModalOpen(true)}
-                    className="absolute bottom-1 right-1 bg-blue-600 p-2 rounded-full text-white hover:bg-blue-700 shadow-md transition-all hover:scale-110"
-                    title="Change Profile Picture"
-                >
-                    {/* SVG Icon for Edit/Camera */}
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                    </svg>
-                </button>
-                {/* ---------------------------------- */}
-                
-            </div>
-        </div>
-{/* --- IMAGE UPLOAD POPUP MODAL --- */}
-        {isImageModalOpen && (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
-                <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-fadeIn">
-                    {/* Modal Header */}
-                    <div className="flex justify-between items-center p-4 border-b">
-                        <h3 className="text-lg font-semibold text-gray-800">Update Profile Photo</h3>
-                        <button onClick={() => setIsImageModalOpen(false)} className="text-gray-500 hover:text-red-500">
-                             ✕
-                        </button>
-                    </div>
-
-                    {/* Modal Tabs */}
-                    <div className="flex border-b">
-                        <button 
-                            className={`flex-1 py-3 text-sm font-medium ${imageTab === 'device' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-                            onClick={() => setImageTab('device')}
-                        >
-                            Upload Device
-                        </button>
-                        <button 
-                            className={`flex-1 py-3 text-sm font-medium ${imageTab === 'url' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-                            onClick={() => setImageTab('url')}
-                        >
-                            Image URL
-                        </button>
-                    </div>
-
-                    {/* Modal Content */}
-                    <div className="p-6">
-                        {imageTab === 'device' ? (
-                            <div className="text-center">
-                                <label className="cursor-pointer block border-2 border-dashed border-gray-300 rounded-lg p-6 hover:bg-gray-50 transition">
-                                    <div className="text-gray-400 mb-2">📂</div>
-                                    <span className="text-sm text-gray-600">Click to select file</span>
-                                    <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                                </label>
-                            </div>
-                        ) : (
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Paste Image Link</label>
-                                <input 
-                                    type="text" 
-                                    className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                                    placeholder="https://example.com/image.png"
-                                    onChange={(e) => setTempImageUrl(e.target.value)}
-                                />
-                            </div>
-                        )}
-
-                        {/* Preview */}
-                        {tempImageUrl && (
-                            <div className="mt-4 flex justify-center">
-                                <img src={tempImageUrl} alt="Preview" className="w-20 h-20 rounded-full object-cover border shadow-sm" />
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Modal Actions */}
-                    <div className="p-4 border-t flex gap-3">
-                        <button onClick={() => setIsImageModalOpen(false)} className="flex-1 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm">Cancel</button>
-                        <button onClick={handleSaveImage} className="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 shadow-md">Set Image</button>
-                    </div>
-                </div>
-            </div>
-        )}
-        {/* User Edit Form */}
-        <form className="space-y-4 text-gray-700" onSubmit={handleSubmit}>
-          
-          {/* Basic Info */}
-          <div>
-            <label className="block font-semibold mb-1">Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex justify-center items-center p-4">
+      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 hover:shadow-3xl">
+        
+        {/* Header */}
+        <div className="bg-gradient-to-r from-[#b91c1c] to-[#dc2626] p-6 text-center">
+          <div className="relative inline-block">
+            <div className="absolute inset-0 bg-white/20 blur-xl rounded-full"></div>
+            <img
+              src={formData.profilepicture || 'https://via.placeholder.com/150'}
+              alt="Profile"
+              className="relative w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg mx-auto"
             />
-          </div>
-
-          <div>
-            <label className="block font-semibold mb-1">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block font-semibold mb-1">Phone</label>
-            <input
-              type="text"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block font-semibold mb-1">Street Address</label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              placeholder="House number, Street name"
-              className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          {/* --- Sri Lanka Location Fields (Modern UI) --- */}
-          
-          {/* Province & District Row */}
-          <div className="grid grid-cols-2 gap-4">
-            <SearchableDropdown 
-                label="Province"
-                name="province"
-                value={formData.province}
-                options={provinces}
-                onChange={handleChange}
-                placeholder="Select Province..."
-            />
-
-            <SearchableDropdown 
-                label="District"
-                name="district"
-                value={formData.district}
-                options={districts}
-                onChange={handleChange}
-                disabled={!formData.province}
-                placeholder="Select District..."
-            />
-          </div>
-
-          {/* City & Zip Row */}
-          <div className="grid grid-cols-2 gap-4">
-             <SearchableDropdown 
-                label="City"
-                name="city"
-                value={formData.city}
-                options={cities}
-                onChange={handleChange}
-                disabled={!formData.district}
-                placeholder="Select City..."
-            />
-
-            <div>
-              <label className="block font-semibold mb-1">ZIP / Postal Code</label>
-              <input
-                type="text"
-                name="zip"
-                value={formData.zip}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-              />
-            </div>
-          </div>
-
-          {/* Country (Fixed) */}
-          <div>
-            <label className="block font-semibold mb-1">Country</label>
-            <input
-              type="text"
-              name="country"
-              value={formData.country}
-              readOnly
-              className="w-full border rounded-lg p-2 text-sm bg-gray-200 text-gray-600 cursor-not-allowed"
-            />
-          </div>
-
-          {/* Hidden Role & UID Copy Buttons */}
-          <div className="flex gap-2 mt-2">
             <button
               type="button"
-              className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg text-sm hover:bg-gray-400 transition"
-              onClick={() => copyToClipboard(formData.uid)}
+              onClick={() => setIsImageModalOpen(true)}
+              className="absolute bottom-2 right-2 bg-white p-3 rounded-full text-[#b91c1c] hover:bg-gray-100 shadow-lg transition-all hover:scale-110 hover:shadow-xl"
+              title="Change Profile Picture"
             >
-              Copy UID
+              <FiCamera className="w-5 h-5" />
             </button>
           </div>
+          <h1 className="text-2xl font-bold text-white mt-4">Edit Profile</h1>
+          <p className="text-white/90">Update your personal information</p>
+        </div>
 
-          {/* Save Button */}
-          <div className="flex gap-3 mt-4">
-            <button
-              type="submit"
-              className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700 transition shadow-lg"
-            >
-              Save Changes
-            </button>
-          </div>
-          <br /><br />
-        </form>
+        {/* Main Form */}
+        <div className="p-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            
+            {/* Basic Information Card */}
+            <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <FiUser className="text-[#dc2626]" />
+                Personal Information
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                    <FiUser className="text-[#b91c1c]" />
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-[#dc2626] focus:border-[#dc2626] focus:outline-none hover:border-gray-400"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                    <FiMail className="text-[#b91c1c]" />
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-[#dc2626] focus:border-[#dc2626] focus:outline-none hover:border-gray-400"
+                    placeholder="your@email.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                    <FiPhone className="text-[#b91c1c]" />
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-[#dc2626] focus:border-[#dc2626] focus:outline-none hover:border-gray-400"
+                    placeholder="+94 XX XXX XXXX"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Address Information Card */}
+            <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <FiHome className="text-[#dc2626]" />
+                Address Information
+              </h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                    <FiMapPin className="text-[#b91c1c]" />
+                    Street Address
+                  </label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    placeholder="House number, Street name"
+                    className="w-full border border-gray-300 rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-[#dc2626] focus:border-[#dc2626] focus:outline-none hover:border-gray-400"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <SearchableDropdown 
+                    label="Province"
+                    name="province"
+                    value={formData.province}
+                    options={provinces}
+                    onChange={handleChange}
+                    placeholder="Select Province..."
+                  />
+
+                  <SearchableDropdown 
+                    label="District"
+                    name="district"
+                    value={formData.district}
+                    options={districts}
+                    onChange={handleChange}
+                    disabled={!formData.province}
+                    placeholder="Select District..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <SearchableDropdown 
+                    label="City"
+                    name="city"
+                    value={formData.city}
+                    options={cities}
+                    onChange={handleChange}
+                    disabled={!formData.district}
+                    placeholder="Select City..."
+                  />
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">ZIP / Postal Code</label>
+                    <input
+                      type="text"
+                      name="zip"
+                      value={formData.zip}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-[#dc2626] focus:border-[#dc2626] focus:outline-none hover:border-gray-400"
+                      placeholder="XXXXX"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                    <FiGlobe className="text-[#b91c1c]" />
+                    Country
+                  </label>
+                  <input
+                    type="text"
+                    name="country"
+                    value={formData.country}
+                    readOnly
+                    className="w-full border border-gray-300 rounded-xl p-3 text-sm bg-gray-100 text-gray-600 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* User ID Section */}
+            <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                User Information
+              </h2>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  className="flex-1 bg-white border-2 border-gray-200 text-gray-700 py-3 rounded-xl text-sm font-medium hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 flex items-center justify-center gap-2"
+                  onClick={() => copyToClipboard(formData.uid)}
+                >
+                  <FiCopy />
+                  Copy UID
+                </button>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-4 pt-4">
+              <button
+                type="button"
+                onClick={() => navigate('/user')}
+                className="flex-1 bg-white text-gray-700 py-3 px-4 rounded-xl font-semibold border-2 border-gray-200 flex items-center justify-center gap-2 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:bg-gray-50 active:scale-[0.98]"
+              >
+                Cancel
+              </button>
+              
+              <button
+                type="submit"
+                className="flex-1 bg-gradient-to-r from-[#b91c1c] to-[#dc2626] text-white py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:shadow-red-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <FiSave className="text-lg" />
+                Save Changes
+              </button>
+            </div><br/><br/>
+          </form>
+        </div>
       </div>
+
+      {/* Image Upload Modal */}
+      {isImageModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <FiCamera className="text-[#b91c1c]" />
+                Update Profile Photo
+              </h3>
+              <button 
+                onClick={() => setIsImageModalOpen(false)} 
+                className="text-gray-500 hover:text-[#b91c1c] transition-colors p-1 rounded-full hover:bg-gray-100"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Tabs */}
+            <div className="flex border-b">
+              <button 
+                className={`flex-1 py-4 text-sm font-medium flex items-center justify-center gap-2 ${imageTab === 'device' ? 'text-[#b91c1c] border-b-2 border-[#b91c1c]' : 'text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setImageTab('device')}
+              >
+                <FiUpload />
+                Upload Device
+              </button>
+              <button 
+                className={`flex-1 py-4 text-sm font-medium flex items-center justify-center gap-2 ${imageTab === 'url' ? 'text-[#b91c1c] border-b-2 border-[#b91c1c]' : 'text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setImageTab('url')}
+              >
+                <FiLink />
+                Image URL
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              {imageTab === 'device' ? (
+                <div className="text-center">
+                  <label className="cursor-pointer block border-3 border-dashed border-gray-300 rounded-2xl p-8 hover:bg-gray-50 transition-all duration-200 hover:border-[#b91c1c]">
+                    <div className="text-gray-400 mb-3">
+                      <FiUpload className="w-12 h-12 mx-auto" />
+                    </div>
+                    <span className="text-sm text-gray-600 font-medium">Click to select file</span>
+                    <p className="text-xs text-gray-400 mt-1">JPG, PNG, GIF up to 5MB</p>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                  </label>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Paste Image URL</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      className="flex-1 border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#dc2626] focus:border-[#dc2626] outline-none"
+                      placeholder="https://example.com/image.png"
+                      value={tempImageUrl}
+                      onChange={(e) => setTempImageUrl(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Preview */}
+              {tempImageUrl && (
+                <div className="mt-6 flex flex-col items-center">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Preview</p>
+                  <img 
+                    src={tempImageUrl} 
+                    alt="Preview" 
+                    className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="p-6 border-t border-gray-200 flex gap-3">
+              <button 
+                onClick={() => setIsImageModalOpen(false)} 
+                className="flex-1 py-3 text-gray-600 hover:bg-gray-100 rounded-xl text-sm font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleSaveImage} 
+                disabled={!tempImageUrl}
+                className={`flex-1 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-all ${!tempImageUrl ? 'bg-gray-300 cursor-not-allowed text-gray-500' : 'bg-gradient-to-r from-[#b91c1c] to-[#dc2626] text-white hover:shadow-lg hover:shadow-red-200'}`}
+              >
+                <FiSave />
+                Set Profile Picture
+              </button>
+            </div>
+          </div>
+        </div>
+      )} 
     </div>
   )
 }
