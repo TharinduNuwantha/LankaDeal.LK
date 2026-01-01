@@ -29,7 +29,7 @@ const Header = ({paymentModelRef}) => {
   const cart = useSelector(
   (state) => state.user.user.cart
 );
-  const cartLength = cart.length;
+const cartLength = cart?.length ? cart.length : 0;
 
   
 
