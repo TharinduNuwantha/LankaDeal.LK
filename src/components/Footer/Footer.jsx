@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-const Footer = () => {
+const Footer = ({paymentModelRef}) => {
   const [activeTab, setActiveTab] = useState('home');
     const cart = useSelector(
     (state) => state.user.user.cart
@@ -26,7 +26,7 @@ const Footer = () => {
     { id: 'categories', icon: CategoryIcon, label: 'Category', badge: 0, linkUrl:'/category' },
     { id: 'search', icon: SearchIcon, label: 'Search', badge: 0,linkUrl:'/search' },
     { id: 'wishlist', icon: FavoriteBorderIcon, label: 'Wishlist', badge: 30,linkUrl:'/' },
-    { id: 'cart', icon: ShoppingCartIcon, label: 'Cart', badge: cartLength,linkUrl:'/' },
+    { id: 'cart', icon: ShoppingCartIcon, label: 'Cart', badge: cartLength},
     { id: 'account', icon: PersonIcon, label: 'Account', badge: 0,linkUrl:'/profile' },
   ];
 
@@ -184,10 +184,15 @@ const Footer = () => {
             const isActive = activeTab === item.id;
             
             return (
-              <Link to={item.linkUrl}>
+             <Link to={item.id === 'cart' ? '#' : item.linkUrl}>
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() =>{
+                   setActiveTab(item.id)
+                   if(item.id === 'cart'){
+                    paymentModelRef.current.handleOpen()
+                   }
+                }}
                 className={`flex flex-col items-center p-1 rounded-xl transition-all flex-1 mx-0.5 ${
                   isActive 
                     ? 'text-red-600 bg-red-50' 

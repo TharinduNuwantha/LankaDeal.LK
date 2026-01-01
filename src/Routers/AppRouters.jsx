@@ -15,6 +15,7 @@ import UrlNotFound from '../Pages/404/UrlNotFound'
 import EditUserData from '../Pages/User/EditUserData'
 import AddProduct from '../Pages/Admin/Products/Create Products/CreateAddProduct'
 import SearchPage from '../Pages/SearchPage/SearchPage'
+import CheackOut from '../Pages/CheackOut/CheackOut'
 
 
 
@@ -69,6 +70,10 @@ const router = createBrowserRouter([
       {
         path:'search',
         element:<SearchPage/>
+      },
+      {
+          path:'checkouts',
+          element:<CheackOut/>
       }
     ]
   },

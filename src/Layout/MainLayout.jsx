@@ -24,7 +24,7 @@ const MainLayout = () => {
         position="top-right"
         autoClose={3000}
       />
-      <Footer/>
+      <Footer paymentModelRef={paymentModelRef}/>
     </div>
   )
 }
