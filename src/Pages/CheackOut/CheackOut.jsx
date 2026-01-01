@@ -5,35 +5,14 @@ import {
   Smartphone, Mail, User, Home, AlertCircle, Trash2,
   Upload, X
 } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 const PlaceOrderPage = () => {
-  // Order items that can be modified
-  const [orderItems, setOrderItems] = useState([
-    {
-      id: 1,
-      title: 'Wireless Bluetooth Headphones',
-      price: 15000,
-      quantity: 1,
-      imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop',
-      categoryPath: 'Electronics/Audio/Headphones'
-    },
-    {
-      id: 2,
-      title: 'Smart Watch Pro Series 6',
-      price: 45000,
-      quantity: 2,
-      imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop',
-      categoryPath: 'Electronics/Wearables/Smart Watches'
-    },
-    {
-      id: 3,
-      title: 'Premium Leather Wallet',
-      price: 5500,
-      quantity: 1,
-      imageUrl: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop',
-      categoryPath: 'Fashion/Accessories/Wallets'
-    }
-  ]);
+
+    const cart = useSelector(state => state.user.user.cart);
+    console.log('හොදට බලපන් මේවද කාට් එකේ තියෙන්නේ කියලා, ',cart);
+    
+  const [orderItems, setOrderItems] = useState(cart);
 
   const [shippingAddress, setShippingAddress] = useState({
     fullName: 'John Doe',

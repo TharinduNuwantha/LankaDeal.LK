@@ -1,11 +1,14 @@
 import { Modal } from '@mui/material';
 import { addDoc, collection, serverTimestamp, doc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
-import React, { useImperativeHandle, useState, forwardRef } from 'react';
+import React, { useImperativeHandle, useState, forwardRef, createContext } from 'react';
 import db from '../FireBase/firebase';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeFromCart, updateQuantity, clearCart } from '../../src/Store/ReduxSlice/userClise';
+import { Link } from 'react-router-dom';
 
 const ModalPayment = forwardRef((props, ref) => {
+
+  
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -105,7 +108,7 @@ const ModalPayment = forwardRef((props, ref) => {
   const handlePlaceOrder = async () => {
     // Validate customer info
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
-      alert('Please fill in all customer information');
+      // alert('Please fill in all customer information');
       return;
     }
 
@@ -381,15 +384,21 @@ const ModalPayment = forwardRef((props, ref) => {
                         Processing...
                       </span>
                     ) : (
+                      <Link 
+                        to={'checkouts'}
+                        state={{items:cart}}
+                        onClick={handleClose}
+                      >
                       <span className="flex items-center justify-center gap-2">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                         </svg>
                         Place Order
                       </span>
+                      </Link>
                     )}
                   </button>
-                  
+           
                   <p className="text-xs text-gray-600 text-center mt-4">
                     By placing an order, you agree to our terms and conditions
                   </p>
