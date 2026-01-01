@@ -19,7 +19,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import HomeIcon from '@mui/icons-material/Home';
 import Badge from '@mui/material/Badge';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { userSelecter } from '../../Store/ReduxSlice/userClise';
 
@@ -140,7 +140,7 @@ const cartLength = cart?.length ? cart.length : 0;
                     <PersonIcon sx={{ fontSize: 20, color: 'white' }} />
                   </div>
                   <div className="hidden xl:block ml-2 text-left">
-                    <div className="font-bold text-sm">Hello, {userData.name.split(" ")[0]}</div>
+                    <div className="font-bold text-sm">Hello, {userData.name === 'no-user'?<Link to={'/login'} className="text-white/90 hover:text-white hover:underline underline-offset-4 transition-all">Sign in</Link>:userData.name.split(" ")[0]}</div>
                     <div className="text-xs text-gray-200"></div>
                   </div>
                 </button>
