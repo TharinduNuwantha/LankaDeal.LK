@@ -30,6 +30,14 @@ const Header = ({paymentModelRef}) => {
   (state) => state.user.user.cart
 );
 const cartLength = cart?.length ? cart.length : 0;
+const totalAmount = cart.reduce((total, item) => {
+    return total + (Number(item.price) * item.quantity);
+  }, 0);
+
+  const CartPrice = totalAmount.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 
   
 
@@ -201,7 +209,7 @@ const cartLength = cart?.length ? cart.length : 0;
                   </div>
                   {/* Show price on lg+, show items count on xl+ */}
                   <div className="hidden lg:block text-left">
-                    <div className="font-bold text-sm xl:text-base">$199.99</div>
+                    <div className="font-bold text-sm xl:text-base">Rs.{CartPrice}</div>
                     <div className="hidden xl:block text-xs text-gray-200">{cartLength} items</div>
                   </div>
                 </button>
