@@ -16,6 +16,7 @@ import EditUserData from '../Pages/User/EditUserData'
 import AddProduct from '../Pages/Admin/Products/Create Products/CreateAddProduct'
 import SearchPage from '../Pages/SearchPage/SearchPage'
 import CheackOut from '../Pages/CheackOut/CheackOut'
+import OrdersPage from '../Pages/OrdersPage/OrdersPage'
 
 
 
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
       {
           path:'checkouts',
           element:<CheackOut/>
+      },
+      {
+          path:'Orders',
+          element:<OrdersPage/>
       }
     ]
   },
