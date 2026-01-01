@@ -39,7 +39,8 @@ const totalAmount = cart.reduce((total, item) => {
     maximumFractionDigits: 2
   });
 
-  
+
+  const orderDataCount = userData.orderData.length
 
   const [searchQuery, setSearchQuery] = useState('');
    const navigate = useNavigate();
@@ -163,7 +164,7 @@ const totalAmount = cart.reduce((total, item) => {
                     <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
                       <LocalShippingIcon sx={{ fontSize: 20, color: 'white' }} />
                     </div>
-                    <Badge badgeContent={cartLength} color="error" sx={{
+                    <Badge badgeContent={orderDataCount} color="error" sx={{
                       position: 'absolute',
                       top: -5,
                       right: -5,
