@@ -6,11 +6,16 @@ import {
   Upload, X
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
+import { doc, serverTimestamp } from 'firebase/firestore';
+import db from '../../FireBase/firebase';
+import { userSelecter } from '../../Store/ReduxSlice/userClise';
 
 const PlaceOrderPage = () => {
 
+    const userData = useSelector(userSelecter)
+
     const cart = useSelector(state => state.user.user.cart);
-    console.log('හොදට බලපන් මේවද කාට් එකේ තියෙන්නේ කියලා, ',cart);
+    
     
   const [orderItems, setOrderItems] = useState(cart);
 
@@ -152,7 +157,7 @@ const PlaceOrderPage = () => {
       return;
     }
     
-    // Here you would typically send the order to your backend
+   
     console.log({
       items: orderItems,
       shippingAddress,
@@ -162,6 +167,23 @@ const PlaceOrderPage = () => {
       bankSlip: selectedPayment === 'bank' ? bankSlip : null,
       total
     });
+
+    const newOrder = {
+        items: orderItems,
+        shippingAddress,
+        shippingMethod: selectedShipping,
+        paymentMethod: selectedPayment,
+        cardDetails: selectedPayment === 'card' ? cardDetails : null,
+        bankSlip: selectedPayment === 'bank' ? bankSlip : null,
+        total,
+        createdAt: serverTimestamp(),
+        status: 'pending'
+    };
+
+
+
+
+    
     
     setOrderPlaced(true);
   };

@@ -1,42 +1,36 @@
-import { useEffect } from 'react';
-import './App.css';
+import { useEffect } from "react";
+import "./App.css";
 
-import Footer from './components/Footer/Footer';
-import Header from './components/Header/Header';
-import AppRouters from './Routers/AppRouters';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './FireBase/firebase';
-import getDataDocument from './utils/dataFetch/getDataDocument';
-import { useDispatch, useSelector } from 'react-redux';
-import { addUser, removeUser, userSelecter, isLoadingSelector } from './Store/ReduxSlice/userClise';
-
+import AppRouters from "./Routers/AppRouters";
+import { useDispatch } from "react-redux";
+import { addUser, removeUser } from "./Store/ReduxSlice/userClise";
+import getDataDocument from "./utils/dataFetch/getDataDocument";
+import { useAuth } from "./context/AuthContext";
 
 function App() {
-  const dispatch = useDispatch()
-  const userData = useSelector(userSelecter)
-  console.log(userData);
-  
-useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const uid = user.uid;
-      console.log("user kenek indoooo", user);
+  const dispatch = useDispatch();
+  const { uid, authLoading } = useAuth();
 
-      getDataDocument('users', uid, (dataset) => {
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (uid) {
+      // fetch user document using uid
+      getDataDocument("users", uid, (dataset) => {
         dispatch(addUser(dataset));
       });
     } else {
-      console.log("no user");
       dispatch(removeUser({ name: "no-user" }));
     }
-  });
+  }, [uid, authLoading, dispatch]);
 
-  return () => unsubscribe();
-}, [dispatch]);
+  if (authLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
-      <AppRouters/>
+      <AppRouters />
     </div>
   );
 }
