@@ -77,8 +77,9 @@ const cartLength = cart?.length ? cart.length : 0;
               <button className="lg:hidden text-white">
                 <MenuIcon sx={{ fontSize: 28 }} />
               </button>
-              
+                 <Link to={'/'}>
               <div className="flex items-center cursor-pointer">
+             
                 <div className="bg-white rounded-lg p-2 shadow-lg">
                   <h1 className="text-xl sm:text-2xl font-bold">
                     <span className="text-red-600">Lanka</span>
@@ -90,7 +91,8 @@ const cartLength = cart?.length ? cart.length : 0;
                 <div className="hidden xl:block ml-3">
                   <p className="text-white text-xs font-light">Sri Lanka's #1 Online Marketplace</p>
                 </div>
-              </div>
+         
+              </div>       </Link>
             </div>
 
             {/* Desktop Search Bar */}
@@ -135,6 +137,7 @@ const cartLength = cart?.length ? cart.length : 0;
               {/* Desktop Actions - Show differently at different breakpoints */}
               <div className="hidden md:flex items-center space-x-3 lg:space-x-4 xl:space-x-6">
                 {/* Account - Show only icon on md, full on lg+ */}
+                <Link to={'profile'}>
                 <button className="flex items-center text-white hover:text-yellow-200 transition group">
                   <div className="w-8 h-8 sm:w-9 sm:h-9 xl:w-10 xl:h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
                     <PersonIcon sx={{ fontSize: 20, color: 'white' }} />
@@ -143,9 +146,10 @@ const cartLength = cart?.length ? cart.length : 0;
                     <div className="font-bold text-sm">Hello, {userData.name === 'no-user'?<Link to={'/login'} className="text-white/90 hover:text-white hover:underline underline-offset-4 transition-all">Sign in</Link>:userData.name.split(" ")[0]}</div>
                     <div className="text-xs text-gray-200"></div>
                   </div>
-                </button>
+                </button></Link>
 
                 {/* Orders - Show only on xl+ */} 
+                <Link to={'Orders'}>
                 <button className="hidden xl:flex items-center space-x-2 text-white hover:text-yellow-200 transition">
                   <div className="relative">
                     <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
@@ -168,6 +172,7 @@ const cartLength = cart?.length ? cart.length : 0;
                     <div className="text-xs text-gray-200">Track & Return</div>
                   </div>
                 </button>
+                </Link>
 
                 {/* Cart - FIXED TO BE VISIBLE AT ALL SIZES */}
                 <button className="flex items-center space-x-1 xl:space-x-2 text-white hover:text-yellow-200 transition group relative">
