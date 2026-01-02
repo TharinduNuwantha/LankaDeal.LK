@@ -1,180 +1,340 @@
-import  { useState } from 'react'
-import getDataFromSubCollection from '../../utils/dataFetch/getDataFromSubCollection'
-import userRegister from '../../utils/auth/register'
-import { signOut } from 'firebase/auth'
-import { auth } from '../../FireBase/firebase'
-import userLogin from '../../utils/auth/login'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react';
+import getDataFromSubCollection from '../../utils/dataFetch/getDataFromSubCollection';
+import userRegister from '../../utils/auth/register';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../FireBase/firebase';
+import userLogin from '../../utils/auth/login';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const[select,setSelect] = useState('login')
-  const navigate = useNavigate()
+  const [select, setSelect] = useState('login');
+  const navigate = useNavigate();
+
   return (
-    <div className='w-full h-screen flex flex-col items-center justify-center'>
-     {select === 'login' ?<LoginComponent/>:<RegisterComponent/>} 
-      {select === 'login' ?<p>Don't have an account?{" "}<span onClick={()=>setSelect("register")}>Sign Up</span></p>:<p>Already havean account(" ")<span onClick={()=>setSelect("login")}>Sign In</span></p>} 
-      <button onClick={() => navigate('/')} className="mt-4 px-4 py-2 bg-main-background text-white rounded-md">Go to Home</button>
-       
+    <div className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-50 bg-gradient-to-br from-gray-50 to-gray-200">
+      {/* Container for the Card */}
+      <div className="w-full flex justify-center px-4">
+        {select === 'login' ? (
+          <LoginComponent onSwitch={() => setSelect('register')} />
+        ) : (
+          <RegisterComponent onSwitch={() => setSelect('login')} />
+        )}
+      </div>
+
+      {/* Floating Home Button */}
+      <button
+        onClick={() => navigate('/')}
+        className="mt-8 px-6 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-full shadow-sm hover:text-[#dc2626] hover:border-[#dc2626] transition-all duration-300"
+      >
+        ← Go to Home
+      </button>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
 
+/* -----------------------
+  LOGIN COMPONENT 
+  -----------------------
+*/
+const LoginComponent = ({ onSwitch }) => {
+  const navigate = useNavigate();
+  const [firebaseLoginErr, setFierBaseLoginError] = useState({
+    emailErr: '',
+    passwoardErr: '',
+  });
 
- const LoginComponent = ()=>{
- const navigate = useNavigate()
- const[firebaseLoginErr,setFierBaseLoginError] = useState({
-  emailErr:'',
-  passwoardErr:''
- });
+  const loginHandle = (e) => {
+    e.preventDefault();
+    const email = e.target['email'].value;
+    const passwoard = e.target['password'].value;
+    setFierBaseLoginError({ emailErr: '', passwoardErr: '' });
+    userLogin(email, passwoard, navigate, setFierBaseLoginError);
+  };
 
+  return (
+    <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100 relative overflow-hidden">
+      {/* Decorative top bar */}
+      <div className="absolute top-0 left-0 w-full h-2 bg-[#dc2626]"></div>
+      
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold text-gray-800">Welcome Back</h1>
+        <p className="text-gray-500 mt-2">Sign in to manage your account</p>
+      </div>
 
-const loginHandle = (e)=> {
-  e.preventDefault()
-  const email = e.target["email"].value
-  const passwoard = e.target["password"].value
-  setFierBaseLoginError({emailErr:'',passwoardErr:''})
-  userLogin(email,passwoard,navigate,setFierBaseLoginError)
-}
-  
-  return(
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
-        <h1 className="text-2xl font-semibold mb-6 text-center">Sign in to your account</h1>
-        <form onSubmit={loginHandle}>
+      <form onSubmit={loginHandle} className="space-y-4">
+        <LoginInput
+          inputtype="email"
+          label="Email Address"
+          placeholder="name@company.com"
+          name="email"
+          validator={(v) => /\S+@\S+\.\S+/.test(v)}
+          errMsg="Enter a valid email address"
+          fierbaseErr={firebaseLoginErr.emailErr}
+          setFierBaseLoginError={setFierBaseLoginError}
+          isLogInHandle={true}
+        />
+        <LoginInput
+          inputtype="password"
+          label="Password"
+          placeholder="••••••••"
+          name="password"
+          validator={(v) => v && v.length >= 6}
+          errMsg="Password must be at least 6 characters"
+          fierbaseErr={firebaseLoginErr.passwoardErr}
+          setFierBaseLoginError={setFierBaseLoginError}
+          isLogInHandle={true}
+        />
+        
+        <button
+          className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold py-3 rounded-xl shadow-lg shadow-red-500/30 hover:shadow-red-600/40 transition-all duration-300 transform hover:-translate-y-0.5 mt-2"
+          type="submit"
+        >
+          Sign In
+        </button>
+      </form>
+
+      <p className="text-sm text-center text-gray-600 mt-8">
+        Don't have an account?{' '}
+        <span
+          className="text-[#dc2626] font-bold cursor-pointer hover:underline transition-all"
+          onClick={onSwitch}
+        >
+          Sign Up
+        </span>
+      </p>
+    </div>
+  );
+};
+
+/* -----------------------
+  REGISTER COMPONENT 
+  -----------------------
+*/
+const RegisterComponent = ({ onSwitch }) => {
+  const [firebaseREGErr, setFierBaseregError] = useState('');
+  const navigater = useNavigate();
+
+  const registerHandle = (e) => {
+    e.preventDefault();
+    const name = `${e.target['firstName'].value} ${e.target['lastName'].value}`;
+    const email = e.target['email'].value;
+    const address = e.target['address'].value;
+    const passwoard = e.target['password'].value;
+    const cpasswoard = e.target['confirmPassword'].value;
+    const phoneNumber = e.target['phoneNumber'].value;
+    const profileImage = e.target['profileImage'].value;
+    const role = 'user';
+
+    if (passwoard === cpasswoard) {
+      userRegister(
+        email,
+        passwoard,
+        name,
+        address,
+        phoneNumber,
+        profileImage,
+        role,
+        setFierBaseregError,
+        navigater
+      );
+    } else {
+        setFierBaseregError("Passwords do not match");
+    }
+  };
+
+  return (
+    <div className="w-full max-w-xl bg-white rounded-2xl shadow-xl p-8 border border-gray-100 relative overflow-hidden my-8">
+       {/* Decorative top bar */}
+       <div className="absolute top-0 left-0 w-full h-2 bg-[#dc2626]"></div>
+
+      <div className="mb-6 text-center">
+        <h1 className="text-3xl font-bold text-gray-800">Create Account</h1>
+        <p className="text-gray-500 mt-2">Join us today! It takes less than a minute.</p>
+      </div>
+
+      <form onSubmit={registerHandle} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <LoginInput
-            inputtype="email"
-            lable="Email Address"
-            placeholder="Enter your email"
-            name="email"
-            validator={(v) => /\S+@\S+\.\S+/.test(v)}
-            errMsg="Enter a valid email address"
-            fierbaseErr={firebaseLoginErr.emailErr}
-            setFierBaseLoginError={setFierBaseLoginError}
-            isLogInHandle={true}
+            inputtype="text"
+            label="First Name"
+            placeholder="John"
+            name="firstName"
+            validator={(v) => v && v.trim().length > 0}
+            errMsg="Required"
+            setFierBaseLoginError={setFierBaseregError}
+            isLogInHandle={false}
+          />
+          <LoginInput
+            inputtype="text"
+            label="Last Name"
+            placeholder="Doe"
+            name="lastName"
+            validator={(v) => v && v.trim().length > 0}
+            errMsg="Required"
+            setFierBaseLoginError={setFierBaseregError}
+            isLogInHandle={false}
+          />
+        </div>
+
+        <LoginInput
+          inputtype="email"
+          label="Email Address"
+          placeholder="name@company.com"
+          name="email"
+          validator={(v) => /\S+@\S+\.\S+/.test(v)}
+          errMsg="Enter a valid email"
+          setFierBaseLoginError={setFierBaseregError}
+          isLogInHandle={false}
+        />
+
+        <LoginInput
+          inputtype="text"
+          label="Address"
+          placeholder="123 Main St, City"
+          name="address"
+          validator={(v) => v && v.trim().length > 0}
+          errMsg="Enter address"
+          setFierBaseLoginError={setFierBaseregError}
+          isLogInHandle={false}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <LoginInput
+            inputtype="password"
+            label="Password"
+            placeholder="Create password"
+            name="password"
+            validator={(v) => v && v.length >= 6}
+            errMsg="Min 6 characters"
+            setFierBaseLoginError={setFierBaseregError}
+            isLogInHandle={false}
           />
           <LoginInput
             inputtype="password"
-            lable="Password"
-            placeholder="Enter your password"
-            name="password"
+            label="Confirm Password"
+            placeholder="Confirm password"
+            name="confirmPassword"
             validator={(v) => v && v.length >= 6}
-            errMsg="Password must be at least 6 characters"
-            fierbaseErr={firebaseLoginErr.passwoardErr}
-            setFierBaseLoginError={setFierBaseLoginError}
-            isLogInHandle={true}
+            errMsg="Min 6 characters"
+            setFierBaseLoginError={setFierBaseregError}
+            isLogInHandle={false}
           />
-          <button className="w-full bg-main-background text-white py-2 rounded-md hover:bg-red  transition mt-4" type="submit">Login</button>
-        </form>
-        <p className="text-sm text-center text-gray-600 mt-4">Don't have an account? <span className="text-main-background cursor-pointer" onClick={()=>{}}>{" "}Sign Up</span></p>
-      </div>
+        </div>
+
+        <LoginInput
+          inputtype="text"
+          label="Phone Number"
+          placeholder="+94 7X XXX XXXX"
+          name="phoneNumber"
+          validator={(v) => v && v.trim().length > 0}
+          errMsg="Enter phone number"
+          setFierBaseLoginError={setFierBaseregError}
+          isLogInHandle={false}
+        />
+
+        <LoginInput
+          inputtype="text"
+          label="Profile Image"
+          placeholder="https://example.com/image.png"
+          name="profileImage"
+          validator={(v) => v && v.trim().length > 0}
+          errMsg="Enter image URL"
+          setFierBaseLoginError={setFierBaseregError}
+          isLogInHandle={false}
+        />
+
+        <button
+          className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold py-3 rounded-xl shadow-lg shadow-red-500/30 hover:shadow-red-600/40 transition-all duration-300 transform hover:-translate-y-0.5 mt-4"
+          type="submit"
+        >
+          Create Account
+        </button>
+      </form>
+
+      {firebaseREGErr && <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg text-center">{firebaseREGErr}</div>}
+
+      <p className="text-sm text-center text-gray-600 mt-6">
+        Already have an account?{' '}
+        <span
+          className="text-[#dc2626] font-bold cursor-pointer hover:underline transition-all"
+          onClick={onSwitch}
+        >
+          Sign In
+        </span>
+      </p>
     </div>
-  )
-}
+  );
+};
 
-/*
-*
-*
-
+/* -----------------------
+  INPUT COMPONENT 
+  -----------------------
 */
+const LoginInput = ({
+  inputtype,
+  label, // Fixed typo from 'lable' to 'label'
+  placeholder,
+  name,
+  validator,
+  errMsg,
+  fierbaseErr,
+  setFierBaseLoginError,
+  isLogInHandle,
+}) => {
+  const [error, setError] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const [localErrMsg, setLocalErrMsg] = useState('');
 
-
-const RegisterComponent = ()=>{
-   const[firebaseREGErr,setFierBaseregError] = useState('');
-   const navigater = useNavigate()
-  const registerHandle = (e) =>{
-    e.preventDefault()
-    const  name = `${e.target["firstName"].value} ${e.target["lastName"].value}`
-    const email = e.target["email"].value;
-    const address = e.target["address"].value;
-    const passwoard = e.target["password"].value;
-    const cpasswoard = e.target["confirmPassword"].value;
-    const phoneNumber = e.target["phoneNumber"].value;
-    const profileImage = e.target["profileImage"].value;
-    const role = "user"
-
-      if(passwoard === cpasswoard){
-        userRegister(email,passwoard,name,address,phoneNumber,profileImage,role,setFierBaseregError,navigater);
-      }
-  }
-  return(
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="w-full max-w-lg bg-white rounded-lg shadow-md p-8">
-        <h1 className="text-2xl font-semibold mb-6 text-center">Create your account</h1>
-        <form onSubmit={registerHandle}>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <LoginInput inputtype="text" lable="First Name" placeholder="Your first name" name="firstName" validator={(v)=>v && v.trim().length>0} errMsg="Enter first name" setFierBaseLoginError={setFierBaseregError}  isLogInHandle={false}/>
-            <LoginInput inputtype="text" lable="Last Name" placeholder="Your last name" name="lastName" validator={(v)=>v && v.trim().length>0} errMsg="Enter last name" setFierBaseLoginError={setFierBaseregError} isLogInHandle={false}/>
-          </div>
-          <LoginInput inputtype="email" lable="Email Address" placeholder="Your email address" name="email" validator={(v) => /\S+@\S+\.\S+/.test(v)} errMsg="Enter a valid email" setFierBaseLoginError={setFierBaseregError}  isLogInHandle={false}/>
-          <LoginInput inputtype="text" lable="Address" placeholder="Your address" name="address" validator={(v)=>v && v.trim().length>0} errMsg="Enter address" setFierBaseLoginError={setFierBaseregError} isLogInHandle={false}/>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <LoginInput inputtype="password" lable="Password" placeholder="Password" name="password" validator={(v)=>v && v.length>=6} errMsg="Password must be at least 6 characters" setFierBaseLoginError={setFierBaseregError} isLogInHandle={false}/>
-            <LoginInput inputtype="password" lable="Confirm Password" placeholder="Confirm password" name="confirmPassword" validator={(v)=>v && v.length>=6} errMsg="Confirm password must be at least 6 characters" setFierBaseLoginError={setFierBaseregError} isLogInHandle={false}/>
-          </div>
-          <LoginInput inputtype="text" lable="Phone Number" placeholder="Your phone number" name="phoneNumber" validator={(v)=>v && v.trim().length>0} errMsg="Enter phone number" setFierBaseLoginError={setFierBaseregError} isLogInHandle={false}/>
-          <LoginInput inputtype="text" lable="Profile Image" placeholder="Your profile image URL" name="profileImage" validator={(v)=>v && v.trim().length>0} errMsg="Enter profile image URL" setFierBaseLoginError={setFierBaseregError} isLogInHandle={false}/>
-          <button className="w-full bg-main-background text-white py-2 rounded-md hover:bg-red mt-4" type='submit'>Register</button>
-        </form>
-        { <p className="text-sm text-red-600 mt-1">{firebaseREGErr}</p> }
-        <p className="text-sm text-center text-gray-600 mt-4">Already have an account? <span className="text-main-background cursor-pointer" onClick={()=>{}}>Sign In</span></p>
-      </div>
-    </div>
-  )
-}
-
-
-const LoginInput =({inputtype, lable, placeholder, name, validator, errMsg,fierbaseErr,setFierBaseLoginError,isLogInHandle}) =>{
-  const[error,setError] = useState(false)
-  const[inputValue,setInputValue] = useState("")
-  const[localErrMsg,setLocalErrMsg] = useState("") 
-
-  const handleBlur = () =>{
-    if (typeof validator === 'function'){
-      const ok = validator(inputValue)
-      setError(!ok)
-      setLocalErrMsg(!ok ? errMsg || 'Invalid value' : '')
+  const handleBlur = () => {
+    if (typeof validator === 'function') {
+      const ok = validator(inputValue);
+      setError(!ok);
+      setLocalErrMsg(!ok ? errMsg || 'Invalid value' : '');
     }
-  }
+  };
 
-  const handleChange = (e) =>{
-    setInputValue(e.target.value)
-    if (error){
+  const handleChange = (e) => {
+    setInputValue(e.target.value);
+    if (error) {
       // re-validate while typing
-      if (typeof validator === 'function'){
-        const ok = validator(e.target.value)
-        setError(!ok)
-        setLocalErrMsg(!ok ? errMsg || 'Invalid value' : '')
+      if (typeof validator === 'function') {
+        const ok = validator(e.target.value);
+        setError(!ok);
+        setLocalErrMsg(!ok ? errMsg || 'Invalid value' : '');
       } else {
-        setError(false)
-        setLocalErrMsg("")
+        setError(false);
+        setLocalErrMsg('');
       }
     }
-    if(isLogInHandle){
-      setFierBaseLoginError({ emailErr:'',  passwoardErr:''})
-    }else{
-      setFierBaseLoginError('')
+    if (isLogInHandle) {
+      setFierBaseLoginError({ emailErr: '', passwoardErr: '' });
+    } else {
+      setFierBaseLoginError('');
     }
+  };
 
-    
-  }
+  // Determine border color based on state
+  const borderColor = error || fierbaseErr ? 'border-[#dc2626] ring-1 ring-[#dc2626]' : 'border-gray-200 focus:border-[#dc2626] focus:ring-1 focus:ring-[#dc2626]';
 
-  return(
-    <div className='w-full mb-4'>
-      <label className={`block text-sm font-medium ${error?"text-red-700":"text-gray-700"} mb-2`}>{lable}</label>
-      <input 
-        type={inputtype} 
+  return (
+    <div className="w-full">
+      <label className={`block text-sm font-semibold mb-1.5 transition-colors ${error || fierbaseErr ? 'text-[#dc2626]' : 'text-gray-700'}`}>
+        {label}
+      </label>
+      <input
+        type={inputtype}
         name={name}
         value={inputValue}
         onChange={handleChange}
         onBlur={handleBlur}
-        placeholder={placeholder} 
-        className={`w-full px-4 py-2 border ${error?"border-red-600":"border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition`}
+        placeholder={placeholder}
+        className={`w-full px-4 py-2.5 bg-gray-50 rounded-lg border outline-none transition-all duration-200 placeholder-gray-400 ${borderColor}`}
         required
       />
-      {error && localErrMsg ? <p className="text-sm text-red-600 mt-1">{localErrMsg}</p> : null}
-      {fierbaseErr ? <p className="text-sm text-red-600 mt-1">{fierbaseErr}</p> : null}
+      {error && localErrMsg ? <p className="text-xs font-medium text-[#dc2626] mt-1 ml-1">{localErrMsg}</p> : null}
+      {fierbaseErr ? <p className="text-xs font-medium text-[#dc2626] mt-1 ml-1">{fierbaseErr}</p> : null}
     </div>
-  )
-}
+  );
+};
