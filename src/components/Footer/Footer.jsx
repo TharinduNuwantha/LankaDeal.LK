@@ -25,7 +25,7 @@ const cartLength = cart?.length ? cart.length : 0;
     { id: 'home', icon: HomeIcon, label: 'Home', badge: 0, linkUrl:'/' },
     { id: 'categories', icon: CategoryIcon, label: 'Category', badge: 0, linkUrl:'/category' },
     { id: 'search', icon: SearchIcon, label: 'Search', badge: 0,linkUrl:'/search' },
-    { id: 'wishlist', icon: FavoriteBorderIcon, label: 'Wishlist', badge: 30,linkUrl:'/' },
+    { id: 'wishlist', icon: FavoriteBorderIcon, label: 'Wishlist', badge: 0,linkUrl:'/' },
     { id: 'cart', icon: ShoppingCartIcon, label: 'Cart', badge: cartLength},
     { id: 'account', icon: PersonIcon, label: 'Account', badge: 0,linkUrl:'/profile' },
   ];

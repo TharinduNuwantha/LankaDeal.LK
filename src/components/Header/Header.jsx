@@ -217,7 +217,7 @@ const orderDataCount = userData?.orderData?.length ? userData.orderData.length :
 
                 {/* Wishlist - Show only on xl+ */}
                 <button className="hidden xl:flex flex-col items-center text-white hover:text-yellow-200 transition relative">
-                  <Badge badgeContent={cartLength} color="error" sx={{
+                  <Badge badgeContent={0} color="error" sx={{
                     '& .MuiBadge-badge': {
                       backgroundColor: '#ef4444',
                       color: 'white',

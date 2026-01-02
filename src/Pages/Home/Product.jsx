@@ -4,7 +4,10 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../FireBase/firebase'; 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Grid, Pagination, Mousewheel, FreeMode, Navigation } from 'swiper/modules';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { userSelecter } from '../../Store/ReduxSlice/userClise';
+import { addToCart } from '../../utils/AddToCart/addToCart';
+import { Snackbar, Alert } from '@mui/material';
 
 // Icons
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -25,6 +28,11 @@ import './Styles/Product.css';
 
 const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
   const swiperRef = useRef(null);
+  
+  // Redux & State
+  const userData = useSelector(userSelecter);
+  const dispatch = useDispatch();
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -32,6 +40,27 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
   const [wishlisted, setWishlisted] = useState({});
   const [cartItems, setCartItems] = useState({});
   const [timer, setTimer] = useState({ hours: 2, minutes: 45, seconds: 18 });
+
+  // Notification State
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+
+  // Helper to show notifications
+  const showNotification = (message, severity = 'success') => {
+    setNotification({
+      open: true,
+      message,
+      severity
+    });
+  };
+
+  const handleCloseNotification = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setNotification({ ...notification, open: false });
+  };
 
   // --- 1. Fetch & Duplicate Data ---
   useEffect(() => {
@@ -41,7 +70,6 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
         const productsRef = collection(db, "category2", "Electronics", "products");
         const querySnapshot = await getDocs(productsRef);
         
-        // 1. Initial Mapping & Sanitization
         let fetchedData = querySnapshot.docs.map(doc => {
           const data = doc.data();
           return {
@@ -56,31 +84,23 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
           };
         });
 
-        // 2. Filter based on Section Title (Optional logic)
-        // If it's Flash Sale, prioritize items with discounts
         if (isFlashSale) {
           fetchedData = fetchedData.sort((a, b) => b.discountNumeric - a.discountNumeric);
         }
 
-        // 3. DUPLICATION LOGIC (Spread it out evenly)
-        // If we have data but less than 12 items, duplicate them to fill the UI
         const TARGET_MIN_ITEMS = 12; 
         let finalData = [...fetchedData];
 
         if (finalData.length > 0 && finalData.length < TARGET_MIN_ITEMS) {
-          // Keep adding copies until we hit the target
           while (finalData.length < TARGET_MIN_ITEMS) {
-            // Create a clone of the original data to append
             const clones = fetchedData.map((item, index) => ({
               ...item,
-              // IMPORTANT: Create a unique ID for the clone so React doesn't complain
               id: `${item.id}_clone_${finalData.length + index}`
             }));
             finalData = [...finalData, ...clones];
           }
         }
         
-        // Cap at 20 items max to prevent infinite growth if logic changes
         setProducts(finalData.slice(0, 20));
 
       } catch (error) {
@@ -130,8 +150,24 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
 
   const progressPercentage = products.length > 0 ? ((activeIndex + 1) / products.length) * 100 : 0;
 
-  const handleCartToggle = (productId) => {
-    setCartItems(prev => ({ ...prev, [productId]: !prev[productId] }));
+  // Real Add to Cart Logic
+  const handleAddToCart = (product) => {
+    if (!userData || !userData.uid) {
+        showNotification("Please login first to add items to cart!", "warning");
+        return;
+    }
+    
+    // Default quantity is 1 for list view adds
+    const productWithQuantity = {
+        ...product,
+        quantity: 1 
+    };
+
+    addToCart(userData.uid, productWithQuantity, userData.cart || [], dispatch);
+    showNotification(`Added ${product.title} to cart!`, "success");
+    
+    // Trigger local visual feedback
+    setCartItems(prev => ({ ...prev, [product.id]: true }));
   };
 
   const getSlidesPerView = () => Number(slidesPerView);
@@ -141,6 +177,24 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
 
   return (
     <section className="premium-product-section">
+      {/* Notification Snackbar */}
+      <Snackbar 
+        open={notification.open} 
+        autoHideDuration={3000} 
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        sx={{ zIndex: 9999 }} // Ensure it appears on top
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={notification.severity} 
+          variant="filled"
+          sx={{ width: '100%', borderRadius: 2, fontWeight: '500' }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
+
       <div className="premium-swiper-container">
         
         {/* Header */}
@@ -269,7 +323,7 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
                   wishlisted={wishlisted[product.id]}
                   inCart={cartItems[product.id]}
                   onWishlistToggle={() => setWishlisted(prev => ({ ...prev, [product.id]: !prev[product.id] }))}
-                  onCartToggle={() => handleCartToggle(product.id)}
+                  onAddToCart={() => handleAddToCart(product)} // Pass the handler
                   isFlashSale={isFlashSale}
                 />
               </SwiperSlide>
@@ -291,7 +345,7 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
 export default Product;
 
 // Sub-Component: Product Card
-const PremiumProductUnit = ({ product, wishlisted, inCart, onWishlistToggle, onCartToggle, isFlashSale }) => {
+const PremiumProductUnit = ({ product, wishlisted, inCart, onWishlistToggle, onAddToCart, isFlashSale }) => {
   const { 
     imageUrl, price, originalPrice, discount, title: productTitle, 
     categoryPath, ratingNumeric, reviewCount, stockNumeric, features,
@@ -397,15 +451,20 @@ const PremiumProductUnit = ({ product, wishlisted, inCart, onWishlistToggle, onC
             </div>
           )}
 
+          {/* Updated Action Buttons: Removed Buy Now, Expanded Add to Cart */}
           <div className="premium-action-buttons">
             <button 
               className={`premium-cart-btn ${inCart ? 'in-cart' : ''}`}
-              onClick={onCartToggle}
+              onClick={(e) => {
+                  e.stopPropagation(); // Prevents clicking the card if it's a link
+                  onAddToCart();
+              }}
+              style={{ width: '100%', justifyContent: 'center' }}
             >
               <ShoppingCartIcon sx={{ fontSize: 18 }} />
               <span className="btn-text">{inCart ? 'Added' : 'Add to Cart'}</span>
             </button>
-            <button className="premium-view-btn">Buy Now</button>
+            {/* Buy Now Button Removed */}
           </div>
         </div>
       </div>
