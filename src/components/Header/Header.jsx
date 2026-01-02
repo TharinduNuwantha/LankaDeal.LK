@@ -8,31 +8,37 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LanguageIcon from '@mui/icons-material/Language';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import CategoryIcon from '@mui/icons-material/Category';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import StoreIcon from '@mui/icons-material/Store';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import HomeIcon from '@mui/icons-material/Home';
 import Badge from '@mui/material/Badge';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { userSelecter } from '../../Store/ReduxSlice/userClise';
 
- 
-const Header = ({paymentModelRef}) => {
-    const userData = useSelector(userSelecter)
+// --- NEW ICONS FOR CATEGORIES ---
+import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural'; // Beauty
+import MenuBookIcon from '@mui/icons-material/MenuBook'; // Books
+import DevicesIcon from '@mui/icons-material/Devices'; // Electronics
+import CheckroomIcon from '@mui/icons-material/Checkroom'; // Fashion
+import LocalGroceryStoreIcon from '@mui/icons-material/LocalGroceryStore'; // Groceries
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety'; // Health
+import KitchenIcon from '@mui/icons-material/Kitchen'; // Home & Kitchen
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter'; // Sports
+
+const Header = ({ paymentModelRef }) => {
+  const userData = useSelector(userSelecter)
   const cart = useSelector(
-  (state) => state.user.user.cart
-);
-const cartLength = cart?.length ? cart.length : 0;
-const totalAmount = cart?.reduce((total, item) => {
+    (state) => state.user.user.cart
+  );
+  const cartLength = cart?.length ? cart.length : 0;
+  const totalAmount = cart?.reduce((total, item) => {
     return total + (Number(item.price) * item.quantity);
-}, 0) || 0;
+  }, 0) || 0;
 
   const CartPrice = totalAmount.toLocaleString('en-US', {
     minimumFractionDigits: 2,
@@ -40,16 +46,32 @@ const totalAmount = cart?.reduce((total, item) => {
   });
 
 
-const orderDataCount = userData?.orderData?.length ? userData.orderData.length : 0;
+  const orderDataCount = userData?.orderData?.length ? userData.orderData.length : 0;
 
   const [searchQuery, setSearchQuery] = useState('');
-   const navigate = useNavigate();
+  // State for Category Hover
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  
+  const navigate = useNavigate();
+  
   const handleSearch = () => {
     if (searchQuery.trim() !== "") {
-      // Redirect to /search with query parameter
       navigate(`/search?=${encodeURIComponent(searchQuery)}`);
     }
   };
+
+  // --- CATEGORY DATA DEFINITION ---
+  const categories = [
+    { name: "Beauty & Personal Care", slug: "Beauty_and_Personal_Care", icon: <FaceRetouchingNaturalIcon fontSize="small"/> },
+    { name: "Books & Media", slug: "Books_and_Media", icon: <MenuBookIcon fontSize="small"/> },
+    { name: "Electronics", slug: "Electronics", icon: <DevicesIcon fontSize="small"/> },
+    { name: "Fashion & Clothing", slug: "Fashion_and_Clothing", icon: <CheckroomIcon fontSize="small"/> },
+    { name: "Groceries & Daily Needs", slug: "Groceries_and_Daily_Needs", icon: <LocalGroceryStoreIcon fontSize="small"/> },
+    { name: "Health & Wellness", slug: "Health_and_Wellness", icon: <HealthAndSafetyIcon fontSize="small"/> },
+    { name: "Home & Kitchen", slug: "Home_and_Kitchen", icon: <KitchenIcon fontSize="small"/> },
+    { name: "Sports & Fitness", slug: "Sports_and_Fitness", icon: <FitnessCenterIcon fontSize="small"/> },
+  ];
+
   return (
     <>
       {/* Top Announcement Bar */}
@@ -86,22 +108,22 @@ const orderDataCount = userData?.orderData?.length ? userData.orderData.length :
               <button className="lg:hidden text-white">
                 <MenuIcon sx={{ fontSize: 28 }} />
               </button>
-                 <Link to={'/'}>
-              <div className="flex items-center cursor-pointer">
-             
-                <div className="bg-white rounded-lg p-2 shadow-lg">
-                  <h1 className="text-xl sm:text-2xl font-bold">
-                    <span className="text-red-600">Lanka</span>
-                    <span className="text-gray-800">Deal</span>
-                    <span className="text-yellow-500 text-2xl sm:text-3xl">.</span>
-                    <span className="text-red-600 font-extrabold">LK</span>
-                  </h1>
-                </div>
-                <div className="hidden xl:block ml-3">
-                  <p className="text-white text-xs font-light">Sri Lanka's #1 Online Marketplace</p>
-                </div>
-         
-              </div>       </Link>
+              <Link to={'/'}>
+                <div className="flex items-center cursor-pointer">
+
+                  <div className="bg-white rounded-lg p-2 shadow-lg">
+                    <h1 className="text-xl sm:text-2xl font-bold">
+                      <span className="text-red-600">Lanka</span>
+                      <span className="text-gray-800">Deal</span>
+                      <span className="text-yellow-500 text-2xl sm:text-3xl">.</span>
+                      <span className="text-red-600 font-extrabold">LK</span>
+                    </h1>
+                  </div>
+                  <div className="hidden xl:block ml-3">
+                    <p className="text-white text-xs font-light">Sri Lanka's #1 Online Marketplace</p>
+                  </div>
+
+                </div>       </Link>
             </div>
 
             {/* Desktop Search Bar */}
@@ -118,7 +140,7 @@ const orderDataCount = userData?.orderData?.length ? userData.orderData.length :
                     </select>
                     <ExpandMoreIcon sx={{ color: '#6b7280', fontSize: 18 }} />
                   </div>
-                  
+
                   <input
                     type="text"
                     placeholder="Search for products..."
@@ -126,9 +148,9 @@ const orderDataCount = userData?.orderData?.length ? userData.orderData.length :
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                  
+
                   <button className="bg-gradient-to-r from-red-600 to-red-700 text-white px-4 xl:px-6 py-2 xl:py-3 rounded-lg hover:from-red-700 hover:to-red-800 transition-all shadow-lg"
-                   onClick={handleSearch}
+                    onClick={handleSearch}
                   >
                     <SearchIcon sx={{ fontSize: 20 }} />
                   </button>
@@ -147,47 +169,47 @@ const orderDataCount = userData?.orderData?.length ? userData.orderData.length :
               <div className="hidden md:flex items-center space-x-3 lg:space-x-4 xl:space-x-6">
                 {/* Account - Show only icon on md, full on lg+ */}
                 <Link to={'profile'}>
-                <button className="flex items-center text-white hover:text-yellow-200 transition group">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 xl:w-10 xl:h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                    <PersonIcon sx={{ fontSize: 20, color: 'white' }} />
-                  </div>
-                  <div className="hidden xl:block ml-2 text-left">
-                    <div className="font-bold text-sm">Hello, {userData.name === 'no-user'?<Link to={'/login'} className="text-white/90 hover:text-white hover:underline underline-offset-4 transition-all">Sign in</Link>:userData.name.split(" ")[0]}</div>
-                    <div className="text-xs text-gray-200"></div>
-                  </div>
-                </button></Link>
-
-                {/* Orders - Show only on xl+ */} 
-                <Link to={'Orders'}>
-                <button className="hidden xl:flex items-center space-x-2 text-white hover:text-yellow-200 transition">
-                  <div className="relative">
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                      <LocalShippingIcon sx={{ fontSize: 20, color: 'white' }} />
+                  <button className="flex items-center text-white hover:text-yellow-200 transition group">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 xl:w-10 xl:h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                      <PersonIcon sx={{ fontSize: 20, color: 'white' }} />
                     </div>
-                    <Badge badgeContent={orderDataCount} color="error" sx={{
-                      position: 'absolute',
-                      top: -5,
-                      right: -5,
-                      '& .MuiBadge-badge': {
-                        backgroundColor: '#f59e0b',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        fontSize: '0.7rem'
-                      }
-                    }} />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-bold text-sm">Orders</div>
-                    <div className="text-xs text-gray-200">Track & Return</div>
-                  </div>
-                </button>
+                    <div className="hidden xl:block ml-2 text-left">
+                      <div className="font-bold text-sm">Hello, {userData.name === 'no-user' ? <Link to={'/login'} className="text-white/90 hover:text-white hover:underline underline-offset-4 transition-all">Sign in</Link> : userData.name.split(" ")[0]}</div>
+                      <div className="text-xs text-gray-200"></div>
+                    </div>
+                  </button></Link>
+
+                {/* Orders - Show only on xl+ */}
+                <Link to={'Orders'}>
+                  <button className="hidden xl:flex items-center space-x-2 text-white hover:text-yellow-200 transition">
+                    <div className="relative">
+                      <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                        <LocalShippingIcon sx={{ fontSize: 20, color: 'white' }} />
+                      </div>
+                      <Badge badgeContent={orderDataCount} color="error" sx={{
+                        position: 'absolute',
+                        top: -5,
+                        right: -5,
+                        '& .MuiBadge-badge': {
+                          backgroundColor: '#f59e0b',
+                          color: 'white',
+                          fontWeight: 'bold',
+                          fontSize: '0.7rem'
+                        }
+                      }} />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-bold text-sm">Orders</div>
+                      <div className="text-xs text-gray-200">Track & Return</div>
+                    </div>
+                  </button>
                 </Link>
 
                 {/* Cart - FIXED TO BE VISIBLE AT ALL SIZES */}
                 <button className="flex items-center space-x-1 xl:space-x-2 text-white hover:text-yellow-200 transition group relative">
                   <div className="relative">
-                    <Badge 
-                      badgeContent={cartLength} 
+                    <Badge
+                      badgeContent={cartLength}
                       color="warning"
                       sx={{
                         '& .MuiBadge-badge': {
@@ -200,10 +222,10 @@ const orderDataCount = userData?.orderData?.length ? userData.orderData.length :
                         }
                       }}
                     >
-                      <div className="w-10 h-10 xl:w-12 xl:h-12 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center shadow-lg" 
-                        
+                      <div className="w-10 h-10 xl:w-12 xl:h-12 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center shadow-lg"
+
                       >
-                        <ShoppingCartIcon sx={{ fontSize: 22, color: 'white' }} onClick={()=>paymentModelRef.current.handleOpen()}/>
+                        <ShoppingCartIcon sx={{ fontSize: 22, color: 'white' }} onClick={() => paymentModelRef.current.handleOpen()} />
 
                       </div>
                     </Badge>
@@ -234,8 +256,8 @@ const orderDataCount = userData?.orderData?.length ? userData.orderData.length :
 
               {/* Mobile Cart Button */}
               <button className="md:hidden relative">
-                <Badge 
-                  badgeContent={cartLength} 
+                <Badge
+                  badgeContent={cartLength}
                   color="warning"
                   sx={{
                     '& .MuiBadge-badge': {
@@ -248,7 +270,7 @@ const orderDataCount = userData?.orderData?.length ? userData.orderData.length :
                     }
                   }}
                 >
-                  <ShoppingCartIcon sx={{ fontSize: 28, color: 'white' }} onClick={()=>paymentModelRef.current.handleOpen()}/>
+                  <ShoppingCartIcon sx={{ fontSize: 28, color: 'white' }} onClick={() => paymentModelRef.current.handleOpen()} />
                 </Badge>
               </button>
             </div>
@@ -272,13 +294,49 @@ const orderDataCount = userData?.orderData?.length ? userData.orderData.length :
           </div>
 
           {/* Desktop Navigation Bar - Responsive adjustments */}
-          <div className="hidden lg:flex items-center justify-between py-2 border-t border-red-500">
-            {/* All Categories Button - Adjust width */}
-            <button className="flex items-center space-x-2 bg-white text-red-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all shadow-md group min-w-[160px] xl:min-w-[180px]">
-              <MenuIcon sx={{ fontSize: 20 }} />
-              <span className="font-bold text-sm xl:text-base">All Categories</span>
-              <ExpandMoreIcon sx={{ fontSize: 18 }} />
-            </button>
+          <div className="hidden lg:flex items-center justify-between py-2 border-t border-red-500 relative">
+            
+            {/* -------------------- UPDATED HOVER CATEGORY MENU -------------------- */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setIsCategoryOpen(true)}
+              onMouseLeave={() => setIsCategoryOpen(false)}
+            >
+              {/* Category Button */}
+              <button className={`flex items-center space-x-2 bg-white text-red-600 px-4 py-2 rounded-lg transition-all shadow-md min-w-[160px] xl:min-w-[180px] z-50 relative ${isCategoryOpen ? 'ring-2 ring-yellow-400' : 'hover:bg-gray-50'}`}>
+                <MenuIcon sx={{ fontSize: 20 }} />
+                <span className="font-bold text-sm xl:text-base">All Categories</span>
+                <ExpandMoreIcon sx={{ fontSize: 18, transform: isCategoryOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
+              </button>
+
+              {/* Hover Dropdown */}
+              {isCategoryOpen && (
+                <div className="absolute top-full left-0 mt-2 w-[280px] bg-white rounded-xl shadow-2xl z-50 border border-gray-100 animate-fadeIn overflow-hidden">
+                  {/* Small arrow pointing up */}
+                  <div className="absolute -top-1.5 left-8 w-3 h-3 bg-white transform rotate-45 border-l border-t border-gray-100"></div>
+                  
+                  <div className="py-2">
+                    {categories.map((cat, index) => (
+                      <Link 
+                        key={index}
+                        to={`/category/${cat.slug}`}
+                        className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors group border-b border-gray-50 last:border-0"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 rounded-full bg-red-50 text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors duration-300">
+                            {cat.icon}
+                          </div>
+                          <span className="text-gray-700 font-medium text-sm group-hover:text-red-700 transition-colors">{cat.name}</span>
+                        </div>
+                        <ArrowForwardIosIcon sx={{ fontSize: 12 }} className="text-gray-300 group-hover:text-red-500 transition-colors" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* -------------------- END UPDATED HOVER CATEGORY MENU -------------------- */}
+
 
             {/* Navigation Links - Responsive spacing */}
             <div className="flex items-center space-x-4 xl:space-x-6 overflow-x-auto scrollbar-hide px-2">
@@ -289,24 +347,24 @@ const orderDataCount = userData?.orderData?.length ? userData.orderData.length :
                   LIVE
                 </span>
               </button>
-              
+
               <button className="text-white hover:text-yellow-200 transition font-medium text-sm xl:text-base whitespace-nowrap">
                 Today's Deals
               </button>
-              
+
               <button className="hidden xl:flex items-center space-x-1 text-white hover:text-yellow-200 transition">
                 <TrendingUpIcon sx={{ fontSize: 18 }} />
                 <span>Trending</span>
               </button>
-              
+
               <button className="text-white hover:text-yellow-200 transition font-medium text-sm xl:text-base whitespace-nowrap">
                 New Arrivals
               </button>
-              
+
               <button className="hidden xl:inline text-white hover:text-yellow-200 transition">
                 Brands
               </button>
-              
+
               <button className="hidden 2xl:inline text-white hover:text-yellow-200 transition">
                 Clearance
               </button>
@@ -318,9 +376,9 @@ const orderDataCount = userData?.orderData?.length ? userData.orderData.length :
                 <StoreIcon sx={{ fontSize: 18 }} />
                 <span className="font-medium">Sell</span>
               </button>
-              
+
               <div className="hidden xl:block h-6 w-px bg-white/30"></div>
-              
+
               <button className="flex items-center space-x-1 text-white hover:text-yellow-200 transition">
                 <LanguageIcon sx={{ fontSize: 16 }} />
                 <span className="text-sm">EN</span>
