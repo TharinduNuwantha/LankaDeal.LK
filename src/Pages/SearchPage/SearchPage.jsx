@@ -9,6 +9,7 @@ import { userSelecter } from "../../Store/ReduxSlice/userClise";
 import ModelLogging from "../../modals/ModelLogging";
 import "./SearchPage.css"; // Import the CSS file
 import { addToCart } from '../../../src/utils/AddToCart/addToCart'
+import { toast } from "react-toastify";
 
 
 const SearchPage = () => {
@@ -171,12 +172,25 @@ const SearchPage = () => {
   };
 
   const handleAddToCart = (product) => {
-    if(userData.name){
-        if(userData.name === 'default' || userData.name === '' || userData.name === 'no-user'){
-            modellogginRef.current.handleOpen();
-            return;
-        }
+if (userData.name) {
+    if (userData.name === 'default' || userData.name === '' || userData.name === 'no-user') {
+        
+        // Triggers the modern notification
+        toast.error("Please sign in first", {
+            style: {
+                border: '1px solid #dc2626', // Your red color
+                padding: '16px',
+                color: '#713200',
+            },
+            iconTheme: {
+                primary: '#dc2626', // Red Icon
+                secondary: '#FFFAEE',
+            },
+        });
+
+        return;
     }
+}
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
     const existingProductIndex = existingCart.findIndex(item => item.id === product.id);
     
@@ -206,9 +220,15 @@ const SearchPage = () => {
   };
 
   const handleAddToAIChat = (product) => {
+        if(userData.name){
+        if(userData.name === 'default' || userData.name === '' || userData.name === 'no-user'){
+            modellogginRef.current.handleOpen();
+            return;
+        }
+    }
     console.log("Adding product to chat:", product);
     const event = new CustomEvent('addProductToChat', { 
-      detail: {
+      detail: {                                     
         id: product.id,
         title: product.title,
         price: product.price,

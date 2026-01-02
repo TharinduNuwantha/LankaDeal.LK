@@ -1,8 +1,6 @@
 import { useEffect, useState, createContext, useContext } from 'react';
 import './App.css';
 
-import Footer from './components/Footer/Footer';
-import Header from './components/Header/Header';
 import AppRouters from './Routers/AppRouters';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './FireBase/firebase';
@@ -60,7 +58,9 @@ function App() {
       <div>
         <AppRouters />
       </div>
+   
     </AuthContext.Provider>
+    
   );
 }
 

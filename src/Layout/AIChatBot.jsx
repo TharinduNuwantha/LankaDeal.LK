@@ -2,8 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { generateAIResponse, searchRelatedProducts } from "../Pages/SearchPage/services/geminiService";
 import { canAnswerLocally, generateLocalResponse } from "../Pages/SearchPage/services/localResponseGenerator";
-
+import { useSelector } from "react-redux";
+import { userSelecter } from "../Store/ReduxSlice/userClise";
+import toast, { Toaster } from 'react-hot-toast';
 const AIChatBot = () => {
+    const userData = useSelector(userSelecter);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -90,6 +93,22 @@ const AIChatBot = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
+        if(userData.name){
+        if(userData.name === 'default' || userData.name === '' || userData.name === 'no-user'){
+            toast.error("Please sign in first", {
+            style: {
+                border: '1px solid #dc2626', // Your red color
+                padding: '16px',
+                color: '#713200',
+            },
+            iconTheme: {
+                primary: '#dc2626', // Red Icon
+                secondary: '#FFFAEE',
+            },
+        });
+            return;
+        }
+    }
     if (!inputMessage.trim()) return;
 
     const userMessage = {
@@ -594,6 +613,13 @@ const AIChatBot = () => {
                 </svg>
               </button>
             </div>
+               <Toaster 
+        position="top-center" 
+        reverseOrder={false}
+        containerStyle={{
+          zIndex: 99999 
+        }}
+      />
           </form>
         </div>
       )}
