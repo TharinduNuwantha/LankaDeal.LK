@@ -1,7 +1,12 @@
 // myapp\src\Pages\Home\Product.jsx
 import React, { useRef, useState, useEffect } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../FireBase/firebase'; 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Grid, Pagination, Mousewheel, FreeMode, Navigation } from 'swiper/modules';
+
+
+// Icons
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -15,183 +20,80 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
-import './Styles/Product.css';
 
-const premiumProductArr = [
-  {
-    id: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1600003263720-95b45a4035d5?w=600&h=600&fit=crop&q=80',
-    price: '25,600',
-    originalPrice: '32,500',
-    discount: 21,
-    productTitle: 'Apple MacBook Pro 14" M3 Pro Chip',
-    category: 'Electronics › Laptops',
-    rating: 4.8,
-    reviews: 428,
-    sold: 156,
-    features: ['M3 Pro Chip', '36GB RAM', '1TB SSD', 'Liquid Retina XDR'],
-    isNew: true,
-    isFeatured: true,
-    isTrending: true,
-    stock: 12,
-    delivery: 'Free 1-day'
-  },
-  {
-    id: 2,
-    imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&h=600&fit=crop&q=80',
-    price: '89,500',
-    originalPrice: '105,000',
-    discount: 15,
-    productTitle: 'Sony WH-1000XM5 Wireless Headphones',
-    category: 'Electronics › Audio',
-    rating: 4.7,
-    reviews: 312,
-    sold: 289,
-    features: ['Noise Cancelling', '30hr Battery', 'Hi-Res Audio', 'Touch Controls'],
-    isFeatured: true,
-    isTrending: true,
-    stock: 25,
-    delivery: 'Free 2-day'
-  },
-  {
-    id: 3,
-    imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop&q=80',
-    price: '12,500',
-    originalPrice: '16,800',
-    discount: 26,
-    productTitle: 'Samsung Galaxy Watch 6 Classic',
-    category: 'Wearables › Smart Watches',
-    rating: 4.6,
-    reviews: 189,
-    sold: 412,
-    features: ['ECG Monitor', '5ATM Waterproof', 'Sleep Tracking', 'GPS'],
-    isNew: true,
-    stock: 8,
-    delivery: 'Free 1-day'
-  },
-  {
-    id: 4,
-    imageUrl: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=600&h=600&fit=crop&q=80',
-    price: '34,200',
-    originalPrice: '42,500',
-    discount: 20,
-    productTitle: 'Canon EOS R6 Mirrorless Camera',
-    category: 'Electronics › Cameras',
-    rating: 4.9,
-    reviews: 156,
-    sold: 78,
-    features: ['20.1MP Full Frame', '4K Video', 'IBIS', 'Dual Pixel AF'],
-    isNew: true,
-    stock: 15,
-    delivery: 'Free 2-day'
-  },
-  {
-    id: 5,
-    imageUrl: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600&h=600&fit=crop&q=80',
-    price: '72,800',
-    originalPrice: '89,900',
-    discount: 19,
-    productTitle: 'LG OLED C3 65" 4K Smart TV',
-    category: 'Electronics › Televisions',
-    rating: 4.8,
-    reviews: 267,
-    sold: 134,
-    features: ['OLED evo', 'α9 AI Processor', '120Hz', 'Dolby Vision'],
-    isFeatured: true,
-    stock: 6,
-    delivery: 'Free 3-day'
-  },
-  {
-    id: 6,
-    imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=600&fit=crop&q=80',
-    price: '15,500',
-    originalPrice: '19,900',
-    discount: 22,
-    productTitle: 'DJI Mini 3 Pro Drone with Camera',
-    category: 'Electronics › Drones',
-    rating: 4.7,
-    reviews: 189,
-    sold: 256,
-    features: ['4K/60fps', '34min Flight', 'Obstacle Sensing', 'Lightweight'],
-    isNew: true,
-    stock: 18,
-    delivery: 'Free 2-day'
-  },
-  {
-    id: 7,
-    imageUrl: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=600&h=600&fit=crop&q=80',
-    price: '9,800',
-    originalPrice: '12,500',
-    discount: 22,
-    productTitle: 'Xiaomi Robot Vacuum S10+',
-    category: 'Home › Smart Home',
-    rating: 4.5,
-    reviews: 312,
-    sold: 567,
-    features: ['Lidar Navigation', 'Self-Emptying', 'Mopping', 'App Control'],
-    isFeatured: true,
-    stock: 32,
-    delivery: 'Free 3-day'
-  },
-  {
-    id: 8,
-    imageUrl: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop&q=80',
-    price: '21,500',
-    originalPrice: '27,000',
-    discount: 20,
-    productTitle: 'PlayStation 5 Console + 2 Controllers',
-    category: 'Gaming › Consoles',
-    rating: 4.9,
-    reviews: 489,
-    sold: 312,
-    features: ['825GB SSD', '4K/120fps', 'Ray Tracing', 'DualSense'],
-    isNew: true,
-    stock: 4,
-    delivery: 'Free 1-day'
-  },
-  {
-    id: 9,
-    imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&h=600&fit=crop&q=80',
-    price: '45,800',
-    originalPrice: '52,000',
-    discount: 12,
-    productTitle: 'Microsoft Surface Laptop Studio',
-    category: 'Electronics › Laptops',
-    rating: 4.7,
-    reviews: 189,
-    sold: 124,
-    features: ['14.4" Touchscreen', 'Intel i7', 'RTX 3050 Ti', '120Hz Display'],
-    isNew: false,
-    stock: 9,
-    delivery: 'Free 1-day'
-  },
-  {
-    id: 10,
-    imageUrl: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=600&fit=crop&q=80',
-    price: '8,500',
-    originalPrice: '10,200',
-    discount: 17,
-    productTitle: 'Apple Watch Series 9',
-    category: 'Wearables › Smart Watches',
-    rating: 4.8,
-    reviews: 432,
-    sold: 567,
-    features: ['Always-On Display', 'ECG', 'GPS', 'Water Resistant'],
-    isNew: true,
-    stock: 21,
-    delivery: 'Free 1-day'
-  }
-];
+import './Styles/Product.css';
 
 const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
   const swiperRef = useRef(null);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [wishlisted, setWishlisted] = useState({});
   const [cartItems, setCartItems] = useState({});
   const [timer, setTimer] = useState({ hours: 2, minutes: 45, seconds: 18 });
 
-  // Countdown timer for flash sale
+  // --- 1. Fetch & Duplicate Data ---
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const productsRef = collection(db, "category2", "Electronics", "products");
+        const querySnapshot = await getDocs(productsRef);
+        
+        // 1. Initial Mapping & Sanitization
+        let fetchedData = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            priceNumeric: parseInt(data.price || 0),
+            originalPriceNumeric: parseInt(data.originalPrice || 0),
+            discountNumeric: parseInt(data.discount ? data.discount.replace('%', '') : 0),
+            stockNumeric: parseInt(data.stockCount || 0),
+            ratingNumeric: parseFloat(data.rating || 0),
+            features: data.keywords || [],
+          };
+        });
+
+        // 2. Filter based on Section Title (Optional logic)
+        // If it's Flash Sale, prioritize items with discounts
+        if (isFlashSale) {
+          fetchedData = fetchedData.sort((a, b) => b.discountNumeric - a.discountNumeric);
+        }
+
+        // 3. DUPLICATION LOGIC (Spread it out evenly)
+        // If we have data but less than 12 items, duplicate them to fill the UI
+        const TARGET_MIN_ITEMS = 12; 
+        let finalData = [...fetchedData];
+
+        if (finalData.length > 0 && finalData.length < TARGET_MIN_ITEMS) {
+          // Keep adding copies until we hit the target
+          while (finalData.length < TARGET_MIN_ITEMS) {
+            // Create a clone of the original data to append
+            const clones = fetchedData.map((item, index) => ({
+              ...item,
+              // IMPORTANT: Create a unique ID for the clone so React doesn't complain
+              id: `${item.id}_clone_${finalData.length + index}`
+            }));
+            finalData = [...finalData, ...clones];
+          }
+        }
+        
+        // Cap at 20 items max to prevent infinite growth if logic changes
+        setProducts(finalData.slice(0, 20));
+
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [title, isFlashSale]);
+
+  // --- Timer Logic ---
   useEffect(() => {
     if (isFlashSale) {
       const interval = setInterval(() => {
@@ -199,7 +101,6 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
           const seconds = prev.seconds - 1;
           const minutes = seconds < 0 ? prev.minutes - 1 : prev.minutes;
           const hours = minutes < 0 ? prev.hours - 1 : prev.hours;
-          
           return {
             hours: hours < 0 ? 0 : hours,
             minutes: minutes < 0 ? 59 : minutes,
@@ -207,57 +108,42 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
           };
         });
       }, 1000);
-
       return () => clearInterval(interval);
     }
   }, [isFlashSale]);
 
-  // Mouse wheel navigation
+  // --- Mouse Wheel Logic ---
   useEffect(() => {
     const handleWheel = (e) => {
       if (swiperRef.current && isHovered && Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
         e.preventDefault();
-        if (e.deltaY > 0) {
-          swiperRef.current.swiper.slideNext();
-        } else {
-          swiperRef.current.swiper.slidePrev();
-        }
+        if (e.deltaY > 0) swiperRef.current.swiper.slideNext();
+        else swiperRef.current.swiper.slidePrev();
       }
     };
-
-    const container = document.querySelector('.premium-swiper');
-    if (container) {
-      container.addEventListener('wheel', handleWheel, { passive: false });
-    }
-
+    const container = document.querySelector(`.premium-swiper-${title.replace(/\s/g, '')}`);
+    if (container) container.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
-      if (container) {
-        container.removeEventListener('wheel', handleWheel);
-      }
+      if (container) container.removeEventListener('wheel', handleWheel);
     };
-  }, [isHovered]);
+  }, [isHovered, title]);
 
-  // Calculate progress
-  const progressPercentage = ((activeIndex + 1) / premiumProductArr.length) * 100;
+  const progressPercentage = products.length > 0 ? ((activeIndex + 1) / products.length) * 100 : 0;
 
-  // Handle cart action
   const handleCartToggle = (productId) => {
-    setCartItems(prev => ({
-      ...prev,
-      [productId]: !prev[productId]
-    }));
+    setCartItems(prev => ({ ...prev, [productId]: !prev[productId] }));
   };
 
-  // Get dynamic slides per view - MOBILE SHOWS MORE
-  const getSlidesPerView = () => {
-    // Desktop default
-    return Number(slidesPerView);
-  };
+  const getSlidesPerView = () => Number(slidesPerView);
+
+  if (loading) return <div className="p-10 text-center text-gray-400">Loading {title}...</div>;
+  if (products.length === 0) return null;
 
   return (
     <section className="premium-product-section">
       <div className="premium-swiper-container">
-        {/* Premium Section Header */}
+        
+        {/* Header */}
         <div className="section-header-premium">
           <div className="section-header-content">
             <div className="title-wrapper">
@@ -283,8 +169,8 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
             </div>
             <div className="section-tagline">
               {isFlashSale 
-                ? 'Limited time offers with exclusive discounts. Hurry before they sell out!' 
-                : 'Discover premium products with cutting-edge technology and exceptional quality'
+                ? 'Limited time offers with exclusive discounts.' 
+                : 'Discover premium electronics directly from top categories'
               }
             </div>
           </div>
@@ -292,25 +178,24 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
           <div className="nav-controls-premium">
             <div className="slider-status">
               <span className="current-slide">{activeIndex + 1}</span>
-              <span className="total-slides">/{premiumProductArr.length}</span>
+              <span className="total-slides">/{products.length}</span>
             </div>
             <button 
-              className="nav-btn-premium swiper-button-prev-custom"
+              className={`nav-btn-premium swiper-button-prev-custom-${title.replace(/\s/g, '')}`}
               onClick={() => swiperRef.current?.swiper.slidePrev()}
-              aria-label="Previous products"
             >
               <ArrowBackIosNewIcon sx={{ fontSize: 16 }} />
             </button>
             <button 
-              className="nav-btn-premium swiper-button-next-custom"
+              className={`nav-btn-premium swiper-button-next-custom-${title.replace(/\s/g, '')}`}
               onClick={() => swiperRef.current?.swiper.slideNext()}
-              aria-label="Next products"
             >
               <ArrowForwardIosIcon sx={{ fontSize: 16 }} />
             </button>
           </div>
         </div>
 
+        {/* Timer UI */}
         {isFlashSale && (
           <div className="flash-sale-timer">
             <div className="timer-content">
@@ -334,7 +219,7 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
             </div>
             <div className="sale-progress">
               <div className="sold-indicator">
-                <span className="sold-text">{premiumProductArr.reduce((acc, p) => acc + p.sold, 0)} sold</span>
+                <span className="sold-text">Selling Fast!</span>
                 <span className="sold-percentage">78%</span>
               </div>
               <div className="progress-bar-sale">
@@ -344,7 +229,7 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
           </div>
         )}
 
-        {/* Premium Swiper */}
+        {/* Swiper Slider */}
         <div 
           className="premium-swiper-wrapper"
           onMouseEnter={() => setIsHovered(true)}
@@ -353,90 +238,37 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
           <Swiper
             ref={swiperRef}
             slidesPerView={getSlidesPerView()}
-            grid={{
-              rows: Number(rowsCount),
-              fill: 'row'
-            }}
+            grid={{ rows: Number(rowsCount), fill: 'row' }}
             spaceBetween={20}
-            pagination={{
-              clickable: true,
-              dynamicBullets: true,
-              el: '.premium-pagination',
-            }}
-            mousewheel={{
-              forceToAxis: true,
-              sensitivity: 0.8,
-              releaseOnEdges: true,
-              thresholdDelta: 20,
-            }}
-            freeMode={{
-              enabled: true,
-              momentum: true,
-              momentumBounce: false,
-              momentumVelocityRatio: 0.7,
-              momentumRatio: 0.7,
-            }}
+            pagination={{ clickable: true, dynamicBullets: true }}
+            mousewheel={{ forceToAxis: true, sensitivity: 0.8, releaseOnEdges: true }}
+            freeMode={{ enabled: true, momentum: true }}
             navigation={{
-              nextEl: '.swiper-button-next-custom',
-              prevEl: '.swiper-button-prev-custom',
+              nextEl: `.swiper-button-next-custom-${title.replace(/\s/g, '')}`,
+              prevEl: `.swiper-button-prev-custom-${title.replace(/\s/g, '')}`,
             }}
             modules={[Grid, Pagination, Mousewheel, FreeMode, Navigation]}
-            className="premium-swiper"
+            className={`premium-swiper premium-swiper-${title.replace(/\s/g, '')}`}
             onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
             breakpoints={{
-              // Mobile: Show MORE products (2.2 to 2.8 slides - more than desktop)
-              320: {
-                slidesPerView: 2.2, // More products on mobile
-                spaceBetween: 12,
-                grid: { rows: Number(rowsCount), fill: 'row' }
-              },
-              375: {
-                slidesPerView: 2.4,
-                spaceBetween: 12,
-              },
-              480: {
-                slidesPerView: 2.6, // Even more on larger phones
-                spaceBetween: 12,
-              },
-              540: {
-                slidesPerView: 2.8, // Maximum density on medium phones
-                spaceBetween: 14,
-              },
-              // Tablet: Show slightly fewer than mobile
-              768: {
-                slidesPerView: Math.max(Number(slidesPerView) - 0.5, 2),
-                spaceBetween: 16,
-                grid: { rows: Number(rowsCount), fill: 'row' }
-              },
-              900: {
-                slidesPerView: Number(slidesPerView),
-                spaceBetween: 20,
-              },
-              // Desktop: Show FEWER for premium focus (cleaner look)
-              1024: {
-                slidesPerView: Math.max(Number(slidesPerView) - 0.5, 2),
-                spaceBetween: 24,
-              },
-              1280: {
-                slidesPerView: Number(slidesPerView),
-                spaceBetween: 28,
-              },
-              1536: {
-                slidesPerView: Number(slidesPerView),
-                spaceBetween: 32,
-              }
+              320: { slidesPerView: 2.2, spaceBetween: 12, grid: { rows: Number(rowsCount), fill: 'row' } },
+              375: { slidesPerView: 2.4, spaceBetween: 12 },
+              480: { slidesPerView: 2.6, spaceBetween: 12 },
+              540: { slidesPerView: 2.8, spaceBetween: 14 },
+              768: { slidesPerView: Math.max(Number(slidesPerView) - 0.5, 2), spaceBetween: 16, grid: { rows: Number(rowsCount), fill: 'row' } },
+              900: { slidesPerView: Number(slidesPerView), spaceBetween: 20 },
+              1024: { slidesPerView: Math.max(Number(slidesPerView) - 0.5, 2), spaceBetween: 24 },
+              1280: { slidesPerView: Number(slidesPerView), spaceBetween: 28 },
+              1536: { slidesPerView: Number(slidesPerView), spaceBetween: 32 }
             }}
           >
-            {premiumProductArr.map((product) => (
+            {products.map((product) => (
               <SwiperSlide key={product.id}>
                 <PremiumProductUnit 
-                  {...product} 
+                  product={product}
                   wishlisted={wishlisted[product.id]}
                   inCart={cartItems[product.id]}
-                  onWishlistToggle={() => setWishlisted(prev => ({
-                    ...prev,
-                    [product.id]: !prev[product.id]
-                  }))}
+                  onWishlistToggle={() => setWishlisted(prev => ({ ...prev, [product.id]: !prev[product.id] }))}
                   onCartToggle={() => handleCartToggle(product.id)}
                   isFlashSale={isFlashSale}
                 />
@@ -444,21 +276,12 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
             ))}
           </Swiper>
 
-          {/* Progress Indicator - Desktop only */}
           <div className="progress-indicator">
-            <div className="progress-text">
-              Showing {activeIndex + 1} of {premiumProductArr.length}
-            </div>
+            <div className="progress-text">Showing {activeIndex + 1} of {products.length}</div>
             <div className="progress-bar">
-              <div 
-                className="progress-fill" 
-                style={{ width: `${progressPercentage}%` }}
-              ></div>
+              <div className="progress-fill" style={{ width: `${progressPercentage}%` }}></div>
             </div>
           </div>
-
-          {/* Custom Pagination */}
-          <div className="premium-pagination"></div>
         </div>
       </div>
     </section>
@@ -467,167 +290,125 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
 
 export default Product;
 
-const PremiumProductUnit = ({ 
-  imageUrl, 
-  price, 
-  originalPrice, 
-  discount, 
-  productTitle, 
-  category,
-  rating,
-  reviews,
-  sold,
-  features,
-  isNew,
-  isFeatured,
-  isTrending,
-  wishlisted,
-  inCart,
-  onWishlistToggle,
-  onCartToggle,
-  isFlashSale,
-  stock,
-  delivery,
-  id 
-}) => (
-  <div className="premium-product-card">
-    {/* Badges - Optimized for mobile */}
-    <div className="premium-badges">
-      {isNew && <div className="premium-badge badge-new">NEW</div>}
-      {isFeatured && <div className="premium-badge badge-featured">POPULAR</div>}
-      {discount > 15 && <div className="premium-badge badge-sale">-{discount}%</div>}
-      {isFlashSale && <div className="premium-badge badge-flash">FLASH</div>}
-      {stock < 10 && stock > 0 && <div className="premium-badge badge-low">{stock} LEFT</div>}
-      {isTrending && <div className="premium-badge badge-trending">TRENDING</div>}
-    </div>
+// Sub-Component: Product Card
+const PremiumProductUnit = ({ product, wishlisted, inCart, onWishlistToggle, onCartToggle, isFlashSale }) => {
+  const { 
+    imageUrl, price, originalPrice, discount, title: productTitle, 
+    categoryPath, ratingNumeric, reviewCount, stockNumeric, features,
+    isFeatured, discountNumeric
+  } = product;
 
-    {/* Quick Actions - Always visible on mobile */}
-    <div className="premium-quick-actions">
-      <button 
-        className="premium-action-btn wishlist-btn"
-        onClick={onWishlistToggle}
-        aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-        data-active={wishlisted}
-      >
-        {wishlisted ? (
-          <FavoriteIcon sx={{ fontSize: 18, color: '#dc2626' }} />
-        ) : (
-          <FavoriteBorderIcon sx={{ fontSize: 18 }} />
+  // Ensure category string is safe
+  const displayCategory = categoryPath ? categoryPath.split('/')[1] : 'Electronics';
+
+  return (
+    <div className="premium-product-card">
+      <div className="premium-badges">
+        <div className="premium-badge badge-new">NEW</div>
+        {isFeatured && <div className="premium-badge badge-featured">TOP</div>}
+        {discountNumeric > 5 && <div className="premium-badge badge-sale">-{discount}</div>}
+        {isFlashSale && <div className="premium-badge badge-flash">FLASH</div>}
+        {stockNumeric < 10 && stockNumeric > 0 && <div className="premium-badge badge-low">{stockNumeric} LEFT</div>}
+      </div>
+
+      <div className="premium-quick-actions">
+        <button 
+          className="premium-action-btn wishlist-btn"
+          onClick={onWishlistToggle}
+          data-active={wishlisted}
+        >
+          {wishlisted ? <FavoriteIcon sx={{ fontSize: 18, color: '#dc2626' }} /> : <FavoriteBorderIcon sx={{ fontSize: 18 }} />}
+        </button>
+        <button className="premium-action-btn"><VisibilityIcon sx={{ fontSize: 18 }} /></button>
+      </div>
+
+      <div className="premium-image-container">
+        <img 
+          src={imageUrl} 
+          alt={productTitle} 
+          className="premium-product-image" 
+          loading="lazy"
+          onError={(e) => { e.target.src = 'https://placehold.co/600x600?text=No+Image'; }}
+        />
+        {isFlashSale && (
+          <div className="flash-overlay">
+            <div className="flash-text"><FlashOnIcon sx={{ fontSize: 14 }} /> FLASH SALE</div>
+          </div>
         )}
-      </button>
-      <button className="premium-action-btn" aria-label="Quick view">
-        <VisibilityIcon sx={{ fontSize: 18 }} />
-      </button>
-    </div>
+      </div>
 
-    {/* Product Image */}
-    <div className="premium-image-container">
-      <img 
-        src={imageUrl} 
-        alt={productTitle} 
-        className="premium-product-image" 
-        loading="lazy"
-        onError={(e) => {
-          e.target.src = 'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=600&h=600&fit=crop&q=80';
-        }}
-      />
-      {isFlashSale && (
-        <div className="flash-overlay">
-          <div className="flash-text">
-            <FlashOnIcon sx={{ fontSize: 14 }} />
-            FLASH SALE
+      <div className="premium-product-info">
+        <div className="premium-product-meta">
+          <div className="premium-product-category">
+            <span className="category-badge">{displayCategory}</span>
+            <span className="delivery-badge">
+              <LocalShippingIcon sx={{ fontSize: 12 }} /> 
+              {product.fastDelivery ? 'Fast' : 'Standard'}
+            </span>
           </div>
-        </div>
-      )}
-    </div>
-
-    {/* Product Info */}
-    <div className="premium-product-info">
-      <div className="premium-product-meta">
-        <div className="premium-product-category">
-          <span className="category-badge">{category.split('›')[0]}</span>
-          <span className="delivery-badge">
-            <LocalShippingIcon sx={{ fontSize: 12 }} />
-            {delivery}
-          </span>
-        </div>
-        
-        <h3 className="premium-product-title">{productTitle}</h3>
-        
-        {/* Rating & Sold Info - Optimized for mobile */}
-        <div className="premium-rating-container">
-          <div className="premium-stars">
-            {[...Array(5)].map((_, i) => (
-              i < Math.floor(rating) ? (
-                <StarIcon key={i} className="star-filled" sx={{ fontSize: 14 }} />
-              ) : (
-                <StarBorderIcon key={i} className="star-empty" sx={{ fontSize: 14 }} />
-              )
-            ))}
-            <span className="rating-text">{rating}</span>
-          </div>
-          <div className="premium-sold-count">
-            <span className="sold-icon">🔥</span>
-            {sold} sold
-          </div>
-        </div>
-
-        {/* Features (Mobile optimized) */}
-        <div className="premium-features-mobile">
-          {features.slice(0, 2).map((feature, index) => (
-            <div key={index} className="premium-feature">
-              <CheckCircleIcon sx={{ fontSize: 12, color: '#10b981' }} />
-              <span>{feature}</span>
+          
+          <h3 className="premium-product-title">{productTitle}</h3>
+          
+          <div className="premium-rating-container">
+            <div className="premium-stars">
+              {[...Array(5)].map((_, i) => (
+                i < Math.floor(ratingNumeric) ? 
+                  <StarIcon key={i} className="star-filled" sx={{ fontSize: 14 }} /> : 
+                  <StarBorderIcon key={i} className="star-empty" sx={{ fontSize: 14 }} />
+              ))}
+              <span className="rating-text">{ratingNumeric || '5.0'}</span>
             </div>
-          ))}
-        </div>
-        
-        {/* Price Section - Optimized layout */}
-        <div className="premium-price-section">
-          <div className="price-content">
-            <div className="premium-prices">
-              <span className="premium-price">Rs.{price}</span>
-              <span className="premium-original-price">Rs.{originalPrice}</span>
-            </div>
-            <div className="savings-badge">
-              Save Rs.{(parseInt(originalPrice.replace(',', '')) - parseInt(price.replace(',', ''))).toLocaleString()}
+            <div className="premium-sold-count">
+              <span className="sold-icon">💬</span> {reviewCount || 0} reviews
             </div>
           </div>
-          <div className="premium-discount-badge">-{discount}% OFF</div>
-        </div>
 
-        {/* Stock Indicator - Mobile optimized */}
-        {stock > 0 && stock < 20 && (
-          <div className="stock-indicator">
-            <div className="stock-info">
-              <div className="stock-text">
-                Only {stock} left{stock < 5 ? '!' : ''}
+          <div className="premium-features-mobile">
+            {features && features.slice(0, 2).map((feature, index) => (
+              <div key={index} className="premium-feature">
+                <CheckCircleIcon sx={{ fontSize: 12, color: '#10b981' }} />
+                <span>{feature}</span>
               </div>
-              <div className="stock-percentage">{(stock / 50 * 100).toFixed(0)}%</div>
-            </div>
-            <div className="stock-bar">
-              <div 
-                className="stock-fill" 
-                style={{ width: `${Math.min((stock / 50) * 100, 100)}%` }}
-              ></div>
-            </div>
+            ))}
           </div>
-        )}
+          
+          <div className="premium-price-section">
+            <div className="price-content">
+              <div className="premium-prices">
+                <span className="premium-price">Rs.{price}</span>
+                <span className="premium-original-price">Rs.{originalPrice}</span>
+              </div>
+              <div className="savings-badge">
+                 Save Rs.{ (product.originalPriceNumeric - product.priceNumeric).toLocaleString() }
+              </div>
+            </div>
+            <div className="premium-discount-badge">-{discount} OFF</div>
+          </div>
 
-        {/* Action Buttons - Mobile optimized */}
-        <div className="premium-action-buttons">
-          <button 
-            className={`premium-cart-btn ${inCart ? 'in-cart' : ''}`}
-            onClick={onCartToggle}
-          >
-            <ShoppingCartIcon sx={{ fontSize: 18 }} />
-            <span className="btn-text">{inCart ? 'Added' : 'Add to Cart'}</span>
-          </button>
-          <button className="premium-view-btn">
-            Buy Now
-          </button>
+          {stockNumeric > 0 && stockNumeric < 20 && (
+            <div className="stock-indicator">
+              <div className="stock-info">
+                <div className="stock-text">Only {stockNumeric} left!</div>
+                <div className="stock-percentage">{(stockNumeric / 50 * 100).toFixed(0)}%</div>
+              </div>
+              <div className="stock-bar">
+                <div className="stock-fill" style={{ width: `${Math.min((stockNumeric / 50) * 100, 100)}%` }}></div>
+              </div>
+            </div>
+          )}
+
+          <div className="premium-action-buttons">
+            <button 
+              className={`premium-cart-btn ${inCart ? 'in-cart' : ''}`}
+              onClick={onCartToggle}
+            >
+              <ShoppingCartIcon sx={{ fontSize: 18 }} />
+              <span className="btn-text">{inCart ? 'Added' : 'Add to Cart'}</span>
+            </button>
+            <button className="premium-view-btn">Buy Now</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};

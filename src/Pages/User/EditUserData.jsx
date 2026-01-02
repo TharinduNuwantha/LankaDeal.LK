@@ -410,7 +410,7 @@ const EditUserData = () => {
             <div className="flex gap-4 pt-4">
               <button
                 type="button"
-                onClick={() => navigate('/user')}
+                onClick={() => navigate('/profile')}
                 className="flex-1 bg-white text-gray-700 py-3 px-4 rounded-xl font-semibold border-2 border-gray-200 flex items-center justify-center gap-2 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:bg-gray-50 active:scale-[0.98]"
               >
                 Cancel

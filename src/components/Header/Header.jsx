@@ -40,7 +40,7 @@ const totalAmount = cart.reduce((total, item) => {
   });
 
 
-  const orderDataCount = userData.orderData.length
+const orderDataCount = userData?.orderData?.length ? userData.orderData.length : 0;
 
   const [searchQuery, setSearchQuery] = useState('');
    const navigate = useNavigate();

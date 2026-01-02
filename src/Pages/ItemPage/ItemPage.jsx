@@ -7,7 +7,9 @@ import {
   Tooltip,
   Divider,
   Box,
-  CircularProgress
+  CircularProgress,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -36,11 +38,12 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
-import { useDispatch } from 'react-redux';
-import { addToCart } from '../../Store/ReduxSlice/userClise';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { userSelecter } from '../../Store/ReduxSlice/userClise';
+import { addToCart } from '../../utils/AddToCart/addToCart';
 
 const ItemPage = () => {
+  const userData = useSelector(userSelecter);
   const dispatch = useDispatch();
   
   // Refs
@@ -60,6 +63,13 @@ const ItemPage = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState('');
   
+  // Notification State (Professional Toast)
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success' // 'success' | 'error' | 'warning' | 'info'
+  });
+
   // Question State
   const [newQuestion, setNewQuestion] = useState('');
   const [questionSubmitting, setQuestionSubmitting] = useState(false);
@@ -67,6 +77,22 @@ const ItemPage = () => {
   // Comment State
   const [commentText, setCommentText] = useState({});
   const [commentSubmitting, setCommentSubmitting] = useState({});
+
+  // Helper to show notifications
+  const showNotification = (message, severity = 'success') => {
+    setNotification({
+      open: true,
+      message,
+      severity
+    });
+  };
+
+  const handleCloseNotification = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setNotification({ ...notification, open: false });
+  };
 
   // Fetch product data
   useEffect(() => {
@@ -88,7 +114,6 @@ const ItemPage = () => {
         const productObject = { 
           id: docSnap.id, 
           ...docSnap.data(),
-          // Enhanced data structure
           brand: docSnap.data().brand || 'Premium Brand',
           warranty: docSnap.data().warranty || '2 Years Warranty',
           weight: docSnap.data().weight || '2.5 kg',
@@ -145,31 +170,36 @@ const ItemPage = () => {
       const newWishlist = wishlist.filter(itemId => itemId !== id);
       localStorage.setItem('wishlist', JSON.stringify(newWishlist));
       setIsWishlisted(false);
+      showNotification('Removed from Wishlist', 'info');
     } else {
       wishlist.push(id);
       localStorage.setItem('wishlist', JSON.stringify(wishlist));
       setIsWishlisted(true);
+      showNotification('Added to Wishlist', 'success');
     }
   };
 
   // Handle add to cart
-  const handleAddToCart = () => {
-   
+  const handleAddToCart = (productObject) => {
+    if (!userData || !userData.uid) {
+        showNotification("Please login first to add items to cart!", "warning");
+        return;
+    }
     
-    
-dispatch(addToCart({test:'tt'}));
-    
- 
-    
-    // Show success notification
-    alert(`✓ ${quantity} ${quantity > 1 ? 'items' : 'item'} added to cart! `);
+    // Ensure we are passing the quantity selected by the user
+    const productWithQuantity = {
+        ...productObject,
+        quantity: quantity // Use the state quantity
+    };
+
+    addToCart(userData.uid, productWithQuantity, userData.cart || [], dispatch);
+    showNotification(`Added ${quantity} item(s) to cart successfully!`, "success");
   };
 
   // Handle buy now
   const handleBuyNow = () => {
-    handleAddToCart();
-    // In a real app, you would navigate to checkout
-    alert('Redirecting to checkout...');
+    handleAddToCart(itemData);
+    // In a real app, navigate to checkout here
   };
 
   // Handle share product
@@ -185,7 +215,7 @@ dispatch(addToCart({test:'tt'}));
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        alert('Product link copied to clipboard! 📋');
+        showNotification('Product link copied to clipboard!', 'success');
       }
     } catch (err) {
       console.error('Error sharing:', err);
@@ -198,9 +228,9 @@ dispatch(addToCart({test:'tt'}));
     if (!compareList.includes(id)) {
       compareList.push(id);
       localStorage.setItem('compare', JSON.stringify(compareList));
-      alert('Added to compare list!');
+      showNotification('Added to compare list!', 'success');
     } else {
-      alert('Already in compare list!');
+      showNotification('Already in compare list!', 'info');
     }
   };
 
@@ -233,10 +263,10 @@ dispatch(addToCart({test:'tt'}));
       
       await fetchProductData();
       setNewQuestion('');
-      alert('Question posted successfully!');
+      showNotification('Question posted successfully!', 'success');
     } catch (err) {
       console.error("Error posting question:", err);
-      alert('Failed to post question. Please try again.');
+      showNotification('Failed to post question. Please try again.', 'error');
     } finally {
       setQuestionSubmitting(false);
     }
@@ -276,11 +306,11 @@ dispatch(addToCart({test:'tt'}));
         await updateDoc(docRef, { askQuestion: updatedQuestions });
         await fetchProductData();
         setCommentText(prev => ({ ...prev, [questionId]: '' }));
-        alert('Answer posted successfully!');
+        showNotification('Answer posted successfully!', 'success');
       }
     } catch (err) {
       console.error("Error adding comment:", err);
-      alert('Failed to post answer.');
+      showNotification('Failed to post answer.', 'error');
     } finally {
       setCommentSubmitting(prev => ({ ...prev, [questionId]: false }));
     }
@@ -346,6 +376,23 @@ dispatch(addToCart({test:'tt'}));
 
   return (
     <div className='item-page-container fade-in'>
+      {/* Professional Notification Snackbar */}
+      <Snackbar 
+        open={notification.open} 
+        autoHideDuration={4000} 
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={notification.severity} 
+          variant="filled"
+          sx={{ width: '100%', borderRadius: 2, fontWeight: '500' }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
+
       {/* Breadcrumb Navigation */}
       <div className='breadcrumb mb-6 flex items-center text-sm text-gray-600 flex-wrap'>
         <button 
@@ -590,19 +637,19 @@ dispatch(addToCart({test:'tt'}));
 
           {/* Action Buttons */}
           <div className='action-buttons'>
-            <Button 
+            {/* <Button 
               className='buy-now-btn action-btn'
               startIcon={<CreditCardIcon />}
               onClick={handleBuyNow}
               disabled={!itemData.inStock}
             >
               BUY NOW
-            </Button>
+            </Button> */}
             
             <Button 
               className='add-cart-btn action-btn'
               startIcon={<AddShoppingCartIcon />}
-              onClick={handleAddToCart}
+              onClick={() => handleAddToCart(itemData)}
               disabled={!itemData.inStock}
             >
               ADD TO CART

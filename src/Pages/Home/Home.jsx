@@ -1,27 +1,25 @@
-
+// myapp\src\Pages\Home\Home.jsx
 import Ads from "./Ads";
 import Product from "./Product";
 
-
-const Home = ({paymentModelRef}) => {
-
+const Home = ({ paymentModelRef }) => {
   return (
     <div className="home-container">
       {/* Ads Banner */}
       <div className="ads-section">
-
         <Ads />
-
       </div>
       
-      {/* Product Sections with INVERTED display logic */}
-      {/* Mobile shows MORE products, Desktop shows FEWER */}
+      {/* Product Sections */}
+      {/* Each section fetches data independently. 
+         If data is low, Product.jsx will auto-fill it to look "full" 
+      */}
       
       <div className="product-section">
         <Product 
           title="Trending Products" 
           rowsCount={1} 
-          slidesPerView={2.5} // Base for mobile
+          slidesPerView={2.5} 
           key="trending"
         />
       </div>
@@ -30,7 +28,7 @@ const Home = ({paymentModelRef}) => {
         <Product 
           title="⚡ Flash Sale" 
           rowsCount={1} 
-          slidesPerView={2.8} // More on mobile
+          slidesPerView={2.8} 
           isFlashSale={true}
           key="flash"
         />
@@ -40,7 +38,7 @@ const Home = ({paymentModelRef}) => {
         <Product 
           title="Recommended For You" 
           rowsCount={2} 
-          slidesPerView={2.2} // Base for mobile
+          slidesPerView={2.2} 
           key="recommended"
         />
       </div>
@@ -49,7 +47,7 @@ const Home = ({paymentModelRef}) => {
         <Product 
           title="New Arrivals" 
           rowsCount={1} 
-          slidesPerView={2.5} // Base for mobile
+          slidesPerView={2.5} 
           key="new"
         />
       </div>
