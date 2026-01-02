@@ -323,17 +323,16 @@ const SearchPage = () => {
     return pages;
   };
 
-  const activeFiltersCount = 
-    filters.categories.length + 
-    (filters.priceRange.min || filters.priceRange.max ? 1 : 0) + 
-    (filters.availability !== "all" ? 1 : 0) + 
-    (filters.delivery !== "all" ? 1 : 0);
+const activeFiltersCount = 
+  (filters.categories?.length || 0) +  // Fix 1: Add ?. and || 0
+  (filters.priceRange?.min || filters.priceRange?.max ? 1 : 0) + 
+  (filters.availability !== "all" ? 1 : 0) + 
+  (filters.delivery !== "all" ? 1 : 0);
 
   return (
     <>
 
-    {console.log('කාර්ට් එකේ මොනවද බන් තියෙන්නේ ? ',userData.cart.length)}
-    
+
       <div className="search-page min-h-screen py-8 px-4">
         <div className="max-w-7xl mx-auto">
             <form onSubmit={handleSearch} className="search-form mb-8">

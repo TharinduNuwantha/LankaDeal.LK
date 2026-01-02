@@ -30,9 +30,9 @@ const Header = ({paymentModelRef}) => {
   (state) => state.user.user.cart
 );
 const cartLength = cart?.length ? cart.length : 0;
-const totalAmount = cart.reduce((total, item) => {
+const totalAmount = cart?.reduce((total, item) => {
     return total + (Number(item.price) * item.quantity);
-  }, 0);
+}, 0) || 0;
 
   const CartPrice = totalAmount.toLocaleString('en-US', {
     minimumFractionDigits: 2,
