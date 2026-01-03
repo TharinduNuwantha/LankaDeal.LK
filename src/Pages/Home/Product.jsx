@@ -1,6 +1,7 @@
 // myapp\src\Pages\Home\Product.jsx
 import React, { useRef, useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+// IMPORT UPDATED: added 'query' and 'limit'
+import { collection, getDocs, query, limit } from 'firebase/firestore';
 import { db } from '../../FireBase/firebase'; 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Grid, Pagination, Mousewheel, FreeMode, Navigation } from 'swiper/modules';
@@ -8,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { userSelecter } from '../../Store/ReduxSlice/userClise';
 import { addToCart } from '../../utils/AddToCart/addToCart';
 import { Snackbar, Alert } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 // Icons
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -25,9 +27,8 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 
 import './Styles/Product.css';
-import { Link } from 'react-router-dom';
 
-const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
+const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = false }) => {
   const swiperRef = useRef(null);
   
   // Redux & State
@@ -49,13 +50,8 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
     severity: 'success'
   });
 
-  // Helper to show notifications
   const showNotification = (message, severity = 'success') => {
-    setNotification({
-      open: true,
-      message,
-      severity
-    });
+    setNotification({ open: true, message, severity });
   };
 
   const handleCloseNotification = (event, reason) => {
@@ -63,56 +59,70 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
     setNotification({ ...notification, open: false });
   };
 
-  // --- 1. Fetch & Duplicate Data ---
+  // --- 1. Fetch & Duplicate Data (Optimized) ---
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const productsRef = collection(db, "category2", "Electronics", "products");
-        const querySnapshot = await getDocs(productsRef);
+        // Default to Electronics if no category provided
+        const targetCategory = categoryName || "Electronics"; 
+        const productsRef = collection(db, "category2", targetCategory, "products");
+        
+        // --- PERFORMANCE FIX: Limit to 20 items ---
+        // This stops the app from downloading thousands of items at once.
+        const q = query(productsRef, limit(20));
+        const querySnapshot = await getDocs(q);
         
         let fetchedData = querySnapshot.docs.map(doc => {
           const data = doc.data();
           return {
             id: doc.id,
             ...data,
+            // Safe Number Parsing
             priceNumeric: parseInt(data.price || 0),
             originalPriceNumeric: parseInt(data.originalPrice || 0),
-            discountNumeric: parseInt(data.discount ? data.discount.replace('%', '') : 0),
+            discountNumeric: parseInt(data.discount ? String(data.discount).replace('%', '') : 0),
             stockNumeric: parseInt(data.stockCount || 0),
             ratingNumeric: parseFloat(data.rating || 0),
             features: data.keywords || [],
+            // Ensure category path exists for navigation
+            categoryPath: data.categoryPath || `Category/${targetCategory}`
           };
         });
 
         if (isFlashSale) {
+          // Sort client side (fast because we only have 20 items)
           fetchedData = fetchedData.sort((a, b) => b.discountNumeric - a.discountNumeric);
         }
 
+        // --- INFINITE LOOP FIX: Safety Counter ---
         const TARGET_MIN_ITEMS = 12; 
         let finalData = [...fetchedData];
 
         if (finalData.length > 0 && finalData.length < TARGET_MIN_ITEMS) {
-          while (finalData.length < TARGET_MIN_ITEMS) {
+          let safetyCounter = 0;
+          // Stop after 20 iterations to prevent freezing
+          while (finalData.length < TARGET_MIN_ITEMS && safetyCounter < 20) {
             const clones = fetchedData.map((item, index) => ({
               ...item,
-              id: `${item.id}_clone_${finalData.length + index}`
+              id: `${item.id}_clone_${finalData.length + index}` // Unique IDs for clones
             }));
             finalData = [...finalData, ...clones];
+            safetyCounter++;
           }
         }
         
-        setProducts(finalData.slice(0, 20));
+        setProducts(finalData);
 
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error(`Error fetching products for ${categoryName}:`, error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, [title, isFlashSale]);
+  }, [categoryName, isFlashSale]);
 
   // --- Timer Logic ---
   useEffect(() => {
@@ -136,14 +146,20 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
   // --- Mouse Wheel Logic ---
   useEffect(() => {
     const handleWheel = (e) => {
+      // Safe selector
       if (swiperRef.current && isHovered && Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
         e.preventDefault();
         if (e.deltaY > 0) swiperRef.current.swiper.slideNext();
         else swiperRef.current.swiper.slidePrev();
       }
     };
-    const container = document.querySelector(`.premium-swiper-${title.replace(/\s/g, '')}`);
+    
+    // Create a safe CSS class name from the title
+    const cleanTitle = title.replace(/[^a-zA-Z0-9]/g, '');
+    const container = document.querySelector(`.premium-swiper-${cleanTitle}`);
+    
     if (container) container.addEventListener('wheel', handleWheel, { passive: false });
+    
     return () => {
       if (container) container.removeEventListener('wheel', handleWheel);
     };
@@ -151,53 +167,38 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
 
   const progressPercentage = products.length > 0 ? ((activeIndex + 1) / products.length) * 100 : 0;
 
-  // Real Add to Cart Logic
   const handleAddToCart = (product) => {
     if (!userData || !userData.uid) {
         showNotification("Please login first to add items to cart!", "warning");
         return;
     }
-    
-    // Default quantity is 1 for list view adds
-    const productWithQuantity = {
-        ...product,
-        quantity: 1 
-    };
-
+    const productWithQuantity = { ...product, quantity: 1 };
     addToCart(userData.uid, productWithQuantity, userData.cart || [], dispatch);
     showNotification(`Added ${product.title} to cart!`, "success");
-    
-    // Trigger local visual feedback
     setCartItems(prev => ({ ...prev, [product.id]: true }));
   };
 
   const getSlidesPerView = () => Number(slidesPerView);
+  const uniqueClassSuffix = title.replace(/[^a-zA-Z0-9]/g, '');
 
-  if (loading) return <div className="p-10 text-center text-gray-400">Loading {title}...</div>;
+  if (loading) return <div className="p-10 text-center text-gray-400">Loading...</div>;
   if (products.length === 0) return null;
 
   return (
     <section className="premium-product-section">
-      {/* Notification Snackbar */}
       <Snackbar 
         open={notification.open} 
         autoHideDuration={3000} 
         onClose={handleCloseNotification}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        sx={{ zIndex: 9999 }} // Ensure it appears on top
+        sx={{ zIndex: 9999 }} 
       >
-        <Alert 
-          onClose={handleCloseNotification} 
-          severity={notification.severity} 
-          variant="filled"
-          sx={{ width: '100%', borderRadius: 2, fontWeight: '500' }}
-        >
+        <Alert onClose={handleCloseNotification} severity={notification.severity} variant="filled">
           {notification.message}
         </Alert>
       </Snackbar>
 
       <div className="premium-swiper-container">
-        
         {/* Header */}
         <div className="section-header-premium">
           <div className="section-header-content">
@@ -225,7 +226,7 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
             <div className="section-tagline">
               {isFlashSale 
                 ? 'Limited time offers with exclusive discounts.' 
-                : 'Discover premium electronics directly from top categories'
+                : `Discover premium products in ${categoryName}`
               }
             </div>
           </div>
@@ -236,13 +237,13 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
               <span className="total-slides">/{products.length}</span>
             </div>
             <button 
-              className={`nav-btn-premium swiper-button-prev-custom-${title.replace(/\s/g, '')}`}
+              className={`nav-btn-premium swiper-button-prev-custom-${uniqueClassSuffix}`}
               onClick={() => swiperRef.current?.swiper.slidePrev()}
             >
               <ArrowBackIosNewIcon sx={{ fontSize: 16 }} />
             </button>
             <button 
-              className={`nav-btn-premium swiper-button-next-custom-${title.replace(/\s/g, '')}`}
+              className={`nav-btn-premium swiper-button-next-custom-${uniqueClassSuffix}`}
               onClick={() => swiperRef.current?.swiper.slideNext()}
             >
               <ArrowForwardIosIcon sx={{ fontSize: 16 }} />
@@ -256,20 +257,11 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
             <div className="timer-content">
               <div className="timer-label">Sale ends in</div>
               <div className="timer-display">
-                <div className="timer-unit">
-                  <span className="timer-value">{timer.hours.toString().padStart(2, '0')}</span>
-                  <span className="timer-label-small">HRS</span>
-                </div>
+                <div className="timer-unit"><span className="timer-value">{timer.hours.toString().padStart(2, '0')}</span><span className="timer-label-small">HRS</span></div>
                 <div className="timer-separator">:</div>
-                <div className="timer-unit">
-                  <span className="timer-value">{timer.minutes.toString().padStart(2, '0')}</span>
-                  <span className="timer-label-small">MIN</span>
-                </div>
+                <div className="timer-unit"><span className="timer-value">{timer.minutes.toString().padStart(2, '0')}</span><span className="timer-label-small">MIN</span></div>
                 <div className="timer-separator">:</div>
-                <div className="timer-unit">
-                  <span className="timer-value">{timer.seconds.toString().padStart(2, '0')}</span>
-                  <span className="timer-label-small">SEC</span>
-                </div>
+                <div className="timer-unit"><span className="timer-value">{timer.seconds.toString().padStart(2, '0')}</span><span className="timer-label-small">SEC</span></div>
               </div>
             </div>
             <div className="sale-progress">
@@ -299,22 +291,19 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
             mousewheel={{ forceToAxis: true, sensitivity: 0.8, releaseOnEdges: true }}
             freeMode={{ enabled: true, momentum: true }}
             navigation={{
-              nextEl: `.swiper-button-next-custom-${title.replace(/\s/g, '')}`,
-              prevEl: `.swiper-button-prev-custom-${title.replace(/\s/g, '')}`,
+              nextEl: `.swiper-button-next-custom-${uniqueClassSuffix}`,
+              prevEl: `.swiper-button-prev-custom-${uniqueClassSuffix}`,
             }}
             modules={[Grid, Pagination, Mousewheel, FreeMode, Navigation]}
-            className={`premium-swiper premium-swiper-${title.replace(/\s/g, '')}`}
+            className={`premium-swiper premium-swiper-${uniqueClassSuffix}`}
             onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
             breakpoints={{
-              320: { slidesPerView: 2.2, spaceBetween: 12, grid: { rows: Number(rowsCount), fill: 'row' } },
-              375: { slidesPerView: 2.4, spaceBetween: 12 },
-              480: { slidesPerView: 2.6, spaceBetween: 12 },
-              540: { slidesPerView: 2.8, spaceBetween: 14 },
-              768: { slidesPerView: Math.max(Number(slidesPerView) - 0.5, 2), spaceBetween: 16, grid: { rows: Number(rowsCount), fill: 'row' } },
-              900: { slidesPerView: Number(slidesPerView), spaceBetween: 20 },
-              1024: { slidesPerView: Math.max(Number(slidesPerView) - 0.5, 2), spaceBetween: 24 },
-              1280: { slidesPerView: Number(slidesPerView), spaceBetween: 28 },
-              1536: { slidesPerView: Number(slidesPerView), spaceBetween: 32 }
+              320: { slidesPerView: 1.5, spaceBetween: 12, grid: { rows: Number(rowsCount), fill: 'row' } },
+              480: { slidesPerView: 2.2, spaceBetween: 12 },
+              640: { slidesPerView: 2.5, spaceBetween: 14 },
+              768: { slidesPerView: 3, spaceBetween: 16, grid: { rows: Number(rowsCount), fill: 'row' } },
+              1024: { slidesPerView: Math.max(Number(slidesPerView) - 1, 3), spaceBetween: 24 },
+              1280: { slidesPerView: Number(slidesPerView), spaceBetween: 28 }
             }}
           >
             {products.map((product) => (
@@ -324,7 +313,7 @@ const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
                   wishlisted={wishlisted[product.id]}
                   inCart={cartItems[product.id]}
                   onWishlistToggle={() => setWishlisted(prev => ({ ...prev, [product.id]: !prev[product.id] }))}
-                  onAddToCart={() => handleAddToCart(product)} // Pass the handler
+                  onAddToCart={() => handleAddToCart(product)}
                   isFlashSale={isFlashSale}
                 />
               </SwiperSlide>
@@ -349,16 +338,18 @@ export default Product;
 const PremiumProductUnit = ({ product, wishlisted, inCart, onWishlistToggle, onAddToCart, isFlashSale }) => {
   const { 
    id, imageUrl, price, originalPrice, discount, title: productTitle, 
-    categoryPath, ratingNumeric, reviewCount, stockNumeric, features,
-    isFeatured, discountNumeric
+   categoryPath, ratingNumeric, reviewCount, stockNumeric, features,
+   isFeatured, discountNumeric
   } = product;
   
-console.log('මෙන්න යකෝ හෝම් පේජ් ඒඑ තියන ඩේටා : ',product)
-  // Ensure category string is safe
-  const displayCategory = categoryPath ? categoryPath.split('/')[1] : 'Electronics';
+  // Clean category path
+  const displayCategory = categoryPath ? categoryPath.split('/')[1] : 'General';
+  // Get real ID (remove clone suffix if present) for link
+  const realId = id.includes('_clone_') ? id.split('_clone_')[0] : id;
 
   return (
-    <Link to={`category/${displayCategory}/${id}`}>
+    // FIX: Absolute path (starts with /) to prevent URL stacking error
+    <Link to={`/category/${displayCategory}/${realId}`} style={{ textDecoration: 'none' }}>
     <div className="premium-product-card">
       <div className="premium-badges">
         <div className="premium-badge badge-new">NEW</div>
@@ -371,12 +362,24 @@ console.log('මෙන්න යකෝ හෝම් පේජ් ඒඑ ති�
       <div className="premium-quick-actions">
         <button 
           className="premium-action-btn wishlist-btn"
-          onClick={onWishlistToggle}
+          onClick={(e) => {
+            e.preventDefault(); // Stop Link navigation
+            e.stopPropagation();
+            onWishlistToggle();
+          }}
           data-active={wishlisted}
         >
           {wishlisted ? <FavoriteIcon sx={{ fontSize: 18, color: '#dc2626' }} /> : <FavoriteBorderIcon sx={{ fontSize: 18 }} />}
         </button>
-        <button className="premium-action-btn"><VisibilityIcon sx={{ fontSize: 18 }} /></button>
+        <button 
+            className="premium-action-btn"
+            onClick={(e) => {
+                e.preventDefault(); 
+                e.stopPropagation();
+            }}
+        >
+            <VisibilityIcon sx={{ fontSize: 18 }} />
+        </button>
       </div>
 
       <div className="premium-image-container">
@@ -436,7 +439,7 @@ console.log('මෙන්න යකෝ හෝම් පේජ් ඒඑ ති�
                 <span className="premium-original-price">Rs.{originalPrice}</span>
               </div>
               <div className="savings-badge">
-                 Save Rs.{ (product.originalPriceNumeric - product.priceNumeric).toLocaleString() }
+                  Save Rs.{ (product.originalPriceNumeric - product.priceNumeric).toLocaleString() }
               </div>
             </div>
             <div className="premium-discount-badge">-{discount} OFF</div>
@@ -454,12 +457,12 @@ console.log('මෙන්න යකෝ හෝම් පේජ් ඒඑ ති�
             </div>
           )}
 
-          {/* Updated Action Buttons: Removed Buy Now, Expanded Add to Cart */}
           <div className="premium-action-buttons">
             <button 
               className={`premium-cart-btn ${inCart ? 'in-cart' : ''}`}
               onClick={(e) => {
-                  e.stopPropagation(); // Prevents clicking the card if it's a link
+                  e.preventDefault(); 
+                  e.stopPropagation();
                   onAddToCart();
               }}
               style={{ width: '100%', justifyContent: 'center' }}
@@ -467,7 +470,6 @@ console.log('මෙන්න යකෝ හෝම් පේජ් ඒඑ ති�
               <ShoppingCartIcon sx={{ fontSize: 18 }} />
               <span className="btn-text">{inCart ? 'Added' : 'Add to Cart'}</span>
             </button>
-            {/* Buy Now Button Removed */}
           </div>
         </div>
       </div>
