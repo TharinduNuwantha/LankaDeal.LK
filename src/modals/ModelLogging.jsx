@@ -1,52 +1,27 @@
 import { Modal, IconButton, Button, Typography, Box, Snackbar, Alert } from '@mui/material';
-import { Close, AccountCircle, PersonAdd, Save } from '@mui/icons-material';
-import React, { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
+import { Close, AccountCircle, PersonAdd } from '@mui/icons-material';
+import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ModelLogging = forwardRef((prop, ref) => {
     const [open, setOpen] = useState(false);
-    const [saveToBrowser, setSaveToBrowser] = useState(false);
     const [showSaveMessage, setShowSaveMessage] = useState(false);
+    const navigate = useNavigate(); // Use the useNavigate hook
     
     const handleClose = () => setOpen(false);
-
-    // Check if user has previously saved preference
-    useEffect(() => {
-        const savedPref = localStorage.getItem('cartLoginReminder');
-        if (savedPref === 'true') {
-            setSaveToBrowser(true);
-        }
-    }, []);
-
-    // Handle save to browser toggle
-    const handleSaveToBrowser = () => {
-        const newValue = !saveToBrowser;
-        setSaveToBrowser(newValue);
-        
-        if (newValue) {
-            localStorage.setItem('cartLoginReminder', 'true');
-            setShowSaveMessage(true);
-        } else {
-            localStorage.removeItem('cartLoginReminder');
-        }
-    };
-
-    // Close the save message
-    const handleCloseMessage = () => {
-        setShowSaveMessage(false);
-    };
 
     // Handle login action
     const handleLogin = () => {
         console.log('Login clicked');
-        // Add your login logic here
         handleClose();
+        navigate('/login'); // Use navigate function (lowercase)
     };
 
     // Handle register action
     const handleRegister = () => {
         console.log('Register clicked');
-        // Add your register logic here
         handleClose();
+        navigate('/login'); // Use navigate function (lowercase)
     };
 
     useImperativeHandle(ref, () => ({
@@ -60,15 +35,23 @@ const ModelLogging = forwardRef((prop, ref) => {
                 onClose={handleClose}
                 className='flex items-center justify-center p-4'
             >
-                <Box className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-                    {/* Header */}
-                    <Box className="flex items-center justify-between p-6 border-b border-gray-100">
-                        <Typography variant="h5" className="font-bold text-gray-800">
-                            Please Sign In
+                <Box className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+                    {/* Header with gradient */}
+                    <Box 
+                        className="flex items-center justify-between p-6"
+                        sx={{
+                            background: 'linear-gradient(135deg, #b91c1c 0%, #dc2626 100%)'
+                        }}
+                    >
+                        <Typography 
+                            variant="h5" 
+                            className="font-bold text-white"
+                        >
+                            Welcome Back
                         </Typography>
                         <IconButton 
                             onClick={handleClose}
-                            className="text-gray-500 hover:text-gray-700"
+                            className="text-white hover:bg-white/20"
                             size="small"
                         >
                             <Close />
@@ -78,41 +61,32 @@ const ModelLogging = forwardRef((prop, ref) => {
                     {/* Content */}
                     <Box className="p-6">
                         <Box className="flex items-center justify-center mb-6">
-                            <Box className="bg-blue-50 p-4 rounded-full">
-                                <AccountCircle className="text-blue-500" style={{ fontSize: 60 }} />
+                            <Box 
+                                className="p-4 rounded-full"
+                                sx={{
+                                    background: 'linear-gradient(135deg, rgba(185, 28, 28, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)'
+                                }}
+                            >
+                                <AccountCircle 
+                                    className="text-gray-800" 
+                                    style={{ fontSize: 60 }} 
+                                />
                             </Box>
                         </Box>
                         
-                        <Typography variant="body1" className="text-center text-gray-600 mb-8">
-                            To add items to your cart, please log in or create an account. 
-                            This will allow you to save your cart and access it from any device.
+                        <Typography 
+                            variant="h6" 
+                            className="text-center text-gray-800 font-semibold mb-3"
+                        >
+                            Sign in to continue
                         </Typography>
-
-                        {/* Save to browser option */}
-                        <Box className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-6">
-                            <Box className="flex items-center">
-                                <Save className="text-gray-500 mr-3" />
-                                <Box>
-                                    <Typography variant="body2" className="font-medium text-gray-700">
-                                        Remember my preference
-                                    </Typography>
-                                    <Typography variant="caption" className="text-gray-500">
-                                        {saveToBrowser 
-                                            ? "Saved locally in your browser"
-                                            : "Clear browsing data will remove this"
-                                        }
-                                    </Typography>
-                                </Box>
-                            </Box>
-                            <Button
-                                variant={saveToBrowser ? "contained" : "outlined"}
-                                size="small"
-                                onClick={handleSaveToBrowser}
-                                className={`rounded-full ${saveToBrowser ? 'bg-green-500 hover:bg-green-600' : ''}`}
-                            >
-                                {saveToBrowser ? 'Saved' : 'Save'}
-                            </Button>
-                        </Box>
+                        
+                        <Typography 
+                            variant="body1" 
+                            className="text-center text-gray-600 mb-8"
+                        >
+                            Please sign in to your account to access your personalized experience and continue where you left off.
+                        </Typography>
 
                         {/* Action Buttons */}
                         <Box className="flex flex-col space-y-4">
@@ -121,10 +95,23 @@ const ModelLogging = forwardRef((prop, ref) => {
                                 fullWidth
                                 size="large"
                                 onClick={handleLogin}
-                                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 rounded-xl font-semibold shadow-md"
+                                sx={{
+                                    background: 'linear-gradient(135deg, #b91c1c 0%, #dc2626 100%)',
+                                    '&:hover': {
+                                        background: 'linear-gradient(135deg, #991b1b 0%, #b91c1c 100%)',
+                                        transform: 'translateY(-1px)',
+                                        boxShadow: '0 10px 25px rgba(185, 28, 28, 0.3)'
+                                    },
+                                    transition: 'all 0.3s ease',
+                                    padding: '14px',
+                                    borderRadius: '12px',
+                                    fontWeight: 600,
+                                    fontSize: '1rem',
+                                    textTransform: 'none'
+                                }}
                                 startIcon={<AccountCircle />}
                             >
-                                Log In to Your Account
+                                Sign In to Your Account
                             </Button>
                             
                             <Button
@@ -132,34 +119,89 @@ const ModelLogging = forwardRef((prop, ref) => {
                                 fullWidth
                                 size="large"
                                 onClick={handleRegister}
-                                className="border-2 border-blue-500 text-blue-500 hover:bg-blue-50 py-3 rounded-xl font-semibold"
+                                sx={{
+                                    border: '2px solid #b91c1c',
+                                    color: '#b91c1c',
+                                    '&:hover': {
+                                        background: 'rgba(185, 28, 28, 0.08)',
+                                        border: '2px solid #dc2626',
+                                        transform: 'translateY(-1px)'
+                                    },
+                                    transition: 'all 0.3s ease',
+                                    padding: '14px',
+                                    borderRadius: '12px',
+                                    fontWeight: 600,
+                                    fontSize: '1rem',
+                                    textTransform: 'none'
+                                }}
                                 startIcon={<PersonAdd />}
                             >
                                 Create New Account
                             </Button>
                         </Box>
 
+                        {/* Divider with text */}
+                        <Box className="flex items-center my-8">
+                            <Box className="flex-1 border-t border-gray-200"></Box>
+                            <Typography 
+                                variant="body2" 
+                                className="mx-4 text-gray-500"
+                            >
+                                Or continue with
+                            </Typography>
+                            <Box className="flex-1 border-t border-gray-200"></Box>
+                        </Box>
+
+                        {/* Social login options */}
+                        <Box className="grid grid-cols-2 gap-3 mb-6">
+                            <Button
+                                variant="outlined"
+                                fullWidth
+                                className="border-gray-300 hover:border-gray-400 text-gray-700 py-3 rounded-lg font-medium"
+                            >
+                                Google
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                fullWidth
+                                className="border-gray-300 hover:border-gray-400 text-gray-700 py-3 rounded-lg font-medium"
+                            >
+                                Apple
+                            </Button>
+                        </Box>
+
                         {/* Footer note */}
-                        <Typography variant="caption" className="text-center text-gray-500 block mt-6">
-                            By continuing, you agree to our Terms of Service and Privacy Policy
+                        <Typography 
+                            variant="caption" 
+                            className="text-center text-gray-500 block mt-8 pt-6 border-t border-gray-100"
+                        >
+                            By signing in, you agree to our Terms of Service and Privacy Policy.
+                            <br />
+                            Need help? <span className="text-[#b91c1c] cursor-pointer hover:underline">Contact Support</span>
                         </Typography>
                     </Box>
                 </Box>
             </Modal>
 
-            {/* Save confirmation message */}
+            {/* Simple message snackbar */}
             <Snackbar 
                 open={showSaveMessage} 
-                autoHideDuration={4000} 
-                onClose={handleCloseMessage}
+                autoHideDuration={3000} 
+                onClose={() => setShowSaveMessage(false)}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
                 <Alert 
-                    onClose={handleCloseMessage} 
-                    severity="info" 
-                    className="w-full"
+                    onClose={() => setShowSaveMessage(false)} 
+                    severity="info"
+                    sx={{
+                        background: '#b91c1c',
+                        color: 'white',
+                        '& .MuiAlert-icon': {
+                            color: 'white'
+                        }
+                    }}
                 >
-                    Preference saved locally. Clear browser data to reset.
+                    Session saved successfully
                 </Alert>
             </Snackbar>
         </>
