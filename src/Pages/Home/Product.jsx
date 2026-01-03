@@ -25,6 +25,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 
 import './Styles/Product.css';
+import { Link } from 'react-router-dom';
 
 const Product = ({ title, rowsCount, slidesPerView, isFlashSale = false }) => {
   const swiperRef = useRef(null);
@@ -347,15 +348,17 @@ export default Product;
 // Sub-Component: Product Card
 const PremiumProductUnit = ({ product, wishlisted, inCart, onWishlistToggle, onAddToCart, isFlashSale }) => {
   const { 
-    imageUrl, price, originalPrice, discount, title: productTitle, 
+   id, imageUrl, price, originalPrice, discount, title: productTitle, 
     categoryPath, ratingNumeric, reviewCount, stockNumeric, features,
     isFeatured, discountNumeric
   } = product;
-
+  
+console.log('මෙන්න යකෝ හෝම් පේජ් ඒඑ තියන ඩේටා : ',product)
   // Ensure category string is safe
   const displayCategory = categoryPath ? categoryPath.split('/')[1] : 'Electronics';
 
   return (
+    <Link to={`category/${displayCategory}/${id}`}>
     <div className="premium-product-card">
       <div className="premium-badges">
         <div className="premium-badge badge-new">NEW</div>
@@ -469,5 +472,6 @@ const PremiumProductUnit = ({ product, wishlisted, inCart, onWishlistToggle, onA
         </div>
       </div>
     </div>
+    </Link>
   );
 };
