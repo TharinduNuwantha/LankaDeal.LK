@@ -1,8 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch } from "react-redux";
-import { categorySelector } from "../../Store/ReduxSlice/categorySlice";
-import { Link, useLocation, useParams } from "react-router-dom";
-import { IconButton, Rating, Slider, Checkbox, FormControlLabel, Radio, RadioGroup } from "@mui/material";
+import { useNavigate, Link, useLocation, useParams } from "react-router-dom";
+import { IconButton, Rating, Slider, Checkbox, FormControlLabel, Radio, RadioGroup, Tooltip } from "@mui/material";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -22,24 +19,33 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import SearchIcon from '@mui/icons-material/Search';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import getDataFromSubCollection from '../../utils/dataFetch/getDataFromSubCollection';
 import Loarding from '../Loarding/Loarding';
 import extractCategoryFromPath from './catagorynameSpilier'
 import { addData } from '../../Store/ReduxSlice/categorySlice'
+import { userSelecter, wishlistSelecter } from '../../Store/ReduxSlice/userClise';
+import { toggleWishlist } from '../../utils/Wishlist/toggleWishlist';
+import { addToCart } from '../../utils/AddToCart/addToCart';
+import { toast } from 'react-toastify';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 const CategoryItem = () => {
   const location = useLocation();
-    const[categoryItemsData,setCategoryItemsData] = useState([])
- const dispatch = useDispatch();
-
+  const [categoryItemsData, setCategoryItemsData] = useState([])
+  const dispatch = useDispatch();
+  const userData = useSelector(userSelecter);
+  const currentWishlist = useSelector(wishlistSelecter);
 
 
   const { categoryId } = useParams();
 
-  
+
   const [viewMode, setViewMode] = useState('grid');
   const [filterOpen, setFilterOpen] = useState(false);
-  const [wishlisted, setWishlisted] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     priceRange: [0, 10000],
     ratings: [],
@@ -82,12 +88,12 @@ const CategoryItem = () => {
     return count;
   };
 
-  const FilterPopup = () => ( 
-    <div 
+  const FilterPopup = () => (
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center md:items-center"
       onClick={() => setFilterOpen(false)}
     >
-      <div 
+      <div
         className="bg-white w-full max-w-2xl md:max-w-lg max-h-[85vh] md:max-h-[80vh] rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col animate-slide-up md:animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -100,7 +106,7 @@ const CategoryItem = () => {
               <p className="text-gray-300 text-sm">Refine your product selection</p>
             </div>
           </div>
-          <button 
+          <button
             className="absolute top-6 right-6 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
             onClick={() => setFilterOpen(false)}
           >
@@ -133,8 +139,8 @@ const CategoryItem = () => {
                   key={option.value}
                   value={option.value}
                   control={
-                    <Radio 
-                      className="text-red-600" 
+                    <Radio
+                      className="text-red-600"
                       checkedIcon={<div className="w-5 h-5 rounded-full border-2 border-red-600 flex items-center justify-center"><div className="w-2.5 h-2.5 rounded-full bg-red-600"></div></div>}
                     />
                   }
@@ -281,7 +287,7 @@ const CategoryItem = () => {
                 {filters.ratings.map(rating => (
                   <span key={rating} className="bg-white border border-red-200 text-red-700 px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1">
                     {rating}+ Stars
-                    <button 
+                    <button
                       onClick={() => handleFilterChange('ratings', filters.ratings.filter(r => r !== rating))}
                       className="w-5 h-5 rounded-full bg-red-100 text-red-700 flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors"
                     >
@@ -292,7 +298,7 @@ const CategoryItem = () => {
                 {filters.inStock && (
                   <span className="bg-white border border-red-200 text-red-700 px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1">
                     In Stock
-                    <button 
+                    <button
                       onClick={() => handleFilterChange('inStock', false)}
                       className="w-5 h-5 rounded-full bg-red-100 text-red-700 flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors"
                     >
@@ -303,7 +309,7 @@ const CategoryItem = () => {
                 {filters.onSale && (
                   <span className="bg-white border border-red-200 text-red-700 px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1">
                     On Sale
-                    <button 
+                    <button
                       onClick={() => handleFilterChange('onSale', false)}
                       className="w-5 h-5 rounded-full bg-red-100 text-red-700 flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors"
                     >
@@ -314,7 +320,7 @@ const CategoryItem = () => {
                 {filters.fastDelivery && (
                   <span className="bg-white border border-red-200 text-red-700 px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1">
                     Fast Delivery
-                    <button 
+                    <button
                       onClick={() => handleFilterChange('fastDelivery', false)}
                       className="w-5 h-5 rounded-full bg-red-100 text-red-700 flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors"
                     >
@@ -329,13 +335,13 @@ const CategoryItem = () => {
 
         {/* Footer */}
         <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-3xl md:rounded-b-3xl flex gap-3">
-          <button 
+          <button
             className="flex-1 bg-white border border-gray-300 text-gray-700 font-bold py-3 px-6 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
             onClick={handleResetFilters}
           >
             Reset All
           </button>
-          <button 
+          <button
             className="flex-1 bg-gradient-to-r from-black to-gray-900 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 hover:shadow-xl"
             onClick={handleApplyFilters}
           >
@@ -347,15 +353,15 @@ const CategoryItem = () => {
   );
 
 
-  useEffect(()=>{
-    getDataFromSubCollection('category2',categoryId,categoryId,setCategoryItemsData,dispatch,addData);
-  },[])
+  useEffect(() => {
+    getDataFromSubCollection('category2', categoryId, categoryId, setCategoryItemsData, dispatch, addData);
+  }, [])
 
-  console.log('category Data ===> ',categoryItemsData);
-if(categoryItemsData.length ===0){
-  return <Loarding/>
-}
-  
+  console.log('category Data ===> ', categoryItemsData);
+  if (categoryItemsData.length === 0) {
+    return <Loarding />
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Breadcrumb & Header */}
@@ -376,11 +382,11 @@ if(categoryItemsData.length ===0){
                 <span className="text-yellow-500 ml-2">({categoryItemsData.length})</span>
               </h1>
               <p className="text-gray-300 max-w-2xl">
-                Explore our premium collection of {extractCategoryFromPath(categoryItemsData[0].categoryPath) || 'category'} products. 
+                Explore our premium collection of {extractCategoryFromPath(categoryItemsData[0].categoryPath) || 'category'} products.
                 Handpicked quality with competitive prices.
               </p>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
                 <div className="text-center">
@@ -407,6 +413,8 @@ if(categoryItemsData.length ===0){
               type="search"
               className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent shadow-sm transition-all duration-300"
               placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
@@ -443,18 +451,17 @@ if(categoryItemsData.length ===0){
         </div>
 
         {/* Products Grid/List */}
-        <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'flex flex-col'} gap-6`}>
+        <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'flex flex-col'} gap-8 md:gap-10`}>
           {categoryItemsData.map((product) => (
             <CategoryItemUnit
               key={product.id}
               {...product}
               viewMode={viewMode}
-              wishlisted={wishlisted[product.id]}
+              isWishlisted={currentWishlist?.some(item => item.id === product.id)}
               location={location}
-              onWishlistToggle={() => setWishlisted(prev => ({
-                ...prev,
-                [product.id]: !prev[product.id]
-              }))}
+              userData={userData}
+              wishlist={currentWishlist}
+              dispatch={dispatch}
             />
           ))}
         </div>
@@ -488,26 +495,66 @@ if(categoryItemsData.length ===0){
 
 export default CategoryItem;
 
-const CategoryItemUnit = ({ 
+const CategoryItemUnit = ({
   id,
-  imageUrl, 
-  title, 
-  price, 
-  originalPrice, 
-  discount, 
-  rating, 
+  imageUrl,
+  title,
+  price,
+  originalPrice,
+  discount,
+  rating,
   reviewCount,
   isNew,
   isFeatured,
   fastDelivery,
   inStock,
   viewMode,
-  wishlisted,
-  onWishlistToggle,
-  categoryPath='', 
-  location
-
+  isWishlisted,
+  categoryPath = '',
+  location,
+  userData,
+  wishlist,
+  dispatch
 }) => {
+  const navigate = useNavigate();
+
+  const handleWishlistToggle = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!userData || !userData.uid) {
+      toast.warning("Please login to manage wishlist");
+      return;
+    }
+
+    try {
+      const product = { id, imageUrl, title, price, originalPrice, discount, categoryPath };
+      const isAdded = await toggleWishlist(userData.uid, product, wishlist, dispatch);
+      toast.success(isAdded ? "Added to wishlist" : "Removed from wishlist", {
+        position: "bottom-center",
+        style: { borderRadius: '12px', background: '#111827', color: '#fff' }
+      });
+    } catch (error) {
+      toast.error("Failed to update wishlist");
+    }
+  };
+
+  const handleAddToCartClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!userData || !userData.uid) {
+      toast.warning("Please login to add items to cart!");
+      return;
+    }
+
+    const product = { id, imageUrl, title, price, originalPrice, discount, categoryPath, fastDelivery, inStock, quantity: 1 };
+    addToCart(userData.uid, product, userData.cart || [], dispatch);
+    toast.success(`Added ${title.substring(0, 20)}... to cart!`, {
+      position: "bottom-center"
+    });
+  };
+
   const renderStars = () => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -532,221 +579,227 @@ const CategoryItemUnit = ({
   if (viewMode === 'list') {
     return (
       <Link to={`${location.pathname}/${id}`}>
-        {console.log('mamayi bolaw yakaaaaaa',id)}
-      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-red-200 transition-all duration-500 hover:shadow-2xl group">
-        <div className="flex flex-col md:flex-row gap-6 p-6">
-          {/* Image Container */}
-          <div className="relative md:w-64 md:h-64 w-full h-56 overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-gray-100">
-            {/* Badges */}
-            <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-              {isNew && (
-                <span className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                  NEW
-                </span>
-              )}
-              {isFeatured && (
-                <span className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                  FEATURED
-                </span>
-              )}
-              {discount > 20 && (
-                <span className="bg-gradient-to-r from-black to-gray-900 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                  -{discount}%
-                </span>
-              )}
-            </div>
-
-            {/* Quick Actions */}
-            <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button
-                className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-110"
-                onClick={onWishlistToggle}
-              >
-                {wishlisted ? <FavoriteIcon className="text-red-600" /> : <FavoriteBorderIcon />}
-              </button>
-              <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-110">
-                <VisibilityIcon />
-              </button>
-            </div>
-
-            {/* Image */}
-            <img 
-              src={imageUrl} 
-              alt={title}
-              className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700"
-            />
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 flex flex-col">
-            {/* Category & Stock */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <LocalShippingIcon className="text-sm" />
-                <span>{extractCategoryFromPath(categoryPath)}</span>
-              </div>
-              {!inStock && (
-                <span className="bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
-                  Out of Stock
-                </span>
-              )}
-            </div>
-
-            {/* Title */}
-            <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors">
-              {title}
-            </h3>
-
-            {/* Rating */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center">
-                {renderStars()}
-              </div>
-              <span className="text-sm text-gray-600 font-semibold">{rating}</span>
-              <span className="text-sm text-gray-500">({reviewCount} reviews)</span>
-            </div>
-
-            {/* Features */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {fastDelivery && (
-                <span className="flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-sm">
-                  <CheckCircleIcon className="text-sm" />
-                  Fast Delivery
-                </span>
-              )}
-              <span className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-sm">1 Year Warranty</span>
-              <span className="bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-sm">Free Shipping</span>
-            </div>
-
-            {/* Price & Actions */}
-            <div className="mt-auto flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="text-3xl font-bold text-gray-900">Rs.{price.toLocaleString()}</span>
-                  <span className="text-lg text-gray-500 line-through">Rs.{originalPrice.toLocaleString()}</span>
-                  <span className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1 rounded-full text-sm font-bold">
-                    Save {discount}%
+        {console.log('mamayi bolaw yakaaaaaa', id)}
+        <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-red-200 transition-all duration-500 hover:shadow-2xl group">
+          <div className="flex flex-col md:flex-row gap-6 p-6">
+            {/* Image Container */}
+            <div className="relative md:w-64 md:h-64 w-full h-56 overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-gray-100">
+              {/* Badges */}
+              <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+                {isNew && (
+                  <span className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                    NEW
                   </span>
-                </div>
-                <p className="text-sm text-gray-500">EMI starts at Rs.{Math.round(price/12).toLocaleString()}/month</p>
+                )}
+                {isFeatured && (
+                  <span className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                    FEATURED
+                  </span>
+                )}
+                {discount > 20 && (
+                  <span className="bg-gradient-to-r from-black to-gray-900 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                    -{discount}%
+                  </span>
+                )}
               </div>
-              
-              <div className="flex items-center gap-3">
-                <button className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                  <ShoppingCartIcon />
-                  <span className="font-semibold">Add to Cart</span>
+
+              {/* Quick Actions */}
+              <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button
+                  className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-110"
+                  onClick={handleWishlistToggle}
+                >
+                  {isWishlisted ? <FavoriteIcon className="text-red-600" /> : <FavoriteBorderIcon />}
+                </button>
+                <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-110">
+                  <VisibilityIcon />
                 </button>
               </div>
+
+              {/* Image */}
+              <img
+                src={imageUrl}
+                alt={title}
+                className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700"
+              />
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 flex flex-col">
+              {/* Category & Stock */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <LocalShippingIcon className="text-sm" />
+                  <span>{extractCategoryFromPath(categoryPath)}</span>
+                </div>
+                {!inStock && (
+                  <span className="bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+                    Out of Stock
+                  </span>
+                )}
+              </div>
+
+              {/* Title */}
+              <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors">
+                {title}
+              </h3>
+
+              {/* Rating */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center">
+                  {renderStars()}
+                </div>
+                <span className="text-sm text-gray-600 font-semibold">{rating}</span>
+                <span className="text-sm text-gray-500">({reviewCount} reviews)</span>
+              </div>
+
+              {/* Features */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                {fastDelivery && (
+                  <span className="flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-sm">
+                    <CheckCircleIcon className="text-sm" />
+                    Fast Delivery
+                  </span>
+                )}
+                <span className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-sm">1 Year Warranty</span>
+                <span className="bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-sm">Free Shipping</span>
+              </div>
+
+              {/* Price & Actions */}
+              <div className="mt-auto flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-1">
+                    <span className="text-3xl font-bold text-gray-900">Rs.{price.toLocaleString()}</span>
+                    <span className="text-lg text-gray-500 line-through">Rs.{originalPrice.toLocaleString()}</span>
+                    <span className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1 rounded-full text-sm font-bold">
+                      Save {discount}%
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500">EMI starts at Rs.{Math.round(price / 12).toLocaleString()}/month</p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    onClick={handleAddToCartClick}
+                  >
+                    <ShoppingCartIcon />
+                    <span className="font-semibold">Add to Cart</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div></Link>
+        </div></Link>
     );
   }
 
   // Grid View
   return (
-       <Link to={`${location.pathname}/${id}`}>
-    <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-transparent transition-all duration-500 hover:shadow-2xl group">
-      {/* Image Container */}
-      <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-        {/* Badges */}
-        <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-          {isNew && (
-            <span className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-              NEW
-            </span>
-          )}
-          {isFeatured && (
-            <span className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-              FEATURED
-            </span>
-          )}
-          {discount > 20 && (
-            <span className="bg-gradient-to-r from-black to-gray-900 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-              -{discount}%
-            </span>
-          )}
+    <Link to={`${location.pathname}/${id}`}>
+      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-transparent transition-all duration-500 hover:shadow-2xl group">
+        {/* Image Container */}
+        <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+          {/* Badges */}
+          <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+            {isNew && (
+              <span className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                NEW
+              </span>
+            )}
+            {isFeatured && (
+              <span className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                FEATURED
+              </span>
+            )}
+            {discount > 20 && (
+              <span className="bg-gradient-to-r from-black to-gray-900 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                -{discount}%
+              </span>
+            )}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button
+              className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-110"
+              onClick={handleWishlistToggle}
+            >
+              {isWishlisted ? <FavoriteIcon className="text-red-600" /> : <FavoriteBorderIcon />}
+            </button>
+            <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-110">
+              <VisibilityIcon />
+            </button>
+          </div>
+
+          {/* Image */}
+          <img
+            src={imageUrl}
+            alt={title}
+            className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-700"
+          />
+
+          {/* Gradient Border Effect */}
+          <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-gradient-to-r group-hover:from-red-600 group-hover:via-yellow-500 group-hover:to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        {/* Content */}
+        <div className="p-5">
+          {/* Category */}
+          <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
+            <LocalShippingIcon className="text-sm" />
+
+            <span>{extractCategoryFromPath(categoryPath)}</span>
+            {!inStock && (
+              <span className="ml-auto bg-red-50 text-red-700 px-2 py-1 rounded text-xs font-semibold">
+                Out of Stock
+              </span>
+            )}
+          </div>
+
+          {/* Title */}
+          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-red-700 transition-colors">
+            {title}
+          </h3>
+
+          {/* Rating */}
+          <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center">
+              {renderStars()}
+            </div>
+            <span className="text-sm text-gray-600 font-semibold">{rating}</span>
+            <span className="text-sm text-gray-500">({reviewCount})</span>
+          </div>
+
+          {/* Features */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {fastDelivery && (
+              <span className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-full text-xs">
+                <CheckCircleIcon className="text-xs" />
+                Fast Delivery
+              </span>
+            )}
+            <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs">Warranty</span>
+          </div>
+
+          {/* Price */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-2xl font-bold text-gray-900">Rs.{price.toLocaleString()}</span>
+              <span className="text-base text-gray-500 line-through">Rs.{originalPrice.toLocaleString()}</span>
+            </div>
+            <p className="text-xs text-gray-500">EMI Rs.{Math.round(price / 12).toLocaleString()}/mo</p>
+          </div>
+
+          {/* Action Button */}
           <button
-            className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-110"
-            onClick={onWishlistToggle}
+            className="w-full bg-gradient-to-r from-black to-gray-900 text-white py-3 rounded-xl font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center justify-center gap-2"
+            onClick={handleAddToCartClick}
           >
-            {wishlisted ? <FavoriteIcon className="text-red-600" /> : <FavoriteBorderIcon />}
-          </button>
-          <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-110">
-            <VisibilityIcon />
+            <ShoppingCartIcon />
+            Add to Cart
           </button>
         </div>
-
-        {/* Image */}
-        <img 
-          src={imageUrl} 
-          alt={title}
-          className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-700"
-        />
-
-        {/* Gradient Border Effect */}
-        <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-gradient-to-r group-hover:from-red-600 group-hover:via-yellow-500 group-hover:to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      </div>
-
-      {/* Content */}
-      <div className="p-5">
-        {/* Category */}
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-          <LocalShippingIcon className="text-sm" />
-          
-          <span>{extractCategoryFromPath(categoryPath)}</span>
-          {!inStock && (
-            <span className="ml-auto bg-red-50 text-red-700 px-2 py-1 rounded text-xs font-semibold">
-              Out of Stock
-            </span>
-          )}
-        </div>
-
-        {/* Title */}
-        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-red-700 transition-colors">
-          {title}
-        </h3>
-
-        {/* Rating */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex items-center">
-            {renderStars()}
-          </div>
-          <span className="text-sm text-gray-600 font-semibold">{rating}</span>
-          <span className="text-sm text-gray-500">({reviewCount})</span>
-        </div>
-
-        {/* Features */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {fastDelivery && (
-            <span className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-full text-xs">
-              <CheckCircleIcon className="text-xs" />
-              Fast Delivery
-            </span>
-          )}
-          <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs">Warranty</span>
-        </div>
-
-        {/* Price */}
-        <div className="mb-4">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-2xl font-bold text-gray-900">Rs.{price.toLocaleString()}</span>
-            <span className="text-base text-gray-500 line-through">Rs.{originalPrice.toLocaleString()}</span>
-          </div>
-          <p className="text-xs text-gray-500">EMI Rs.{Math.round(price/12).toLocaleString()}/mo</p>
-        </div>
-
-        {/* Action Button */}
-        <button className="w-full bg-gradient-to-r from-black to-gray-900 text-white py-3 rounded-xl font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center justify-center gap-2">
-          <ShoppingCartIcon />
-          Add to Cart
-        </button>
-      </div>
-    </div></Link>
+      </div></Link>
   );
 };

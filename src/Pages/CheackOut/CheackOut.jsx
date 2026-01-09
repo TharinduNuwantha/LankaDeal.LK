@@ -3,12 +3,14 @@ import {
   MapPin, CreditCard, Truck, Package, CheckCircle,
   Edit2, Plus, ChevronRight, Wallet, Building2,
   Smartphone, Mail, User, Home, AlertCircle, Trash2,
-  Upload, X
+  Upload, X, Heart
 } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { arrayUnion, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import db from '../../FireBase/firebase';
-import { userSelecter } from '../../Store/ReduxSlice/userClise';
+import { userSelecter, wishlistSelecter } from '../../Store/ReduxSlice/userClise';
+import { toggleWishlist } from '../../utils/Wishlist/toggleWishlist';
+import { toast } from 'react-toastify';
 
 // 1. Import useAuth from App (adjust the path ../../App if your folder structure differs)
 import { useAuth } from '../../App';
@@ -17,7 +19,8 @@ const PlaceOrderPage = () => {
 
   // 2. Get userId from the context created in App.jsx
   const { userId } = useAuth();
-
+  const dispatch = useDispatch();
+  const wishlist = useSelector(wishlistSelecter);
 
   const cart = useSelector(state => state.user.user?.cart || []);
   const userData = useSelector(userSelecter);
@@ -229,6 +232,35 @@ const PlaceOrderPage = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleSaveToWishlist = async (product) => {
+    if (!userId) {
+      toast.warning("Please login to save items!");
+      return;
+    }
+
+    try {
+      const isAdded = await toggleWishlist(userId, product, wishlist, dispatch);
+
+      // The state might not have updated yet in this tick if we use 'wishlist.length' directly from the store
+      // but toggleWishlist returns if it was added or removed.
+      // To get the absolute current count, we can do a quick calculation
+      const newCount = isAdded ? wishlist.length + 1 : wishlist.length - 1;
+
+      toast.success(isAdded ? `Saved to Watchlist! (${newCount} items total)` : `Removed from Watchlist!`, {
+        position: "bottom-center",
+        icon: isAdded ? <Heart className="text-red-500 fill-red-500" /> : <Heart className="text-gray-400" />,
+        style: { borderRadius: '12px', background: '#ffffff', color: '#1f2937', border: '1px solid #e5e7eb' }
+      });
+
+      // If added to watchlist, remove from current order items (Save for Later behavior)
+      if (isAdded) {
+        handleRemoveItem(product.id);
+      }
+    } catch (error) {
+      toast.error("Failed to update watchlist");
+    }
   };
 
   if (orderPlaced) {
@@ -467,8 +499,8 @@ const PlaceOrderPage = () => {
                       key={option.id}
                       onClick={() => setSelectedShipping(option.id)}
                       className={`w-full text-left p-5 rounded-xl border-2 transition-all ${isSelected
-                          ? 'border-[#dc2626] bg-gradient-to-r from-[#fef2f2] to-[#fee2e2] shadow-lg'
-                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                        ? 'border-[#dc2626] bg-gradient-to-r from-[#fef2f2] to-[#fee2e2] shadow-lg'
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
                         }`}
                     >
                       <div className="flex items-center justify-between">
@@ -525,8 +557,8 @@ const PlaceOrderPage = () => {
                       key={method.id}
                       onClick={() => setSelectedPayment(method.id)}
                       className={`w-full text-left p-5 rounded-xl border-2 transition-all ${isSelected
-                          ? 'border-[#dc2626] bg-gradient-to-r from-[#fef2f2] to-[#fee2e2] shadow-lg'
-                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                        ? 'border-[#dc2626] bg-gradient-to-r from-[#fef2f2] to-[#fee2e2] shadow-lg'
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
                         }`}
                     >
                       <div className="flex items-center justify-between">
@@ -736,13 +768,25 @@ const PlaceOrderPage = () => {
                             LKR {(item.price * item.quantity).toLocaleString()}
                           </p>
                         </div>
-                        <button
-                          onClick={() => handleRemoveItem(item.id)}
-                          className="absolute top-2 right-2 w-7 h-7 bg-red-100 text-[#dc2626] rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-[#dc2626] hover:text-white transition-all"
-                          title="Remove item"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <button
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="w-8 h-8 bg-red-100 text-[#dc2626] rounded-lg flex items-center justify-center hover:bg-[#dc2626] hover:text-white transition-all shadow-sm"
+                            title="Remove item"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleSaveToWishlist(item)}
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all shadow-sm ${wishlist.some(w => w.id === item.id)
+                              ? 'bg-red-500 text-white'
+                              : 'bg-white text-gray-400 hover:text-red-500'
+                              }`}
+                            title="Save to Watchlist"
+                          >
+                            <Heart className={`w-4 h-4 ${wishlist.some(w => w.id === item.id) ? 'fill-white' : ''}`} />
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}
