@@ -12,20 +12,20 @@ import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 
 const adsElement = [
   {
-    imageUrl: 'https://cdn.pixabay.com/photo/2023/08/08/15/15/strawberries-8177601_1280.jpg',
+    imageUrl: '/banners/summer_sale.png',
     title: 'Summer Sale',
     subtitle: 'Up to 70% OFF'
   },
   {
-    imageUrl: 'https://cdn.pixabay.com/photo/2017/11/29/13/28/a-discount-2986181_1280.jpg',
+    imageUrl: '/banners/new_arrivals.png',
     title: 'New Arrivals',
     subtitle: 'Latest Collection'
   },
   {
-    imageUrl: 'https://cdn.pixabay.com/photo/2016/03/02/20/13/grocery-1232944_1280.jpg',
+    imageUrl: '/banners/free_shipping.png',
     title: 'Free Shipping',
     subtitle: 'On orders over $50'
-  },
+  }
 ];
 
 const Ads = () => {
@@ -51,9 +51,9 @@ const Ads = () => {
             delay: 3000,
             disableOnInteraction: false,
           }}
-          pagination={{ 
+          pagination={{
             clickable: true,
-            dynamicBullets: true 
+            dynamicBullets: true
           }}
           navigation
           modules={[Autoplay, Pagination, Navigation]}
@@ -89,10 +89,10 @@ const Ads = () => {
           </div>
         </Swiper>
       </div>
-      
+
       {/* Product Section - Displayed below the banner */}
       <div className="mt-8">
-        <Product title="Trending Products" rowsCount={1} slidesPerView={3}/>
+        <Product title="Trending Products" rowsCount={1} slidesPerView={3} />
       </div>
     </div>
   );
