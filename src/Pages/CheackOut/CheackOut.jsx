@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  MapPin, CreditCard, Truck, Package, CheckCircle, 
-  Edit2, Plus, ChevronRight, Wallet, Building2, 
+import {
+  MapPin, CreditCard, Truck, Package, CheckCircle,
+  Edit2, Plus, ChevronRight, Wallet, Building2,
   Smartphone, Mail, User, Home, AlertCircle, Trash2,
   Upload, X
 } from 'lucide-react';
@@ -15,14 +15,13 @@ import { useAuth } from '../../App';
 
 const PlaceOrderPage = () => {
 
-    // 2. Get userId from the context created in App.jsx
-    const { userId } = useAuth();
-       
-        
-   const cart = useSelector(state => state.user.user?.cart || []);
-   
-    
-    
+  // 2. Get userId from the context created in App.jsx
+  const { userId } = useAuth();
+
+
+  const cart = useSelector(state => state.user.user?.cart || []);
+  const userData = useSelector(userSelecter);
+
   const [orderItems, setOrderItems] = useState(cart);
 
   useEffect(() => {
@@ -32,15 +31,31 @@ const PlaceOrderPage = () => {
   }, [cart]);
 
   const [shippingAddress, setShippingAddress] = useState({
-    fullName: 'John Doe',
-    phone: '+94 77 123 4567',
-    email: 'john.doe@example.com',
-    addressLine1: '123 Main Street',
-    addressLine2: 'Apartment 4B',
-    city: 'Colombo',
-    postalCode: '00100',
+    fullName: '',
+    phone: '',
+    email: '',
+    addressLine1: '',
+    addressLine2: '',
+    city: '',
+    postalCode: '',
     country: 'Sri Lanka'
   });
+
+  // Sync shipping address with user data from DB
+  useEffect(() => {
+    if (userData && userData.name && userData.name !== 'default' && userData.name !== 'no-user') {
+      setShippingAddress({
+        fullName: userData.name || '',
+        phone: userData.phoneNumber || '',
+        email: userData.email || '',
+        addressLine1: userData.address || '',
+        addressLine2: userData.district ? `${userData.district}, ${userData.province || ''}` : '',
+        city: userData.city || '',
+        postalCode: userData.zip || '',
+        country: userData.country || 'Sri Lanka'
+      });
+    }
+  }, [userData]);
 
   const [selectedShipping, setSelectedShipping] = useState('standard');
   const [selectedPayment, setSelectedPayment] = useState('cod');
@@ -142,71 +157,71 @@ const PlaceOrderPage = () => {
     setBankSlipPreview(null);
   };
 
-const handlePlaceOrder = () => {
-  if (!userId) {
-    alert("User not logged in. Please login again.");
-    return;
-  }
-
-  if (orderItems.length === 0) {
-    alert('Your order is empty. Please add items to continue.');
-    return;
-  }
-
-  if (!selectedShipping || !selectedPayment) {
-    alert('Please select shipping and payment method');
-    return;
-  }
-
-  if (selectedPayment === 'card') {
-    if (!cardDetails?.cardNumber || !cardDetails?.cardName || !cardDetails?.expiryDate || !cardDetails?.cvv) {
-      alert('Please fill in all card details');
+  const handlePlaceOrder = () => {
+    if (!userId) {
+      alert("User not logged in. Please login again.");
       return;
     }
-  }
 
-  if (selectedPayment === 'bank' && !bankSlip) {
-    alert('Please upload your bank transfer slip');
-    return;
-  }
+    if (orderItems.length === 0) {
+      alert('Your order is empty. Please add items to continue.');
+      return;
+    }
 
-  const newOrder = {
-    items: orderItems,
-    shippingAddress,
-    shippingMethod: selectedShipping,
-    paymentMethod: selectedPayment,
-    cardDetails: selectedPayment === 'card' ? cardDetails : null,
-    bankSlip: selectedPayment === 'bank' ? bankSlip : null,
-    total,
-    createdAt: new Date(),
-    status: 'pending'
+    if (!selectedShipping || !selectedPayment) {
+      alert('Please select shipping and payment method');
+      return;
+    }
+
+    if (selectedPayment === 'card') {
+      if (!cardDetails?.cardNumber || !cardDetails?.cardName || !cardDetails?.expiryDate || !cardDetails?.cvv) {
+        alert('Please fill in all card details');
+        return;
+      }
+    }
+
+    if (selectedPayment === 'bank' && !bankSlip) {
+      alert('Please upload your bank transfer slip');
+      return;
+    }
+
+    const newOrder = {
+      items: orderItems,
+      shippingAddress,
+      shippingMethod: selectedShipping,
+      paymentMethod: selectedPayment,
+      cardDetails: selectedPayment === 'card' ? cardDetails : null,
+      bankSlip: selectedPayment === 'bank' ? bankSlip : null,
+      total,
+      createdAt: new Date(),
+      status: 'pending'
+    };
+
+    const userRef = doc(db, "users", userId);
+
+    getDoc(userRef)
+      .then((userSnap) => {
+        if (!userSnap.exists()) {
+          throw new Error("User not found");
+        }
+
+        const userData = userSnap.data();
+
+        if (!userData.orderData) {
+          return updateDoc(userRef, { orderData: [newOrder] });
+        } else {
+          return updateDoc(userRef, { orderData: arrayUnion(newOrder) });
+        }
+      })
+      .then(() => {
+        console.log("Order added successfully");
+        setOrderPlaced(true); // ✅ move here
+      })
+      .catch((error) => {
+        console.error("Error adding order:", error);
+        alert("Failed to place order");
+      });
   };
-
-  const userRef = doc(db, "users", userId);
-
-  getDoc(userRef)
-    .then((userSnap) => {
-      if (!userSnap.exists()) {
-        throw new Error("User not found");
-      }
-
-      const userData = userSnap.data();
-
-      if (!userData.orderData) {
-        return updateDoc(userRef, { orderData: [newOrder] });
-      } else {
-        return updateDoc(userRef, { orderData: arrayUnion(newOrder) });
-      }
-    })
-    .then(() => {
-      console.log("Order added successfully");
-      setOrderPlaced(true); // ✅ move here
-    })
-    .catch((error) => {
-      console.error("Error adding order:", error);
-      alert("Failed to place order");
-    });
-};
 
 
   const handleAddressChange = (field, value) => {
@@ -451,17 +466,15 @@ const handlePlaceOrder = () => {
                     <button
                       key={option.id}
                       onClick={() => setSelectedShipping(option.id)}
-                      className={`w-full text-left p-5 rounded-xl border-2 transition-all ${
-                        isSelected
+                      className={`w-full text-left p-5 rounded-xl border-2 transition-all ${isSelected
                           ? 'border-[#dc2626] bg-gradient-to-r from-[#fef2f2] to-[#fee2e2] shadow-lg'
                           : 'border-gray-200 hover:border-gray-300 bg-white'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                            isSelected ? 'bg-gradient-to-br from-[#dc2626] to-[#b91c1c] text-white' : 'bg-gray-100 text-gray-600'
-                          }`}>
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isSelected ? 'bg-gradient-to-br from-[#dc2626] to-[#b91c1c] text-white' : 'bg-gray-100 text-gray-600'
+                            }`}>
                             <Icon className="w-6 h-6" />
                           </div>
                           <div>
@@ -511,17 +524,15 @@ const handlePlaceOrder = () => {
                     <button
                       key={method.id}
                       onClick={() => setSelectedPayment(method.id)}
-                      className={`w-full text-left p-5 rounded-xl border-2 transition-all ${
-                        isSelected
+                      className={`w-full text-left p-5 rounded-xl border-2 transition-all ${isSelected
                           ? 'border-[#dc2626] bg-gradient-to-r from-[#fef2f2] to-[#fee2e2] shadow-lg'
                           : 'border-gray-200 hover:border-gray-300 bg-white'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                            isSelected ? 'bg-gradient-to-br from-[#dc2626] to-[#b91c1c] text-white' : 'bg-gray-100 text-gray-600'
-                          }`}>
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isSelected ? 'bg-gradient-to-br from-[#dc2626] to-[#b91c1c] text-white' : 'bg-gray-100 text-gray-600'
+                            }`}>
                             <Icon className="w-6 h-6" />
                           </div>
                           <div>
@@ -576,7 +587,7 @@ const handlePlaceOrder = () => {
                           className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#dc2626] focus:outline-none transition-colors"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                           Cardholder Name
@@ -604,7 +615,7 @@ const handlePlaceOrder = () => {
                             className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#dc2626] focus:outline-none transition-colors"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
                             CVV
@@ -630,7 +641,7 @@ const handlePlaceOrder = () => {
                       <Building2 className="w-5 h-5 text-[#dc2626]" />
                       Upload Bank Transfer Slip
                     </h4>
-                    
+
                     <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
                       <p className="text-sm text-blue-800 font-semibold mb-2">Bank Details:</p>
                       <p className="text-xs text-blue-700 mb-1">Bank: Commercial Bank</p>
