@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Ads from "./Ads";
 import Product from "./Product";
+import { SkeletonSection } from "./Loader";
 
 // --- Lazy Loading Wrapper ---
 // This component prevents the API call until the section is visible on screen
@@ -18,7 +19,7 @@ const LazySection = ({ children }) => {
           observer.disconnect(); // Stop observing once loaded
         }
       },
-      { rootMargin: '100px' } 
+      { rootMargin: '100px' }
     );
 
     if (elementRef.current) {
@@ -31,18 +32,7 @@ const LazySection = ({ children }) => {
   return (
     // Min-height prevents layout shift (jumping) when loading
     <div ref={elementRef} style={{ minHeight: '350px' }}>
-      {isVisible ? children : (
-        <div style={{ 
-          height: '350px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          color: '#9ca3af',
-          background: '#fff' 
-        }}>
-          Loading Products...
-        </div>
-      )}
+      {isVisible ? children : <SkeletonSection />}
     </div>
   );
 };
@@ -50,33 +40,33 @@ const LazySection = ({ children }) => {
 const Home = () => {
   return (
     <div className="home-container" style={{ backgroundColor: '#f9fafb', minHeight: '100vh' }}>
-      
+
       {/* 1. Ads Banner - Load Immediately */}
       <div className="ads-section mb-8">
         <Ads />
       </div>
-      
+
       {/* 2. Flash Sale - Load Immediately (Top of page) */}
       <div className="product-section flash-sale-section mb-12">
-        <Product 
-          title="⚡ Flash Sale" 
-          categoryName="Electronics" 
-          rowsCount={1} 
-          slidesPerView={4} 
+        <Product
+          title="⚡ Flash Sale"
+          categoryName="Electronics"
+          rowsCount={1}
+          slidesPerView={4}
           isFlashSale={true}
         />
       </div>
-      
+
       {/* --- LAZY LOAD SECTIONS BELOW --- */}
-      
+
       {/* Fashion */}
       <div className="product-section mb-12">
         <LazySection>
-          <Product 
-            title="Trendy Fashion" 
+          <Product
+            title="Trendy Fashion"
             categoryName="Fashion_and_Clothing"
-            rowsCount={1} 
-            slidesPerView={4} 
+            rowsCount={1}
+            slidesPerView={4}
           />
         </LazySection>
       </div>
@@ -84,11 +74,11 @@ const Home = () => {
       {/* Tech */}
       <div className="product-section mb-12">
         <LazySection>
-          <Product 
-            title="Tech & Gadgets" 
+          <Product
+            title="Tech & Gadgets"
             categoryName="Electronics"
-            rowsCount={1} 
-            slidesPerView={4} 
+            rowsCount={1}
+            slidesPerView={4}
           />
         </LazySection>
       </div>
@@ -96,23 +86,23 @@ const Home = () => {
       {/* Beauty */}
       <div className="product-section mb-12">
         <LazySection>
-          <Product 
-            title="Beauty & Personal Care" 
+          <Product
+            title="Beauty & Personal Care"
             categoryName="Beauty_and_Personal_Care"
-            rowsCount={1} 
-            slidesPerView={5} 
+            rowsCount={1}
+            slidesPerView={5}
           />
         </LazySection>
       </div>
-      
+
       {/* Books */}
       <div className="product-section mb-12">
         <LazySection>
-          <Product 
-            title="Best Selling Books" 
+          <Product
+            title="Best Selling Books"
             categoryName="Books_and_Media"
-            rowsCount={1} 
-            slidesPerView={5} 
+            rowsCount={1}
+            slidesPerView={5}
           />
         </LazySection>
       </div>
@@ -120,11 +110,11 @@ const Home = () => {
       {/* Home */}
       <div className="product-section mb-12">
         <LazySection>
-          <Product 
-            title="Home & Kitchen Essentials" 
+          <Product
+            title="Home & Kitchen Essentials"
             categoryName="Home_and_Kitchen"
-            rowsCount={1} 
-            slidesPerView={4} 
+            rowsCount={1}
+            slidesPerView={4}
           />
         </LazySection>
       </div>
@@ -132,27 +122,27 @@ const Home = () => {
       {/* Groceries (Grid) */}
       <div className="product-section mb-12">
         <LazySection>
-          <Product 
-            title="Daily Groceries" 
+          <Product
+            title="Daily Groceries"
             categoryName="Groceries_and_Daily_Needs"
-            rowsCount={2} 
-            slidesPerView={5} 
+            rowsCount={2}
+            slidesPerView={5}
           />
         </LazySection>
       </div>
 
-       {/* Sports */}
-       <div className="product-section mb-12">
+      {/* Sports */}
+      <div className="product-section mb-12">
         <LazySection>
-          <Product 
-            title="Sports & Fitness" 
+          <Product
+            title="Sports & Fitness"
             categoryName="Sports_and_Fitness"
-            rowsCount={1} 
-            slidesPerView={4} 
+            rowsCount={1}
+            slidesPerView={4}
           />
         </LazySection>
       </div>
-      
+
       <div className="pb-10"></div>
     </div>
   );

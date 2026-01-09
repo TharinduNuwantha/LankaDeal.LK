@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 // IMPORT UPDATED: added 'query' and 'limit'
 import { collection, getDocs, query, limit } from 'firebase/firestore';
-import { db } from '../../FireBase/firebase'; 
+import { db } from '../../FireBase/firebase';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Grid, Pagination, Mousewheel, FreeMode, Navigation } from 'swiper/modules';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,10 +27,11 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 
 import './Styles/Product.css';
+import './Loader.css';
 
 const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = false }) => {
   const swiperRef = useRef(null);
-  
+
   // Redux & State
   const userData = useSelector(userSelecter);
   const dispatch = useDispatch();
@@ -65,14 +66,14 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
       try {
         setLoading(true);
         // Default to Electronics if no category provided
-        const targetCategory = categoryName || "Electronics"; 
+        const targetCategory = categoryName || "Electronics";
         const productsRef = collection(db, "category2", targetCategory, "products");
-        
+
         // --- PERFORMANCE FIX: Limit to 20 items ---
         // This stops the app from downloading thousands of items at once.
         const q = query(productsRef, limit(20));
         const querySnapshot = await getDocs(q);
-        
+
         let fetchedData = querySnapshot.docs.map(doc => {
           const data = doc.data();
           return {
@@ -96,7 +97,7 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
         }
 
         // --- INFINITE LOOP FIX: Safety Counter ---
-        const TARGET_MIN_ITEMS = 12; 
+        const TARGET_MIN_ITEMS = 12;
         let finalData = [...fetchedData];
 
         if (finalData.length > 0 && finalData.length < TARGET_MIN_ITEMS) {
@@ -111,7 +112,7 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
             safetyCounter++;
           }
         }
-        
+
         setProducts(finalData);
 
       } catch (error) {
@@ -153,13 +154,13 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
         else swiperRef.current.swiper.slidePrev();
       }
     };
-    
+
     // Create a safe CSS class name from the title
     const cleanTitle = title.replace(/[^a-zA-Z0-9]/g, '');
     const container = document.querySelector(`.premium-swiper-${cleanTitle}`);
-    
+
     if (container) container.addEventListener('wheel', handleWheel, { passive: false });
-    
+
     return () => {
       if (container) container.removeEventListener('wheel', handleWheel);
     };
@@ -169,8 +170,8 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
 
   const handleAddToCart = (product) => {
     if (!userData || !userData.uid) {
-        showNotification("Please login first to add items to cart!", "warning");
-        return;
+      showNotification("Please login first to add items to cart!", "warning");
+      return;
     }
     const productWithQuantity = { ...product, quantity: 1 };
     addToCart(userData.uid, productWithQuantity, userData.cart || [], dispatch);
@@ -181,17 +182,29 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
   const getSlidesPerView = () => Number(slidesPerView);
   const uniqueClassSuffix = title.replace(/[^a-zA-Z0-9]/g, '');
 
-  if (loading) return <div className="p-10 text-center text-gray-400">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="p-10 flex items-center justify-center" style={{ minHeight: '350px' }}>
+        <div style={{ width: '100px', height: '100px' }}>
+          {/* Small hack to pass text if needed, but the default is fine */}
+          <div className="premium-loader-container">
+            <div className="premium-loader-spinner"></div>
+            <div className="premium-loader-text" style={{ fontSize: '12px' }}>Fetching {title}...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (products.length === 0) return null;
 
   return (
     <section className="premium-product-section">
-      <Snackbar 
-        open={notification.open} 
-        autoHideDuration={3000} 
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={3000}
         onClose={handleCloseNotification}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        sx={{ zIndex: 9999 }} 
+        sx={{ zIndex: 9999 }}
       >
         <Alert onClose={handleCloseNotification} severity={notification.severity} variant="filled">
           {notification.message}
@@ -224,25 +237,25 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
               )}
             </div>
             <div className="section-tagline">
-              {isFlashSale 
-                ? 'Limited time offers with exclusive discounts.' 
+              {isFlashSale
+                ? 'Limited time offers with exclusive discounts.'
                 : `Discover premium products in ${categoryName}`
               }
             </div>
           </div>
-          
+
           <div className="nav-controls-premium">
             <div className="slider-status">
               <span className="current-slide">{activeIndex + 1}</span>
               <span className="total-slides">/{products.length}</span>
             </div>
-            <button 
+            <button
               className={`nav-btn-premium swiper-button-prev-custom-${uniqueClassSuffix}`}
               onClick={() => swiperRef.current?.swiper.slidePrev()}
             >
               <ArrowBackIosNewIcon sx={{ fontSize: 16 }} />
             </button>
-            <button 
+            <button
               className={`nav-btn-premium swiper-button-next-custom-${uniqueClassSuffix}`}
               onClick={() => swiperRef.current?.swiper.slideNext()}
             >
@@ -277,7 +290,7 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
         )}
 
         {/* Swiper Slider */}
-        <div 
+        <div
           className="premium-swiper-wrapper"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -308,7 +321,7 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
           >
             {products.map((product) => (
               <SwiperSlide key={product.id}>
-                <PremiumProductUnit 
+                <PremiumProductUnit
                   product={product}
                   wishlisted={wishlisted[product.id]}
                   inCart={cartItems[product.id]}
@@ -336,12 +349,12 @@ export default Product;
 
 // Sub-Component: Product Card
 const PremiumProductUnit = ({ product, wishlisted, inCart, onWishlistToggle, onAddToCart, isFlashSale }) => {
-  const { 
-   id, imageUrl, price, originalPrice, discount, title: productTitle, 
-   categoryPath, ratingNumeric, reviewCount, stockNumeric, features,
-   isFeatured, discountNumeric
+  const {
+    id, imageUrl, price, originalPrice, discount, title: productTitle,
+    categoryPath, ratingNumeric, reviewCount, stockNumeric, features,
+    isFeatured, discountNumeric
   } = product;
-  
+
   // Clean category path
   const displayCategory = categoryPath ? categoryPath.split('/')[1] : 'General';
   // Get real ID (remove clone suffix if present) for link
@@ -350,130 +363,130 @@ const PremiumProductUnit = ({ product, wishlisted, inCart, onWishlistToggle, onA
   return (
     // FIX: Absolute path (starts with /) to prevent URL stacking error
     <Link to={`/category/${displayCategory}/${realId}`} style={{ textDecoration: 'none' }}>
-    <div className="premium-product-card">
-      <div className="premium-badges">
-        <div className="premium-badge badge-new">NEW</div>
-        {isFeatured && <div className="premium-badge badge-featured">TOP</div>}
-        {discountNumeric > 5 && <div className="premium-badge badge-sale">-{discount}</div>}
-        {isFlashSale && <div className="premium-badge badge-flash">FLASH</div>}
-        {stockNumeric < 10 && stockNumeric > 0 && <div className="premium-badge badge-low">{stockNumeric} LEFT</div>}
-      </div>
+      <div className="premium-product-card">
+        <div className="premium-badges">
+          <div className="premium-badge badge-new">NEW</div>
+          {isFeatured && <div className="premium-badge badge-featured">TOP</div>}
+          {discountNumeric > 5 && <div className="premium-badge badge-sale">-{discount}</div>}
+          {isFlashSale && <div className="premium-badge badge-flash">FLASH</div>}
+          {stockNumeric < 10 && stockNumeric > 0 && <div className="premium-badge badge-low">{stockNumeric} LEFT</div>}
+        </div>
 
-      <div className="premium-quick-actions">
-        <button 
-          className="premium-action-btn wishlist-btn"
-          onClick={(e) => {
-            e.preventDefault(); // Stop Link navigation
-            e.stopPropagation();
-            onWishlistToggle();
-          }}
-          data-active={wishlisted}
-        >
-          {wishlisted ? <FavoriteIcon sx={{ fontSize: 18, color: '#dc2626' }} /> : <FavoriteBorderIcon sx={{ fontSize: 18 }} />}
-        </button>
-        <button 
+        <div className="premium-quick-actions">
+          <button
+            className="premium-action-btn wishlist-btn"
+            onClick={(e) => {
+              e.preventDefault(); // Stop Link navigation
+              e.stopPropagation();
+              onWishlistToggle();
+            }}
+            data-active={wishlisted}
+          >
+            {wishlisted ? <FavoriteIcon sx={{ fontSize: 18, color: '#dc2626' }} /> : <FavoriteBorderIcon sx={{ fontSize: 18 }} />}
+          </button>
+          <button
             className="premium-action-btn"
             onClick={(e) => {
-                e.preventDefault(); 
-                e.stopPropagation();
+              e.preventDefault();
+              e.stopPropagation();
             }}
-        >
+          >
             <VisibilityIcon sx={{ fontSize: 18 }} />
-        </button>
-      </div>
+          </button>
+        </div>
 
-      <div className="premium-image-container">
-        <img 
-          src={imageUrl} 
-          alt={productTitle} 
-          className="premium-product-image" 
-          loading="lazy"
-          onError={(e) => { e.target.src = 'https://placehold.co/600x600?text=No+Image'; }}
-        />
-        {isFlashSale && (
-          <div className="flash-overlay">
-            <div className="flash-text"><FlashOnIcon sx={{ fontSize: 14 }} /> FLASH SALE</div>
-          </div>
-        )}
-      </div>
-
-      <div className="premium-product-info">
-        <div className="premium-product-meta">
-          <div className="premium-product-category">
-            <span className="category-badge">{displayCategory}</span>
-            <span className="delivery-badge">
-              <LocalShippingIcon sx={{ fontSize: 12 }} /> 
-              {product.fastDelivery ? 'Fast' : 'Standard'}
-            </span>
-          </div>
-          
-          <h3 className="premium-product-title">{productTitle}</h3>
-          
-          <div className="premium-rating-container">
-            <div className="premium-stars">
-              {[...Array(5)].map((_, i) => (
-                i < Math.floor(ratingNumeric) ? 
-                  <StarIcon key={i} className="star-filled" sx={{ fontSize: 14 }} /> : 
-                  <StarBorderIcon key={i} className="star-empty" sx={{ fontSize: 14 }} />
-              ))}
-              <span className="rating-text">{ratingNumeric || '5.0'}</span>
-            </div>
-            <div className="premium-sold-count">
-              <span className="sold-icon">💬</span> {reviewCount || 0} reviews
-            </div>
-          </div>
-
-          <div className="premium-features-mobile">
-            {features && features.slice(0, 2).map((feature, index) => (
-              <div key={index} className="premium-feature">
-                <CheckCircleIcon sx={{ fontSize: 12, color: '#10b981' }} />
-                <span>{feature}</span>
-              </div>
-            ))}
-          </div>
-          
-          <div className="premium-price-section">
-            <div className="price-content">
-              <div className="premium-prices">
-                <span className="premium-price">Rs.{price}</span>
-                <span className="premium-original-price">Rs.{originalPrice}</span>
-              </div>
-              <div className="savings-badge">
-                  Save Rs.{ (product.originalPriceNumeric - product.priceNumeric).toLocaleString() }
-              </div>
-            </div>
-            <div className="premium-discount-badge">-{discount} OFF</div>
-          </div>
-
-          {stockNumeric > 0 && stockNumeric < 20 && (
-            <div className="stock-indicator">
-              <div className="stock-info">
-                <div className="stock-text">Only {stockNumeric} left!</div>
-                <div className="stock-percentage">{(stockNumeric / 50 * 100).toFixed(0)}%</div>
-              </div>
-              <div className="stock-bar">
-                <div className="stock-fill" style={{ width: `${Math.min((stockNumeric / 50) * 100, 100)}%` }}></div>
-              </div>
+        <div className="premium-image-container">
+          <img
+            src={imageUrl}
+            alt={productTitle}
+            className="premium-product-image"
+            loading="lazy"
+            onError={(e) => { e.target.src = 'https://placehold.co/600x600?text=No+Image'; }}
+          />
+          {isFlashSale && (
+            <div className="flash-overlay">
+              <div className="flash-text"><FlashOnIcon sx={{ fontSize: 14 }} /> FLASH SALE</div>
             </div>
           )}
+        </div>
 
-          <div className="premium-action-buttons">
-            <button 
-              className={`premium-cart-btn ${inCart ? 'in-cart' : ''}`}
-              onClick={(e) => {
-                  e.preventDefault(); 
+        <div className="premium-product-info">
+          <div className="premium-product-meta">
+            <div className="premium-product-category">
+              <span className="category-badge">{displayCategory}</span>
+              <span className="delivery-badge">
+                <LocalShippingIcon sx={{ fontSize: 12 }} />
+                {product.fastDelivery ? 'Fast' : 'Standard'}
+              </span>
+            </div>
+
+            <h3 className="premium-product-title">{productTitle}</h3>
+
+            <div className="premium-rating-container">
+              <div className="premium-stars">
+                {[...Array(5)].map((_, i) => (
+                  i < Math.floor(ratingNumeric) ?
+                    <StarIcon key={i} className="star-filled" sx={{ fontSize: 14 }} /> :
+                    <StarBorderIcon key={i} className="star-empty" sx={{ fontSize: 14 }} />
+                ))}
+                <span className="rating-text">{ratingNumeric || '5.0'}</span>
+              </div>
+              <div className="premium-sold-count">
+                <span className="sold-icon">💬</span> {reviewCount || 0} reviews
+              </div>
+            </div>
+
+            <div className="premium-features-mobile">
+              {features && features.slice(0, 2).map((feature, index) => (
+                <div key={index} className="premium-feature">
+                  <CheckCircleIcon sx={{ fontSize: 12, color: '#10b981' }} />
+                  <span>{feature}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="premium-price-section">
+              <div className="price-content">
+                <div className="premium-prices">
+                  <span className="premium-price">Rs.{price}</span>
+                  <span className="premium-original-price">Rs.{originalPrice}</span>
+                </div>
+                <div className="savings-badge">
+                  Save Rs.{(product.originalPriceNumeric - product.priceNumeric).toLocaleString()}
+                </div>
+              </div>
+              <div className="premium-discount-badge">-{discount} OFF</div>
+            </div>
+
+            {stockNumeric > 0 && stockNumeric < 20 && (
+              <div className="stock-indicator">
+                <div className="stock-info">
+                  <div className="stock-text">Only {stockNumeric} left!</div>
+                  <div className="stock-percentage">{(stockNumeric / 50 * 100).toFixed(0)}%</div>
+                </div>
+                <div className="stock-bar">
+                  <div className="stock-fill" style={{ width: `${Math.min((stockNumeric / 50) * 100, 100)}%` }}></div>
+                </div>
+              </div>
+            )}
+
+            <div className="premium-action-buttons">
+              <button
+                className={`premium-cart-btn ${inCart ? 'in-cart' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   onAddToCart();
-              }}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              <ShoppingCartIcon sx={{ fontSize: 18 }} />
-              <span className="btn-text">{inCart ? 'Added' : 'Add to Cart'}</span>
-            </button>
+                }}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                <ShoppingCartIcon sx={{ fontSize: 18 }} />
+                <span className="btn-text">{inCart ? 'Added' : 'Add to Cart'}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </Link>
   );
 };

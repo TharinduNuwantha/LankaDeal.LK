@@ -1,19 +1,26 @@
-import React from 'react'
+import React from 'react';
 import './loarding.css';
+
 const Loarding = () => {
   return (
-    <div className='relative top-0 left-0 w-screen h-screen flex items-center justify-center bg-white z-[101]'>
-        <div class="spinner">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        </div>
+    <div className='full-page-loader'>
+      <div className="premium-logo-loader">
+        <div className="logo-circle"></div>
+        <div className="logo-inner-circle"></div>
+      </div>
 
+      <div className="loading-brand">
+        Lanka<span>Deal</span>
+      </div>
 
+      <div className="loading-status">
+        Preparing your experience
+        <span className="dot-pulse">.</span>
+        <span className="dot-pulse">.</span>
+        <span className="dot-pulse">.</span>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Loarding
+export default Loarding;

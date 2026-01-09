@@ -1,51 +1,109 @@
-.spinner {
-   position: relative;
-   width: 33.6px;
-   height: 33.6px;
-   perspective: 67.2px;
+/* loarding.css */
+.full-page-loader {
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100vw;
+   height: 100vh;
+   background: #ffffff;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   z-index: 9999;
 }
 
-.spinner div {
+.premium-logo-loader {
+   position: relative;
+   width: 80px;
+   height: 80px;
+   margin-bottom: 24px;
+}
+
+.logo-circle {
+   position: absolute;
    width: 100%;
    height: 100%;
-   background: #dc2626;
+   border: 4px solid #f3f4f6;
+   border-top: 4px solid #dc2626;
+   border-radius: 50%;
+   animation: rotate 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.logo-inner-circle {
    position: absolute;
-   left: 50%;
-   transform-origin: left;
-   animation: spinner-16s03x 2s infinite;
+   top: 15%;
+   left: 15%;
+   width: 70%;
+   height: 70%;
+   border: 4px solid #f3f4f6;
+   border-bottom: 4px solid #dc2626;
+   border-radius: 50%;
+   animation: rotate-reverse 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
 
-.spinner div:nth-child(1) {
-   animation-delay: 0.15s;
+.loading-brand {
+   font-size: 24px;
+   font-weight: 800;
+   color: #111827;
+   letter-spacing: -0.5px;
+   margin-bottom: 8px;
 }
 
-.spinner div:nth-child(2) {
-   animation-delay: 0.3s;
+.loading-brand span {
+   color: #dc2626;
 }
 
-.spinner div:nth-child(3) {
-   animation-delay: 0.45s;
+.loading-status {
+   font-size: 14px;
+   color: #6b7280;
+   font-weight: 500;
+   display: flex;
+   align-items: center;
+   gap: 4px;
 }
 
-.spinner div:nth-child(4) {
-   animation-delay: 0.6s;
+.dot-pulse {
+   display: inline-block;
+   animation: pulse 1.5s infinite;
 }
 
-.spinner div:nth-child(5) {
-   animation-delay: 0.75s;
+.dot-pulse:nth-child(2) {
+   animation-delay: 0.2s;
 }
 
-@keyframes spinner-16s03x {
-   0% {
-      transform: rotateY(0deg);
+.dot-pulse:nth-child(3) {
+   animation-delay: 0.4s;
+}
+
+@keyframes rotate {
+   from {
+      transform: rotate(0deg);
    }
 
-   50%, 80% {
-      transform: rotateY(-180deg);
+   to {
+      transform: rotate(360deg);
+   }
+}
+
+@keyframes rotate-reverse {
+   from {
+      transform: rotate(360deg);
    }
 
-   90%, 100% {
+   to {
+      transform: rotate(0deg);
+   }
+}
+
+@keyframes pulse {
+
+   0%,
+   100% {
       opacity: 0;
-      transform: rotateY(-180deg);
+   }
+
+   50% {
+      opacity: 1;
    }
 }
