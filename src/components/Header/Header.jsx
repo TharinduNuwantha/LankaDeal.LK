@@ -18,7 +18,7 @@ import Badge from '@mui/material/Badge';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { userSelecter } from '../../Store/ReduxSlice/userClise';
+import { userSelecter, wishlistSelecter } from '../../Store/ReduxSlice/userClise';
 
 // --- NEW ICONS FOR CATEGORIES ---
 import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural'; // Beauty
@@ -40,6 +40,9 @@ const Header = ({ paymentModelRef }) => {
     return total + (Number(item.price) * item.quantity);
   }, 0) || 0;
 
+  const wishlist = useSelector(wishlistSelecter);
+  const wishlistLength = wishlist?.length || 0;
+
   const CartPrice = totalAmount.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
@@ -51,9 +54,9 @@ const Header = ({ paymentModelRef }) => {
   const [searchQuery, setSearchQuery] = useState('');
   // State for Category Hover
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  
+
   const navigate = useNavigate();
-  
+
   const handleSearch = () => {
     if (searchQuery.trim() !== "") {
       navigate(`/search?=${encodeURIComponent(searchQuery)}`);
@@ -62,14 +65,14 @@ const Header = ({ paymentModelRef }) => {
 
   // --- CATEGORY DATA DEFINITION ---
   const categories = [
-    { name: "Beauty & Personal Care", slug: "Beauty_and_Personal_Care", icon: <FaceRetouchingNaturalIcon fontSize="small"/> },
-    { name: "Books & Media", slug: "Books_and_Media", icon: <MenuBookIcon fontSize="small"/> },
-    { name: "Electronics", slug: "Electronics", icon: <DevicesIcon fontSize="small"/> },
-    { name: "Fashion & Clothing", slug: "Fashion_and_Clothing", icon: <CheckroomIcon fontSize="small"/> },
-    { name: "Groceries & Daily Needs", slug: "Groceries_and_Daily_Needs", icon: <LocalGroceryStoreIcon fontSize="small"/> },
-    { name: "Health & Wellness", slug: "Health_and_Wellness", icon: <HealthAndSafetyIcon fontSize="small"/> },
-    { name: "Home & Kitchen", slug: "Home_and_Kitchen", icon: <KitchenIcon fontSize="small"/> },
-    { name: "Sports & Fitness", slug: "Sports_and_Fitness", icon: <FitnessCenterIcon fontSize="small"/> },
+    { name: "Beauty & Personal Care", slug: "Beauty_and_Personal_Care", icon: <FaceRetouchingNaturalIcon fontSize="small" /> },
+    { name: "Books & Media", slug: "Books_and_Media", icon: <MenuBookIcon fontSize="small" /> },
+    { name: "Electronics", slug: "Electronics", icon: <DevicesIcon fontSize="small" /> },
+    { name: "Fashion & Clothing", slug: "Fashion_and_Clothing", icon: <CheckroomIcon fontSize="small" /> },
+    { name: "Groceries & Daily Needs", slug: "Groceries_and_Daily_Needs", icon: <LocalGroceryStoreIcon fontSize="small" /> },
+    { name: "Health & Wellness", slug: "Health_and_Wellness", icon: <HealthAndSafetyIcon fontSize="small" /> },
+    { name: "Home & Kitchen", slug: "Home_and_Kitchen", icon: <KitchenIcon fontSize="small" /> },
+    { name: "Sports & Fitness", slug: "Sports_and_Fitness", icon: <FitnessCenterIcon fontSize="small" /> },
   ];
 
   return (
@@ -238,20 +241,22 @@ const Header = ({ paymentModelRef }) => {
                 </button>
 
                 {/* Wishlist - Show only on xl+ */}
-                <button className="hidden xl:flex flex-col items-center text-white hover:text-yellow-200 transition relative">
-                  <Badge badgeContent={0} color="error" sx={{
-                    '& .MuiBadge-badge': {
-                      backgroundColor: '#ef4444',
-                      color: 'white',
-                      fontSize: '0.7rem'
-                    }
-                  }}>
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                      <FavoriteBorderIcon sx={{ fontSize: 20, color: 'white' }} />
-                    </div>
-                  </Badge>
-                  <span className="text-xs mt-1 font-medium">Wishlist</span>
-                </button>
+                <Link to={'/profile/wishlist'}>
+                  <button className="hidden xl:flex flex-col items-center text-white hover:text-yellow-200 transition relative">
+                    <Badge badgeContent={wishlistLength} color="error" sx={{
+                      '& .MuiBadge-badge': {
+                        backgroundColor: '#ef4444',
+                        color: 'white',
+                        fontSize: '0.7rem'
+                      }
+                    }}>
+                      <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                        <FavoriteBorderIcon sx={{ fontSize: 20, color: 'white' }} />
+                      </div>
+                    </Badge>
+                    <span className="text-xs mt-1 font-medium">Wishlist</span>
+                  </button>
+                </Link>
               </div>
 
               {/* Mobile Cart Button */}
@@ -295,9 +300,9 @@ const Header = ({ paymentModelRef }) => {
 
           {/* Desktop Navigation Bar - Responsive adjustments */}
           <div className="hidden lg:flex items-center justify-between py-2 border-t border-red-500 relative">
-            
+
             {/* -------------------- UPDATED HOVER CATEGORY MENU -------------------- */}
-            <div 
+            <div
               className="relative"
               onMouseEnter={() => setIsCategoryOpen(true)}
               onMouseLeave={() => setIsCategoryOpen(false)}
@@ -314,10 +319,10 @@ const Header = ({ paymentModelRef }) => {
                 <div className="absolute top-full left-0 mt-2 w-[280px] bg-white rounded-xl shadow-2xl z-50 border border-gray-100 animate-fadeIn overflow-hidden">
                   {/* Small arrow pointing up */}
                   <div className="absolute -top-1.5 left-8 w-3 h-3 bg-white transform rotate-45 border-l border-t border-gray-100"></div>
-                  
+
                   <div className="py-2">
                     {categories.map((cat, index) => (
-                      <Link 
+                      <Link
                         key={index}
                         to={`/category/${cat.slug}`}
                         className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors group border-b border-gray-50 last:border-0"

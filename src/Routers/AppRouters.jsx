@@ -17,93 +17,98 @@ import AddProduct from '../Pages/Admin/Products/Create Products/CreateAddProduct
 import SearchPage from '../Pages/SearchPage/SearchPage'
 import CheackOut from '../Pages/CheackOut/CheackOut'
 import OrdersPage from '../Pages/OrdersPage/OrdersPage'
+import WishlistPage from '../Pages/Wishlist/WishlistPage'
 
 
 
 const router = createBrowserRouter([
   {
-    path:'/',
-    element:<MainLayout/>,
-    children:[
+    path: '/',
+    element: <MainLayout />,
+    children: [
       {
-        index:true,
-        element:<Home/>
+        index: true,
+        element: <Home />
       },
-            {
-              path: 'category',
-              children: [
-                {
-                  index: true,
-                  element: <Category />
-                },
-                {
-                  path: ':categoryId',
-                  children:[
-                    {
-                      index:true, 
-                      element: <CategoryItem />
-                    },
-                    {
-                      path:':id',
-                      element:<ItemPage/>
-                    }
-                  ]
-                },
-              ]
-            },
       {
-        element:<UserProtected/>,
-        children:[
+        path: 'category',
+        children: [
           {
-            path:'profile',
-            children:[
+            index: true,
+            element: <Category />
+          },
+          {
+            path: ':categoryId',
+            children: [
               {
-                index:true,
-                element:<User/>,
-              },{
-                path:'edit',
-                element:<EditUserData/>
+                index: true,
+                element: <CategoryItem />
+              },
+              {
+                path: ':id',
+                element: <ItemPage />
+              }
+            ]
+          },
+        ]
+      },
+      {
+        element: <UserProtected />,
+        children: [
+          {
+            path: 'profile',
+            children: [
+              {
+                index: true,
+                element: <User />,
+              }, {
+                path: 'edit',
+                element: <EditUserData />
+              },
+              {
+                path: 'wishlist',
+                element: <WishlistPage />
               }
             ]
           }
         ]
       },
       {
-        path:'search',
-        element:<SearchPage/>
+        path: 'search',
+        element: <SearchPage />
       },
       {
-          path:'checkouts',
-          element:<CheackOut/>
+        path: 'checkouts',
+        element: <CheackOut />
       },
       {
-          path:'Orders',
-          element:<OrdersPage/>
+        path: 'Orders',
+        element: <OrdersPage />
       }
     ]
   },
-        {
-        path:'*',
-        element:<UrlNotFound/>
-      },
   {
-    path:'/login',
-    element:<Login/>
+    path: '*',
+    element: <UrlNotFound />
+  },
+  {
+    path: '/login',
+    element: <Login />
   },
 
 
-{
-  path: "/admin",
-  element: <AdminProtected />,
-  children: [
-    { index: true, element: <Admin /> },
-    { path: "createproduct", element: <AddProduct /> }
-  ]
-}
+  {
+    path: "/admin",
+    element: <AdminProtected />,
+    children: [
+      { index: true, element: <Admin /> },
+      { path: "createproduct", element: <AddProduct /> }
+    ]
+  }
 ])
 
 const AppRouters = () => {
-  return <RouterProvider router={router}/>
+  return <RouterProvider router={router} />
 }
 
 export default AppRouters

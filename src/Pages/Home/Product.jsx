@@ -6,8 +6,9 @@ import { db } from '../../FireBase/firebase';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Grid, Pagination, Mousewheel, FreeMode, Navigation } from 'swiper/modules';
 import { useDispatch, useSelector } from 'react-redux';
-import { userSelecter } from '../../Store/ReduxSlice/userClise';
+import { userSelecter, wishlistSelecter } from '../../Store/ReduxSlice/userClise';
 import { addToCart } from '../../utils/AddToCart/addToCart';
+import { toggleWishlist } from '../../utils/Wishlist/toggleWishlist';
 import { Snackbar, Alert } from '@mui/material';
 import { Link } from 'react-router-dom';
 
@@ -40,7 +41,8 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [wishlisted, setWishlisted] = useState({});
+
+  const currentWishlist = useSelector(wishlistSelecter);
   const [cartItems, setCartItems] = useState({});
   const [timer, setTimer] = useState({ hours: 2, minutes: 45, seconds: 18 });
 
@@ -177,6 +179,27 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
     addToCart(userData.uid, productWithQuantity, userData.cart || [], dispatch);
     showNotification(`Added ${product.title} to cart!`, "success");
     setCartItems(prev => ({ ...prev, [product.id]: true }));
+  };
+
+  const handleWishlistToggle = async (product) => {
+    if (!userData || !userData.uid) {
+      showNotification("Please login first to add items to wishlist!", "warning");
+      return;
+    }
+
+    try {
+      const isAdded = await toggleWishlist(userData.uid, product, currentWishlist, dispatch);
+      showNotification(
+        isAdded ? `Added ${product.title} to wishlist!` : `Removed ${product.title} from wishlist!`,
+        "success"
+      );
+    } catch (error) {
+      if (error.message === "LoginRequired") {
+        showNotification("Please login first!", "warning");
+      } else {
+        showNotification("Something went wrong. Please try again.", "error");
+      }
+    }
   };
 
   const getSlidesPerView = () => Number(slidesPerView);
@@ -323,10 +346,10 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
               <SwiperSlide key={product.id}>
                 <PremiumProductUnit
                   product={product}
-                  wishlisted={wishlisted[product.id]}
                   inCart={cartItems[product.id]}
-                  onWishlistToggle={() => setWishlisted(prev => ({ ...prev, [product.id]: !prev[product.id] }))}
                   onAddToCart={() => handleAddToCart(product)}
+                  onWishlistToggle={() => handleWishlistToggle(product)}
+                  isWishlisted={currentWishlist?.some(item => item.id === product.id)}
                   isFlashSale={isFlashSale}
                 />
               </SwiperSlide>
@@ -348,7 +371,7 @@ const Product = ({ title, categoryName, rowsCount, slidesPerView, isFlashSale = 
 export default Product;
 
 // Sub-Component: Product Card
-const PremiumProductUnit = ({ product, wishlisted, inCart, onWishlistToggle, onAddToCart, isFlashSale }) => {
+const PremiumProductUnit = ({ product, isWishlisted, inCart, onWishlistToggle, onAddToCart, isFlashSale }) => {
   const {
     id, imageUrl, price, originalPrice, discount, title: productTitle,
     categoryPath, ratingNumeric, reviewCount, stockNumeric, features,
@@ -380,9 +403,9 @@ const PremiumProductUnit = ({ product, wishlisted, inCart, onWishlistToggle, onA
               e.stopPropagation();
               onWishlistToggle();
             }}
-            data-active={wishlisted}
+            data-active={isWishlisted}
           >
-            {wishlisted ? <FavoriteIcon sx={{ fontSize: 18, color: '#dc2626' }} /> : <FavoriteBorderIcon sx={{ fontSize: 18 }} />}
+            {isWishlisted ? <FavoriteIcon sx={{ fontSize: 18, color: '#dc2626' }} /> : <FavoriteBorderIcon sx={{ fontSize: 18 }} />}
           </button>
           <button
             className="premium-action-btn"

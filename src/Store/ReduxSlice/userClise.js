@@ -3,7 +3,8 @@ import { createSelector, createSlice } from "@reduxjs/toolkit";
 const initialState = {
     user: {
         name: "default",
-        cart: []
+        cart: [],
+        wishlist: []
     },
     isLoading: true
 };
@@ -25,7 +26,7 @@ const userSlice = createSlice({
                 const existingIndex = state.user.cart.findIndex(
                     item => item.id === action.payload.id
                 );
-                
+
                 if (existingIndex > -1) {
                     // Update quantity if item exists
                     state.user.cart[existingIndex].quantity += 1;
@@ -46,7 +47,7 @@ const userSlice = createSlice({
             if (state.user && state.user.cart) {
                 const { id, quantity } = action.payload;
                 const itemIndex = state.user.cart.findIndex(item => item.id === id);
-                
+
                 if (itemIndex > -1) {
                     state.user.cart[itemIndex].quantity = quantity;
                 }
@@ -56,17 +57,33 @@ const userSlice = createSlice({
             if (state.user) {
                 state.user.cart = [];
             }
+        },
+        addToWishlist: (state, action) => {
+            if (state.user) {
+                if (!state.user.wishlist) state.user.wishlist = [];
+                const exists = state.user.wishlist.some(item => item.id === action.payload.id);
+                if (!exists) {
+                    state.user.wishlist.push(action.payload);
+                }
+            }
+        },
+        removeFromWishlist: (state, action) => {
+            if (state.user && state.user.wishlist) {
+                state.user.wishlist = state.user.wishlist.filter(item => item.id !== action.payload);
+            }
         }
     }
 });
 
-export const { 
-    addUser, 
-    removeUser, 
-    addToCart, 
-    removeFromCart, 
-    updateQuantity, 
-    clearCart 
+export const {
+    addUser,
+    removeUser,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    addToWishlist,
+    removeFromWishlist
 } = userSlice.actions;
 
 export const userSelecter = createSelector(
@@ -77,6 +94,11 @@ export const userSelecter = createSelector(
 export const isLoadingSelector = createSelector(
     [(store) => store.user.isLoading],
     (isLoading) => isLoading
+);
+
+export const wishlistSelecter = createSelector(
+    [(store) => store.user.user?.wishlist || []],
+    (wishlist) => wishlist
 );
 
 export default userSlice.reducer;
