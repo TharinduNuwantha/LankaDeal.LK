@@ -3,8 +3,8 @@ import './App.css';
 
 import AppRouters from './Routers/AppRouters';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './FireBase/firebase';
-import getDataDocument from './utils/dataFetch/getDataDocument';
+import { onSnapshot, doc } from 'firebase/firestore';
+import { auth, db } from './FireBase/firebase';
 import { useDispatch, useSelector } from 'react-redux';
 import { addUser, removeUser, userSelecter, isLoadingSelector } from './Store/ReduxSlice/userClise';
 
@@ -19,37 +19,49 @@ export const useAuth = () => {
 function App() {
   const dispatch = useDispatch();
   const userData = useSelector(userSelecter);
-  
+
   // 3. State to hold the userId locally for the Context
   const [userId, setUserId] = useState(null);
 
   console.log(userData);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    let unsubscribeDoc = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
         const uid = user.uid;
-        console.log("user kenek indoooo", user);
-        
-        // 4. Save uid to Context state
+        console.log("user logged in:", user);
+
         setUserId(uid);
 
-        // Existing Redux logic
-        getDataDocument('users', uid, (dataset) => {
-          dispatch(addUser(dataset));
+        // Start listening to user document in real-time
+        const docRef = doc(db, 'users', uid);
+        unsubscribeDoc = onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            dispatch(addUser(docSnap.data()));
+          }
+        }, (error) => {
+          console.error("Error listening to user doc:", error);
         });
+
       } else {
         console.log("no user");
-        
-        // 5. Clear uid from Context state
         setUserId(null);
-
-        // Existing Redux logic
         dispatch(removeUser({ name: "no-user" }));
+
+        // Clean up doc listener when user logs out
+        if (unsubscribeDoc) {
+          unsubscribeDoc();
+          unsubscribeDoc = null;
+        }
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeDoc) unsubscribeDoc();
+    };
   }, [dispatch]);
 
   return (
@@ -58,9 +70,9 @@ function App() {
       <div>
         <AppRouters />
       </div>
-   
+
     </AuthContext.Provider>
-    
+
   );
 }
 
